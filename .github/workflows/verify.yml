@@ -77,13 +77,23 @@ jobs:
         run: |
           cd rastro
           python -m unittest discover -s tests -v
+      - name: Preparar o navegador de testes
+        timeout-minutes: 5
+        run: |
+          (cd tests && npm ci --ignore-scripts)
+          # Reuse the runner browser to avoid an unrelated apt mirror blocking the test suite.
+          browser=$(command -v google-chrome || command -v google-chrome-stable || true)
+          if [ -n "$browser" ]; then
+            "$browser" --version
+            echo "CHROMIUM_PATH=$browser" >> "$GITHUB_ENV"
+          else
+            (cd tests && npx playwright install --only-shell chromium)
+          fi
       - name: Exercitar fluxos no Chromium
         env:
           RASTRO_DATABASE_URL: host=127.0.0.1 port=5432 dbname=portfolio_test user=portfolio
           PGPASSWORD: local-ci-only
-        run: |
-          (cd tests && npm ci --ignore-scripts && npx playwright install --with-deps chromium)
-          bash tests/run-local.sh
+        run: bash tests/run-local.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with: { name: farol-evaluations, path: portfolio/.artifacts/farol-*.json, if-no-files-found: ignore }

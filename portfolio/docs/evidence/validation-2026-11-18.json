@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-11-18",
-  "scope": "Local verification of four portfolio applications with synthetic data",
+  "scope": "Local and remote verification of four portfolio applications with synthetic data",
   "environment": {
     "host": "Windows",
     "services": "Linux SDK containers with limited resources",
@@ -42,11 +42,54 @@
       {"file": "rastro.mp4", "captions": ["por"], "sha256": "83bb656e80efcbfdf169eb7b1f44b0d655b6687345200c588a0ca17edc0c4905"}
     ]
   },
-  "not_repeated_locally": [
-    "Flutter analysis, tests and web build",
-    "Final product Docker image builds and Compose automation profile",
-    "FastAPI to n8n to Inbox integrated delivery",
-    "SQL Server integration",
+  "remote_validation": {
+    "code_commit": "68390a6079c67f27cb42f8c38f62f049801d4db9",
+    "branch": "portfolio-dados-e-curriculo",
+    "checks": [
+      {
+        "suite": "Flutter field app",
+        "flutter_version": "3.50.0",
+        "analysis": "No issues found",
+        "passed": 4,
+        "failed": 0,
+        "web_build": "success",
+        "run_id": 44409690456,
+        "job_id": 135174196327,
+        "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690456/job/135174196327"
+      },
+      {
+        "suite": "Lastro SQL Server",
+        "database": "SQL Server Express LocalDB",
+        "server_version": "15.0.4382.1",
+        "passed": 10,
+        "failed": 0,
+        "run_id": 44409690985,
+        "job_id": 135174195055,
+        "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690985/job/135174195055"
+      },
+      {
+        "suite": "Product images, Compose and real review automation",
+        "conclusion": "success",
+        "images_built": ["doca", "portaria", "lastro", "farol", "rastro", "inbox"],
+        "applications_exercised": 4,
+        "postgresql": "real",
+        "blazor_audit": "verified",
+        "review_path": "FastAPI -> n8n -> Inbox .NET",
+        "delivery": "confirmed",
+        "replays": 2,
+        "inbox_events_after_replays": 1,
+        "session_isolation": "verified",
+        "workflow_and_inbox_missing_or_invalid_credentials": "rejected",
+        "run_id": 44409690456,
+        "job_id": 135174196928,
+        "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690456/job/135174196928"
+      }
+    ]
+  },
+  "remote_checks_pending_confirmation": [
+    "Full integration job"
+  ],
+  "historical_not_repeated": [
     "Qwen HTTPX and LangChain evaluation",
     "Rastro historical PostgreSQL 16.2 query plan benchmark"
   ],

@@ -1,8 +1,8 @@
 # Evidências de execução
 
-Revisão de **18 de novembro de 2026**, com dados sintéticos e bases dedicadas. Os resultados desta seção foram medidos novamente no computador de desenvolvimento: serviços Java 21, .NET 10 e Python 3.12 em contêineres Linux, PostgreSQL real e navegador Chromium. Os testes foram executados com recursos limitados e um trabalhador de navegador.
+Revisão de **18 de novembro de 2026**, com dados sintéticos e bases dedicadas. A execução local usou serviços Java 21, .NET 10 e Python 3.12 em contêineres Linux, PostgreSQL real e navegador Chromium, com recursos limitados e um trabalhador de navegador. A seção de validação remota identifica separadamente o commit e as execuções do GitHub Actions.
 
-## Resultados desta revisão
+## Resultados locais desta revisão
 
 | Verificação | Resultado medido | Reprodução e escopo |
 | --- | --- | --- |
@@ -25,15 +25,23 @@ A suíte usa **1280 × 840** como tamanho padrão e exercita os quatro aplicativ
 
 A apresentação dos projetos foi inspecionada no navegador em desktop e 320 px. Os links dos dois currículos, a seleção do projeto pelo teclado e a transcrição expansível foram conferidos. Essa amostra não cobre todas as combinações de navegador, dispositivo ou tecnologia assistiva.
 
-## Evidências históricas e validações separadas
+## Validação remota do código
+
+Os resultados abaixo foram confirmados no commit [`68390a6079c67f27cb42f8c38f62f049801d4db9`](https://github.com/Victor-F-M-A-R/Curriculo/commit/68390a6079c67f27cb42f8c38f62f049801d4db9), na branch `portfolio-dados-e-curriculo`.
+
+| Verificação | Resultado medido | Execução |
+| --- | --- | --- |
+| Flutter 3.50.0 · aplicativo de campo | **Análise sem problemas, 4 testes aprovados e build web concluído** | [Job do aplicativo de campo](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690456/job/135174196327). Executado remotamente; não houve nova execução local de Flutter. |
+| Lastro · SQL Server 15.0.4382.1 | **10 testes aprovados** contra SQL Server Express LocalDB real | [Job de persistência](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690985/job/135174195055). Transações, rollback, replay, valores e auditoria exercitados no provedor SQL Server. |
+| Imagens finais e Docker Compose | **6 imagens compiladas e operações dos quatro produtos confirmadas** | [Job de contêineres](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690456/job/135174196928). Imagens Doca, Portaria, Lastro, Farol, Rastro e Inbox; conjunto Compose iniciado com PostgreSQL e perfil de automação. |
+| FastAPI → n8n → Inbox .NET | **Entrega real confirmada, 1 evento persistido após dois reenvios, autenticação e isolamento aprovados** | Mesmo [job de contêineres](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690456/job/135174196928), via `python tests/compose_verify.py`. Workflow e Inbox rejeitaram credenciais ausentes ou inválidas; outra sessão não acessou a consulta. |
+
+## Evidências históricas e verificações restantes
 
 | Item | Situação nesta revisão |
 | --- | --- |
 | Qwen local e adaptadores HTTPX/LangChain | **Ensaio histórico preservado, sem nova execução do modelo.** [Configuração, respostas e limitações](modelo.md). As métricas atuais acima pertencem exclusivamente ao modo extrativo. |
-| Flutter | O registro anterior documenta 3 testes, análise estática e build web. **Não houve nova execução local nesta revisão.** A validação remota da branch será conferida no GitHub Actions; o resultado deve ser associado ao commit verificado. |
-| FastAPI → n8n → Inbox .NET | O registro anterior documenta entrega, replay e rejeição de chamadas sem credencial. A API Inbox foi compilada novamente nesta sessão. A nova execução integrada do workflow permanece uma verificação separada. |
-| Imagens dos produtos e Docker Compose | Os testes locais usaram contêineres de SDK e aplicações compiladas. Isso não comprova por si só o build das imagens finais nem a inicialização do conjunto Compose. O job remoto de contêineres verificará também o perfil de automação; o resultado ainda precisa ser conferido para esta branch. |
-| SQL Server | A compilação do adaptador está confirmada localmente. A nova execução contra SQL Server real pertence ao [workflow dedicado](https://github.com/Victor-F-M-A-R/Curriculo/actions/workflows/sql-server.yml), cujo resultado ainda precisa ser conferido para esta branch. |
+| Job remoto de integração geral | O resultado completo, incluindo os cenários no navegador do runner, ainda aguarda confirmação. Os 14 cenários locais já estão confirmados na tabela inicial. |
 | Plano de consulta Rastro | A [captura em PostgreSQL 16.2](../rastro/evidence/explain-pg16.txt) é anterior a esta revisão e usa 60.000 eventos sintéticos. Os tempos não foram medidos novamente nesta sessão. |
 
 [Consultar as execuções do GitHub Actions](https://github.com/Victor-F-M-A-R/Curriculo/actions/workflows/verify.yml). Uma configuração de workflow ou uma execução anterior aprovada não substitui o resultado do commit publicado.
@@ -42,7 +50,7 @@ A apresentação dos projetos foi inspecionada no navegador em desktop e 320 px.
 
 Os testes utilizam bibliotecas reais, processos HTTP, persistência e navegador. OIDC foi exercitado com identidades de teste, sem a troca completa com um provedor corporativo. Flutter Web não demonstra biometria nem desempenho em um aparelho físico.
 
-Os adaptadores SQL Server e Azure Cosmos DB foram compilados, mas a conexão com instâncias reais desses serviços não integra os resultados locais acima. Deploy AWS, carga sustentada, recuperação de backup e operação em produção também não foram verificados nesta sessão. Os dados de todos os projetos são fictícios; os resultados do Farol se restringem ao acervo e às perguntas publicados.
+SQL Server foi verificado no ambiente remoto descrito acima. O adaptador Azure Cosmos DB foi compilado, mas sua integração com uma instância real não foi executada. Deploy AWS, carga sustentada, recuperação de backup e operação em produção também não foram verificados nesta sessão. Os dados de todos os projetos são fictícios; os resultados do Farol se restringem ao acervo e às perguntas publicados.
 
 ## Repetir os testes ponta a ponta
 
