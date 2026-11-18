@@ -20,7 +20,9 @@ Ambiente de referência de 18 de novembro de 2026. Dados sintéticos. Resultados
 
 Os testes usaram bibliotecas reais, processos HTTP, persistência e o Chromium. Flutter Web não mede a latência da biometria nem o desempenho de um aparelho físico. O papel OIDC foi exercitado em teste de política de grupo. O login em um tenant corporativo aguarda configuração.
 
-Os adaptadores para SQL Server e Azure Cosmos DB foram compilados. A integração contra instâncias externas, o deploy em AWS, o teste de carga e a operação de produção ficam fora dos resultados locais. Os workflows do GitHub estão incluídos no código. Uma execução hospedada do GitHub Actions precisa de um repositório onde Actions esteja habilitado.
+Os adaptadores para SQL Server e Azure Cosmos DB foram compilados. A integração contra instâncias externas, o deploy em AWS, o teste de carga e a operação de produção ficam fora dos resultados locais.
+
+O GitHub Actions executa duas verificações a cada publicação. Uma compila as interfaces, exercita os serviços com bancos locais e PostgreSQL e percorre os fluxos no Chromium. A outra analisa o cliente Flutter, executa seus testes e gera a distribuição web. [Histórico das verificações](https://github.com/Victor-F-M-A-R/Curriculo/actions/workflows/verify.yml)
 
 ## Repetir os testes ponta a ponta
 

@@ -7,7 +7,7 @@ defaults:
     working-directory: portfolio
 jobs:
   integration:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     services:
       postgres:
@@ -17,7 +17,9 @@ jobs:
           POSTGRES_USER: portfolio
           POSTGRES_PASSWORD: local-ci-only
         ports: ["5432:5432"]
-        options: --health-cmd pg_isready --health-interval 3s --health-timeout 3s --health-retries 25
+        options: >-
+          --health-cmd "pg_isready -U portfolio -d portfolio_test"
+          --health-interval 3s --health-timeout 3s --health-retries 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

@@ -12,4 +12,4 @@ Trabalho com infraestrutura e redes. Em ambiente escolar, cuidei de dispositivos
 
 [![Maquete do pátio do Doca Norte com as posições das docas](portfolio/docs/media/doca.webp)](portfolio/docs/demonstracoes.md#doca-norte)
 
-[Executar os três aplicativos](portfolio/) · [Conferir os testes](portfolio/docs/verificacao.md) · [Ler o estudo financeiro em inglês](portfolio/docs/lastro-walkthrough.en.md)
+[Executar os três aplicativos](portfolio/) · [Conferir os testes](portfolio/docs/verificacao.md) · [Ver resultados no GitHub Actions](https://github.com/Victor-F-M-A-R/Curriculo/actions/workflows/verify.yml) · [Ler o estudo financeiro em inglês](portfolio/docs/lastro-walkthrough.en.md)
