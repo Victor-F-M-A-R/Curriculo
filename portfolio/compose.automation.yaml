@@ -1,0 +1,22 @@
+services:
+  farol:
+    environment:
+      REVIEW_WEBHOOK_URL: http://n8n:5678/webhook/farol-review
+      REVIEW_WEBHOOK_TOKEN: ${REVIEW_WEBHOOK_TOKEN:-demo-local-webhook}
+  n8n:
+    depends_on:
+      n8n-init: { condition: service_completed_successfully }
+    environment:
+      N8N_SSRF_PROTECTION_ENABLED: "true"
+      N8N_SSRF_ALLOWED_HOSTNAMES: inbox
+  n8n-init:
+    profiles: [automation]
+    image: docker.n8n.io/n8nio/n8n:${N8N_VERSION:-2.48.5}
+    entrypoint: ["node", "/setup/bootstrap.cjs"]
+    environment:
+      REVIEW_WEBHOOK_TOKEN: ${REVIEW_WEBHOOK_TOKEN:-demo-local-webhook}
+      INBOX_TOKEN: ${INBOX_TOKEN:-demo-local-inbox}
+      N8N_DIAGNOSTICS_ENABLED: "false"
+    volumes:
+      - n8n-data:/home/node/.n8n
+      - ./farol/automation:/setup:ro
