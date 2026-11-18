@@ -1,0 +1,59 @@
+name: Implantar serviço no ECS
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: Aplicação
+        type: choice
+        required: true
+        options: [doca-norte, lastro, farol]
+permissions:
+  contents: read
+  id-token: write
+defaults:
+  run:
+    working-directory: portfolio
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.app }}-aws
+    timeout-minutes: 25
+    env:
+      APP: ${{ inputs.app }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+      ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
+      ECS_SERVICE: ${{ vars.ECS_SERVICE }}
+      ECS_CONTAINER: ${{ vars.ECS_CONTAINER }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - id: registry
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Compilar a imagem e resolver o digest
+        id: image
+        env:
+          REGISTRY: ${{ steps.registry.outputs.registry }}
+        run: |
+          set -euo pipefail
+          docker build -t "$REGISTRY/$ECR_REPOSITORY:$GITHUB_SHA" "$APP"
+          docker push "$REGISTRY/$ECR_REPOSITORY:$GITHUB_SHA"
+          digest=$(aws ecr describe-images --repository-name "$ECR_REPOSITORY" --image-ids imageTag="$GITHUB_SHA" --query 'imageDetails[0].imageDigest' --output text)
+          echo "uri=$REGISTRY/$ECR_REPOSITORY@$digest" >> "$GITHUB_OUTPUT"
+          task=$(aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE" --query 'services[0].taskDefinition' --output text)
+          aws ecs describe-task-definition --task-definition "$task" --query taskDefinition > "$RUNNER_TEMP/task.json"
+      - id: task
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ runner.temp }}/task.json
+          container-name: ${{ env.ECS_CONTAINER }}
+          image: ${{ steps.image.outputs.uri }}
+      - uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true

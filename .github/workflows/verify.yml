@@ -1,0 +1,71 @@
+name: Verificar produtos
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+defaults:
+  run:
+    working-directory: portfolio
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: portfolio_test
+          POSTGRES_USER: portfolio
+          POSTGRES_PASSWORD: local-ci-only
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 3s --health-timeout 3s --health-retries 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '24' }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21', cache: maven }
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: '10.0.x' }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - name: Compilar interfaces
+        run: |
+          for app in doca-norte lastro farol; do (cd "$app/web" && npm ci && npm run build); done
+      - name: Testar H2, SQLite e processos de revisão
+        run: |
+          mvn -B -ntp -f doca-norte/server/pom.xml package
+          mvn -B -ntp -f doca-norte/portaria/pom.xml package
+          dotnet test lastro/tests -c Release
+          dotnet build farol/inbox -c Release
+          python -m pip install -r farol/service/requirements.txt
+          (cd farol/service && python -m unittest -v && python evaluate.py)
+      - name: Repetir testes de persistência com PostgreSQL
+        env:
+          TEST_JDBC_URL: jdbc:postgresql://127.0.0.1:5432/portfolio_test
+          TEST_DB_USER: portfolio
+          TEST_DB_PASSWORD: local-ci-only
+          TEST_BOOK_ENGINE: postgres
+          TEST_BOOK_CONNECTION: Host=127.0.0.1;Database=portfolio_test;Username=portfolio;Password=local-ci-only
+        run: |
+          mvn -B -ntp -f doca-norte/server/pom.xml test
+          dotnet test lastro/tests -c Release --no-build
+      - name: Exercitar fluxos no Chromium
+        run: |
+          (cd tests && npm ci && npx playwright install --with-deps chromium)
+          bash tests/run-local.sh
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with: { name: traces, path: portfolio/tests/test-results, if-no-files-found: ignore }
+  field:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { flutter-version: '3.50.0', channel: stable, cache: true }
+      - working-directory: portfolio/doca-norte/field
+        run: |
+          flutter pub get
+          flutter analyze --no-pub
+          flutter test --no-pub
+          flutter build web --release --dart-define=YARD_API=https://yard.example
