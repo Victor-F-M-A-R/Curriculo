@@ -1,0 +1,27 @@
+{
+  "name": "farol-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "lucide-react": "^0.577.0",
+    "@fontsource/ibm-plex-mono": "^5.2.0",
+    "@fontsource/instrument-sans": "^5.2.0",
+    "@fontsource/instrument-serif": "^5.2.0",
+    "tailwindcss": "^4.1.0",
+    "@tailwindcss/vite": "^4.1.0"
+  },
+  "devDependencies": {
+    "vite": "^7.3.0",
+    "typescript": "~5.9.3",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.1.0"
+  }
+}

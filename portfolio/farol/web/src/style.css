@@ -1,0 +1,416 @@
+@import "tailwindcss";
+@import "@fontsource/instrument-sans/400.css";
+@import "@fontsource/instrument-sans/600.css";
+@import "@fontsource/instrument-serif/400.css";
+@import "@fontsource/instrument-serif/400-italic.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+:root {
+  --paper: #f3f1e8;
+  --ink: #182c25;
+  --rule: #bbbcad;
+  --orange: #a43c20;
+  --mono: "IBM Plex Mono", monospace;
+  font-family: "Instrument Sans", sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 4px;
+}
+.mast {
+  border-bottom: 1px solid var(--rule);
+}
+.mast-in,
+main,
+footer {
+  max-width: 1380px;
+  margin: auto;
+  padding-inline: clamp(20px, 5vw, 80px);
+}
+.mast-in {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 19px;
+}
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font:
+    42px/0.9 "Instrument Serif",
+    Georgia;
+  color: var(--ink);
+  text-decoration: none;
+}
+.logo svg,
+.logo span {
+  color: var(--orange);
+}
+.mast-sub {
+  color: #59635a;
+  border-left: 1px solid var(--rule);
+  padding-left: 19px;
+  font-size: 13px;
+}
+.mast nav {
+  display: flex;
+  gap: 24px;
+  margin-left: auto;
+  height: 100%;
+}
+.mast nav button {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #52625a;
+  font-size: 14px;
+}
+.mast nav button[aria-current] {
+  color: var(--ink);
+  border-bottom-color: var(--orange);
+}
+.spread {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.84fr);
+  gap: clamp(30px, 6vw, 110px);
+  align-items: start;
+  padding: clamp(28px, 5vw, 70px) 0 55px;
+}
+.kicker,
+.small-label,
+figcaption,
+footer {
+  font: 11px/1.5 var(--mono);
+  letter-spacing: 0.07em;
+}
+.kicker {
+  color: var(--orange);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.kicker i {
+  height: 7px;
+  width: 7px;
+  background: var(--orange);
+  border-radius: 50%;
+}
+h1,
+h2,
+h3,
+p,
+figure {
+  margin: 0;
+}
+.workspace h1,
+.library h1 {
+  font:
+    400 clamp(56px, 7.7vw, 116px)/0.89 "Instrument Serif",
+    Georgia;
+  letter-spacing: -0.04em;
+  margin: 16px 0 28px;
+}
+.workspace h1 em {
+  color: var(--orange);
+}
+.ask {
+  border: 1px solid #b0b4a7;
+  background: #fbfaf4;
+  padding: 17px 18px;
+}
+.ask label:first-child {
+  font-weight: 600;
+  font-size: 14px;
+}
+.ask textarea {
+  width: 100%;
+  display: block;
+  resize: vertical;
+  min-height: 70px;
+  margin-top: 10px;
+  outline-offset: 0;
+  padding: 4px 1px;
+}
+.ask-foot,
+.cover-head,
+.cover-stats,
+.result-head,
+footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.ask-foot > span,
+.small-label {
+  color: #536456;
+}
+.ask-foot > span,
+.action,
+.link-button,
+.source,
+.delivery button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.ask-foot > span {
+  font: 11px var(--mono);
+}
+.action {
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 16px;
+  font-weight: 600;
+}
+.scope {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  padding-top: 10px;
+}
+.prompts {
+  margin-top: 27px;
+}
+.prompts > p {
+  margin-bottom: 8px;
+}
+.question,
+.manual > button,
+.archive-cover > button,
+.source {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  gap: 14px;
+  border-top: 1px solid var(--rule);
+  padding: 13px 0;
+}
+.question svg {
+  flex-shrink: 0;
+  color: var(--orange);
+}
+.archive-cover {
+  background: #e1e5d8;
+  border: 1px solid #aeb6a5;
+  padding: clamp(18px, 2.5vw, 38px);
+}
+.cover-head {
+  border-bottom: 1px solid #9ba991;
+  padding-bottom: 12px;
+}
+.archive-cover h2 {
+  font: 400 clamp(52px, 6.1vw, 91px)/0.9 "Instrument Serif";
+  letter-spacing: -0.04em;
+  margin: 26px 0 12px;
+}
+.archive-cover h2 span {
+  color: var(--orange);
+}
+.archive-cover > p {
+  font-size: 14px;
+  max-width: 290px;
+  color: #435447;
+}
+.archive-cover figure {
+  margin: 20px 0 12px;
+}
+.archive-cover img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.archive-cover figcaption {
+  margin-top: 6px;
+  font-size: 9px;
+  color: #3a5144;
+}
+.cover-stats {
+  justify-content: flex-start;
+  gap: 26px;
+  margin: 15px 0;
+}
+.cover-stats b {
+  font: 32px "Instrument Serif";
+}
+.cover-stats span {
+  font-size: 13px;
+}
+.archive-cover > button {
+  padding-bottom: 0;
+  font-weight: 600;
+  border-color: #9ba991;
+}
+.result {
+  border-top: 2px solid var(--ink);
+  margin-top: 24px;
+  padding-top: 14px;
+}
+.answer {
+  font:
+    25px/1.28 "Instrument Serif",
+    Georgia;
+  margin: 14px 0;
+}
+.source {
+  color: var(--ink);
+  justify-content: flex-start;
+  text-align: left;
+  background: #e1e5d8;
+  padding: 11px;
+  font-size: 13px;
+}
+.source > svg:last-child {
+  margin-left: auto;
+}
+.trace {
+  border-bottom: 1px solid var(--rule);
+  padding: 12px 0;
+  font-size: 13px;
+}
+.trace summary {
+  cursor: pointer;
+}
+.trace ol {
+  padding-inline-start: 20px;
+}
+.trace li {
+  padding: 7px 0;
+}
+.trace li span {
+  float: right;
+  font: 11px var(--mono);
+}
+.trace li p {
+  color: #526357;
+}
+.link-button,
+.delivery {
+  margin-top: 15px;
+  color: var(--orange);
+  font-weight: 600;
+  font-size: 13px;
+}
+.library {
+  padding-block: 46px;
+  max-width: 950px;
+  min-height: 65vh;
+}
+.library h1 {
+  font-size: clamp(50px, 7vw, 88px);
+}
+.filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+.filter input {
+  border: 1px solid var(--rule);
+  padding: 10px;
+  width: min(100%, 390px);
+}
+.manual > button b {
+  flex: 1;
+  font: 26px "Instrument Serif";
+}
+.manual > button > span:nth-last-child(2) {
+  font-size: 12px;
+}
+.manual-body {
+  padding: 12px 5% 24px;
+}
+.manual-body section {
+  margin-top: 16px;
+}
+.manual-body h3 {
+  font-weight: 600;
+}
+.manual-body p {
+  line-height: 1.6;
+}
+.error {
+  background: #f2dac7;
+  color: #833118;
+  padding: 12px;
+}
+.library > p {
+  margin-block: 15px;
+}
+footer {
+  border-top: 1px solid var(--rule);
+  padding-block: 18px;
+  color: #526355;
+  font-size: 10px;
+}
+@media (max-width: 770px) {
+  .spread {
+    grid-template-columns: 1fr;
+  }
+  .archive-cover {
+    max-width: none;
+  }
+  .archive-cover figure {
+    max-width: 450px;
+  }
+  .mast-sub {
+    display: none;
+  }
+  .mast-in {
+    gap: 9px;
+  }
+  .mast nav {
+    gap: 13px;
+  }
+  .mast nav button {
+    font-size: 12px;
+  }
+}
+@media (max-width: 420px) {
+  .mast-in {
+    padding-inline: 15px;
+  }
+  .logo {
+    font-size: 34px;
+  }
+  .manual > button > span:nth-last-child(2) {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .result {
+    animation: appear 0.28s ease-out;
+  }
+  @keyframes appear {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}

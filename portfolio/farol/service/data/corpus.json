@@ -1,0 +1,159 @@
+[
+  {
+    "id": "RB-01",
+    "title": "Continuidade dos links de internet",
+    "category": "Rede",
+    "owner": "Operações de rede",
+    "revision": "2026-10-06",
+    "sections": [
+      {
+        "id": "s1",
+        "heading": "Quando o link de reserva assume",
+        "text": "A WAN Ipê é o link principal de internet do campus. A WAN Cedro fica em reserva. O monitor testa a saída a cada 20 segundos. Depois de três falhas consecutivas na Ipê, o roteador transfere o tráfego para a Cedro automaticamente. O plantonista registra o horário da troca e verifica o portal acadêmico a partir da rede de alunos."
+      },
+      {
+        "id": "s2",
+        "heading": "Retorno à operadora principal",
+        "text": "Depois que a WAN Ipê volta a responder, mantenha o tráfego na Cedro por dez minutos consecutivos de estabilidade. Se houver nova falha, reinicie essa contagem. Ao fim do período, o plantonista autoriza o retorno à Ipê e anota o horário no chamado."
+      },
+      {
+        "id": "s3",
+        "heading": "Falha simultânea dos dois circuitos",
+        "text": "Quando Ipê e Cedro falham ao mesmo tempo, o responsável de rede abre um único incidente para o campus e aciona as duas operadoras pelos canais corporativos cadastrados. A secretaria recebe um aviso pelo ramal interno. O chamado deve relacionar os horários dos dois últimos testes bem-sucedidos."
+      }
+    ]
+  },
+  {
+    "id": "RB-02",
+    "title": "Impressão na secretaria",
+    "category": "Atendimento",
+    "owner": "Suporte de secretaria",
+    "revision": "2026-09-18",
+    "sections": [
+      {
+        "id": "s1",
+        "heading": "Trabalho preso na fila de impressão",
+        "text": "Se um documento fica preso na fila da impressora da secretaria, confira o estado no painel e o código do equipamento. Cancele apenas o trabalho do solicitante com a autorização dele. Envie uma página de teste sem dados de alunos. Se a página não sair em dois minutos, encaminhe ao suporte de impressão com o horário e o nome da fila."
+      },
+      {
+        "id": "s2",
+        "heading": "Toner baixo e suprimento de reserva",
+        "text": "Quando o painel indicar toner em 15% ou menos, abra uma solicitação de suprimento ao almoxarifado. Informe o patrimônio da impressora, o modelo do cartucho e o percentual exibido. Após a troca, registre o lote novo e encaminhe o cartucho usado ao ponto de coleta da secretaria."
+      }
+    ]
+  },
+  {
+    "id": "RB-03",
+    "title": "Projeção nas salas de aula",
+    "category": "Salas",
+    "owner": "Suporte audiovisual",
+    "revision": "2026-10-12",
+    "sections": [
+      {
+        "id": "s1",
+        "heading": "Projetor ligado com aviso de sinal ausente",
+        "text": "Se o projetor está ligado e exibe “sem sinal”, confira a entrada selecionada. O cabo fixo da mesa entra em HDMI 1. Conecte o notebook de referência ao mesmo cabo e anote se houve imagem. Se o teste falhar, o kit do armário A2 contém um cabo HDMI de reposição para manter a aula."
+      },
+      {
+        "id": "s2",
+        "heading": "Compartilhamento sem fio não encontra a tela",
+        "text": "Para projetar sem fio, o professor e o receptor da sala precisam estar na rede Campus-Docente. Confira na tela inicial do receptor o nome no formato SALA- seguido do número da sala. Se a tela continuar ausente na lista de transmissão, use o cabo HDMI da mesa para a aula e informe o nome do receptor ao suporte audiovisual."
+      }
+    ]
+  },
+  {
+    "id": "RB-04",
+    "title": "Empréstimo de Chromebooks",
+    "category": "Ativos",
+    "owner": "Balcão de equipamentos",
+    "revision": "2026-09-30",
+    "sections": [
+      {
+        "id": "s1",
+        "heading": "Retirada de notebook no balcão",
+        "text": "Para retirar um Chromebook, o docente apresenta o crachá no balcão de equipamentos. O atendente registra o patrimônio, a turma e o horário previsto de devolução. Cada empréstimo vale por um turno. A renovação depende de disponibilidade e deve ser pedida antes do fim do turno."
+      },
+      {
+        "id": "s2",
+        "heading": "Devolução com avaria",
+        "text": "Na devolução de um Chromebook com avaria, marque o ativo como “em inspeção” e retire-o da prateleira de empréstimos. Anote o patrimônio e o defeito observado. Fotografe somente a parte danificada, com a tela apagada. O balcão pode liberar outra unidade após registrar a devolução da primeira."
+      }
+    ]
+  },
+  {
+    "id": "RB-05",
+    "title": "Prioridade e atendimento de chamados",
+    "category": "Plantão",
+    "owner": "Coordenação de suporte",
+    "revision": "2026-10-20",
+    "sections": [
+      {
+        "id": "s1",
+        "heading": "Incidente P1 com impacto generalizado",
+        "text": "A indisponibilidade de um serviço essencial em dois ou mais blocos, sem alternativa operacional, recebe prioridade P1. O plantonista confirma o recebimento em até cinco minutos e publica um informe a cada 15 minutos enquanto o impacto continuar. Registre no chamado quais blocos estão afetados."
+      },
+      {
+        "id": "s2",
+        "heading": "Incidente P2 numa única sala",
+        "text": "Quando uma única sala fica sem um recurso necessário à aula e dispõe de um contorno, o chamado entra como P2. Confirme o recebimento em até 30 minutos. Registre o identificador da sala, o contorno oferecido e a confirmação do docente."
+      }
+    ]
+  },
+  {
+    "id": "RB-06",
+    "title": "Mudanças planejadas de infraestrutura",
+    "category": "Mudanças",
+    "owner": "Gestão de mudanças",
+    "revision": "2026-10-22",
+    "sections": [
+      {
+        "id": "s1",
+        "heading": "Aprovação e janela de manutenção",
+        "text": "Uma mudança planejada de infraestrutura precisa de dois aceites no registro: o do responsável técnico e o do gestor do serviço afetado. A janela ordinária é quarta-feira, das 19h às 20h, no horário de Brasília. Registre o escopo, a evidência de teste e o plano de reversão antes de iniciar."
+      },
+      {
+        "id": "s2",
+        "heading": "Critério de reversão",
+        "text": "Depois de aplicar a mudança, execute o teste de aceitação descrito no registro. Duas falhas seguidas nesse teste acionam a reversão. O executor restaura a configuração anterior aprovada, repete o teste e registra o resultado e o horário. O gestor do serviço recebe o informe no mesmo chamado."
+      }
+    ]
+  },
+  {
+    "id": "RB-07",
+    "title": "Restauração de arquivos compartilhados",
+    "category": "Dados",
+    "owner": "Operações de armazenamento",
+    "revision": "2026-09-25",
+    "sections": [
+      {
+        "id": "s1",
+        "heading": "Pedido e alcance da cópia de segurança",
+        "text": "Para recuperar um arquivo apagado da pasta compartilhada, o dono da pasta informa o caminho e a última data em que o arquivo estava correto. Há uma cópia por noite, conservada por 14 dias corridos. O suporte confirma a autorização do dono antes de recuperar o material."
+      },
+      {
+        "id": "s2",
+        "heading": "Destino de recuperação e aceite",
+        "text": "Restaure primeiro numa pasta temporária identificada pelo número do chamado. O dono da pasta abre a cópia e verifica o conteúdo. Somente depois do aceite registrado o suporte pode recolocar o arquivo no caminho original. Registre a versão escolhida e o destino final."
+      }
+    ]
+  },
+  {
+    "id": "RB-08",
+    "title": "Passagem de plantão",
+    "category": "Plantão",
+    "owner": "Coordenação de suporte",
+    "revision": "2026-10-27",
+    "sections": [
+      {
+        "id": "s1",
+        "heading": "Entrega de incidentes em andamento",
+        "text": "Na troca de plantão, cada incidente aberto precisa de quatro informações no quadro de passagem: número do chamado, impacto atual, próxima ação e horário da próxima atualização. Quem assume o turno confirma o recebimento no quadro. A responsabilidade muda no momento desse aceite."
+      },
+      {
+        "id": "s2",
+        "heading": "Fechamento e confirmação de serviço",
+        "text": "Para encerrar um incidente, obtenha a confirmação de quem utiliza o serviço e registre o horário de normalização. Resuma a causa conhecida, a ação realizada e uma pendência que precise de acompanhamento. Quando a causa permanece em investigação, vincule essa investigação ao chamado antes do fechamento."
+      }
+    ]
+  }
+]

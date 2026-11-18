@@ -1,0 +1,311 @@
+{
+  "cases": 22,
+  "answerable": 18,
+  "unanswerable": 4,
+  "correct_cited_answers": 17,
+  "retrieval_hits_at_3": 18,
+  "correct_abstentions": 4,
+  "rows": [
+    {
+      "query": "Quantas falhas na WAN Ipê fazem a Cedro assumir?",
+      "expected": [
+        "RB-01#s1"
+      ],
+      "kind": "answer",
+      "accepted": true,
+      "top3": [
+        "RB-01#s1",
+        "RB-01#s2",
+        "RB-01#s3"
+      ],
+      "score": 0.317
+    },
+    {
+      "query": "A internet principal voltou. Quanto tempo de estabilidade espero antes de voltar o tráfego?",
+      "expected": [
+        "RB-01#s2"
+      ],
+      "kind": "answer",
+      "accepted": true,
+      "top3": [
+        "RB-01#s2",
+        "RB-01#s1",
+        "RB-01#s3"
+      ],
+      "score": 0.3047
+    },
+    {
+      "query": "Os dois circuitos caíram juntos. Quem avisamos dentro do campus?",
+      "expected": [
+        "RB-01#s3"
+      ],
+      "kind": "answer",
+      "accepted": true,
+      "top3": [
+        "RB-01#s3",
+        "RB-01#s1",
+        "RB-03#s2"
+      ],
+      "score": 0.3355
+    },
+    {
+      "query": "O documento da secretaria travou na fila de impressão. Posso cancelar os trabalhos dos outros?",
+      "expected": [
+        "RB-02#s1"
+      ],
+      "kind": "answer",
+      "accepted": true,
+      "top3": [
+        "RB-02#s1",
+        "RB-02#s2",
+        "RB-01#s3"
+      ],
+      "score": 0.4939
+    },
+    {
+      "query": "Em qual percentual do toner o almoxarifado deve ser acionado?",
+      "expected": [
+        "RB-02#s2"
+      ],
+      "kind": "answer",
+      "accepted": true,
+      "top3": [
+        "RB-02#s2",
+        "RB-04#s1",
+        "RB-01#s3"
+      ],
+      "score": 0.2959
+    },
+    {
+      "query": "O projetor diz sem sinal. Em que entrada fica o cabo da mesa?",
+      "expected": [
+        "RB-03#s1"
+      ],
+      "kind": "answer",
+      "accepted": true,
+      "top3": [
+        "RB-03#s1",
+        "RB-03#s2",
+        "RB-05#s2"
+      ],
+      "score": 0.4182
+    },
+    {
+      "query": "O professor não encontra a tela para transmitir sem fio. Em qual rede o receptor deve estar?",
+      "expected": [
+        "RB-03#s2"
+      ],
+      "kind": "answer",
+      "accepted": true,
+      "top3": [
+        "RB-03#s2",
+        "RB-01#s1",
+        "RB-02#s1"
+      ],
+      "score": 0.5389
+    },
+    {
+      "query": "O professor pode renovar o empréstimo do Chromebook no fim do turno?",
+      "expected": [
+        "RB-04#s1"
+      ],
+      "kind": "answer",
+      "accepted": true,
+      "top3": [
+        "RB-04#s1",
+        "RB-04#s2",
+        "RB-03#s2"
+      ],
+      "score": 0.353
+    },
+    {
+      "query": "Um aluno devolveu o Chromebook com a dobradiça quebrada. O equipamento volta para a prateleira?",
+      "expected": [
+        "RB-04#s2"
+      ],
+      "kind": "answer",
+      "accepted": true,
+      "top3": [
+        "RB-04#s2",
+        "RB-04#s1",
+        "RB-02#s1"
+      ],
+      "score": 0.2324
+    },
+    {
+      "query": "A falha P1 atingiu dois blocos. De quanto em quanto tempo sai um informe?",
+      "expected": [
+        "RB-05#s1"
+      ],
+      "kind": "answer",
+      "accepted": true,
+      "top3": [
+        "RB-05#s1",
+        "RB-01#s3",
+        "RB-01#s1"
+      ],
+      "score": 0.281
+    },
+    {
+      "query": "Só uma sala teve problema e há um contorno. Qual a prioridade e o prazo inicial?",
+      "expected": [
+        "RB-05#s2"
+      ],
+      "kind": "answer",
+      "accepted": true,
+      "top3": [
+        "RB-05#s2",
+        "RB-03#s2",
+        "RB-05#s1"
+      ],
+      "score": 0.2921
+    },
+    {
+      "query": "Quem dá o aceite de uma mudança programada e quando podemos executá-la?",
+      "expected": [
+        "RB-06#s1"
+      ],
+      "kind": "answer",
+      "accepted": false,
+      "top3": [
+        "RB-06#s2",
+        "RB-07#s2",
+        "RB-06#s1"
+      ],
+      "score": 0.1624
+    },
+    {
+      "query": "Depois da mudança, o teste de aceitação falhou de novo. Quando começa a reversão?",
+      "expected": [
+        "RB-06#s2"
+      ],
+      "kind": "answer",
+      "accepted": true,
+      "top3": [
+        "RB-06#s2",
+        "RB-06#s1",
+        "RB-07#s2"
+      ],
+      "score": 0.3648
+    },
+    {
+      "query": "Por quantos dias fica guardada a cópia de segurança de um arquivo apagado?",
+      "expected": [
+        "RB-07#s1"
+      ],
+      "kind": "answer",
+      "accepted": true,
+      "top3": [
+        "RB-07#s1",
+        "RB-07#s2",
+        "RB-01#s1"
+      ],
+      "score": 0.4447
+    },
+    {
+      "query": "A restauração do arquivo sobrescreve diretamente o caminho original?",
+      "expected": [
+        "RB-07#s2"
+      ],
+      "kind": "answer",
+      "accepted": true,
+      "top3": [
+        "RB-07#s2",
+        "RB-07#s1",
+        "RB-06#s2"
+      ],
+      "score": 0.3222
+    },
+    {
+      "query": "Quais dados preciso deixar no quadro de passagem para o próximo plantonista?",
+      "expected": [
+        "RB-08#s1"
+      ],
+      "kind": "answer",
+      "accepted": true,
+      "top3": [
+        "RB-08#s1",
+        "RB-08#s2",
+        "RB-05#s1"
+      ],
+      "score": 0.2977
+    },
+    {
+      "query": "Quem precisa confirmar a normalização antes de encerrar um incidente?",
+      "expected": [
+        "RB-08#s2"
+      ],
+      "kind": "answer",
+      "accepted": true,
+      "top3": [
+        "RB-08#s2",
+        "RB-08#s1",
+        "RB-05#s2"
+      ],
+      "score": 0.3167
+    },
+    {
+      "query": "Onde encontro orientação sobre usar o cabo HDMI para continuar uma aula?",
+      "expected": [
+        "RB-03#s1",
+        "RB-03#s2"
+      ],
+      "kind": "answer",
+      "accepted": true,
+      "top3": [
+        "RB-03#s2",
+        "RB-03#s1",
+        "RB-05#s2"
+      ],
+      "score": 0.2515
+    },
+    {
+      "query": "Qual é o preço mensal do contrato da operadora da WAN Cedro?",
+      "expected": [],
+      "kind": "abstain",
+      "accepted": false,
+      "top3": [
+        "RB-01#s2",
+        "RB-01#s1",
+        "RB-01#s3"
+      ],
+      "score": 0.2368
+    },
+    {
+      "query": "Quem ganhou o campeonato de xadrez deste semestre?",
+      "expected": [],
+      "kind": "abstain",
+      "accepted": false,
+      "top3": [
+        "RB-07#s2",
+        "RB-08#s1",
+        "RB-08#s2"
+      ],
+      "score": 0.0718
+    },
+    {
+      "query": "Qual é a chave Pix da associação de pais?",
+      "expected": [],
+      "kind": "abstain",
+      "accepted": false,
+      "top3": [
+        "RB-08#s1",
+        "RB-02#s2",
+        "RB-01#s1"
+      ],
+      "score": 0.0873
+    },
+    {
+      "query": "Em qual dia começa a matrícula da educação infantil?",
+      "expected": [],
+      "kind": "abstain",
+      "accepted": false,
+      "top3": [
+        "RB-07#s1",
+        "RB-03#s2",
+        "RB-04#s2"
+      ],
+      "score": 0.091
+    }
+  ]
+}
