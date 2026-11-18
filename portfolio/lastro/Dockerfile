@@ -1,7 +1,7 @@
 FROM node:24-bookworm-slim AS ui
 WORKDIR /src
 COPY web/package*.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 COPY web/ ./
 RUN npm run build
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build

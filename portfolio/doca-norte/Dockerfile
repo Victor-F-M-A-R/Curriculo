@@ -1,7 +1,7 @@
 FROM node:24-bookworm-slim AS web
 WORKDIR /src
 COPY web/package*.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 COPY web/ ./
 RUN npm run build
 FROM maven:3.9-eclipse-temurin-21 AS build

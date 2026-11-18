@@ -11,6 +11,8 @@ const outcomes = {
   advanced: "atualizou a posição",
   replay: "reenvio reconhecido",
   late: "leitura atrasada preservada",
+  conflict: "conflito com um evento registrado",
+  unknown_vehicle: "veículo não cadastrado",
 };
 let vehicles = [];
 let selected = null;
@@ -26,7 +28,7 @@ function node(tag, value, className) {
 }
 
 async function api(path, options = {}) {
-  const r = await fetch(path, { cache: "no-store", ...options });
+  const r = await fetch(path, { cache: "no-store", signal: AbortSignal.timeout(15000), ...options });
   if (!r.ok) throw new Error("O serviço não conseguiu concluir a consulta.");
   return r.json();
 }
@@ -130,7 +132,9 @@ async function selectVehicle(vehicleId) {
   el("track-heading").textContent = v?.name || "Selecione um veículo";
   el("vehicle-code").textContent = v?.vehicle_id || "";
   el("timeline-asset").textContent = v?.route || "";
-  el("last-time").textContent = v?.observed_at ? clock.format(new Date(v.observed_at)) : "—";
+  const observed = v?.observed_at ? new Date(v.observed_at) : null;
+  el("last-time").textContent = observed ? clock.format(observed) : "—";
+  el("last-date").textContent = observed ? dateLabel.format(observed) : "Sem leitura";
   el("last-speed").textContent = v?.speed_kmh != null ? v.speed_kmh + " km/h" : "—";
   el("coordinates").textContent = v?.latitude != null
     ? coord.format(Number(v.latitude)) + " / " + coord.format(Number(v.longitude)) : "—";
@@ -175,13 +179,14 @@ async function loadFleet(prefer) {
 }
 
 function showReceipt(receipts) {
-  const counts = { advanced: 0, replay: 0, late: 0 };
+  const counts = { advanced: 0, replay: 0, late: 0, conflict: 0, unknown_vehicle: 0 };
   const items = receipts.map(r => {
     counts[r.outcome]++;
     return node("li", "Seq. " + r.sequence + " · " + outcomes[r.outcome]);
   });
   const labels = { advanced: ["posição atualizada", "posições atualizadas"],
-    replay: ["reenvio", "reenvios"], late: ["leitura atrasada", "leituras atrasadas"] };
+    replay: ["reenvio", "reenvios"], late: ["leitura atrasada", "leituras atrasadas"],
+    conflict: ["conflito", "conflitos"], unknown_vehicle: ["veículo não cadastrado", "veículos não cadastrados"] };
   el("result-summary").textContent = Object.entries(counts).filter(([, n]) => n)
     .map(([key, n]) => n + " " + labels[key][n === 1 ? 0 : 1]).join(" · ");
   el("result-items").replaceChildren(...items);

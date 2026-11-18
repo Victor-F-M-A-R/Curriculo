@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # Use fresh databases. Pre-build the three compiled web clients first.
+# PostgreSQL is required: Rastro must run instead of silently skipping its browser checks.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
+: "${RASTRO_DATABASE_URL:?Defina RASTRO_DATABASE_URL para um PostgreSQL descartável e exclusivo dos testes.}"
+export OPENBLAS_NUM_THREADS="${OPENBLAS_NUM_THREADS:-1}" OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}" MKL_NUM_THREADS="${MKL_NUM_THREADS:-1}"
 capture_dir=""
 if [[ $# -gt 0 ]]; then
-  if [[ $# -ne 2 || $1 != --capture-only || -z ${2:-} || -z ${RASTRO_DATABASE_URL:-} ]]; then
+  if [[ $# -ne 2 || $1 != --capture-only || -z ${2:-} ]]; then
     echo "Uso para gravar os quatro produtos: RASTRO_DATABASE_URL=... run-local.sh --capture-only DIRETÓRIO" >&2
     exit 2
   fi
@@ -15,17 +18,12 @@ temp="$(mktemp -d)"
 pids=()
 cleanup(){ for pid in "${pids[@]}"; do kill "$pid" 2>/dev/null || true; done; wait || true; rm -rf "$temp"; }
 trap cleanup EXIT
-: "${PORT_DOCA:=8081}" "${PORT_LASTRO:=8082}" "${PORT_FAROL:=8083}" "${PORT_GATE:=8085}"
+: "${PORT_DOCA:=8081}" "${PORT_LASTRO:=8082}" "${PORT_FAROL:=8083}" "${PORT_GATE:=8085}" "${PORT_RASTRO:=8084}"
 export GATE_URL="http://127.0.0.1:$PORT_GATE"
 export DOCA_URL="http://127.0.0.1:$PORT_DOCA" LASTRO_URL="http://127.0.0.1:$PORT_LASTRO" FAROL_URL="http://127.0.0.1:$PORT_FAROL"
-ports=("$PORT_DOCA" "$PORT_LASTRO" "$PORT_FAROL" "$PORT_GATE")
-checks=("$DOCA_URL/api/yard" "$LASTRO_URL/api/health" "$FAROL_URL/api/health" "$GATE_URL/api/field")
-if [[ -n ${RASTRO_DATABASE_URL:-} ]]; then
-  : "${PORT_RASTRO:=8084}"
-  export RASTRO_URL="http://127.0.0.1:$PORT_RASTRO"
-  ports+=("$PORT_RASTRO")
-  checks+=("$RASTRO_URL/health")
-fi
+export RASTRO_URL="http://127.0.0.1:$PORT_RASTRO"
+ports=("$PORT_DOCA" "$PORT_LASTRO" "$PORT_FAROL" "$PORT_GATE" "$PORT_RASTRO")
+checks=("$DOCA_URL/api/yard" "$LASTRO_URL/api/health" "$FAROL_URL/api/health" "$GATE_URL/api/field" "$RASTRO_URL/health")
 for port in "${ports[@]}"; do
   if curl -s --max-time 1 --noproxy '*' "http://127.0.0.1:$port/" -o /dev/null; then echo "Porta ocupada: $port" >&2; exit 2; fi
 done
@@ -41,10 +39,8 @@ BOOK_ENGINE="${TEST_BOOK_ENGINE:-sqlite}" BOOK_CONNECTION="${TEST_BOOK_CONNECTIO
 pids+=("$!")
 (cd "$root/farol/service" && FAROL_DB="$temp/farol.db" exec python3 -m uvicorn app:app --port "$PORT_FAROL" --host 127.0.0.1) >"$temp/farol.log" 2>&1 &
 pids+=("$!")
-if [[ -n ${RASTRO_DATABASE_URL:-} ]]; then
-  (cd "$root/rastro" && RASTRO_DEMO=1 exec python3 -m uvicorn app:app --port "$PORT_RASTRO" --host 127.0.0.1) >"$temp/rastro.log" 2>&1 &
-  pids+=("$!")
-fi
+(cd "$root/rastro" && RASTRO_DEMO=1 exec python3 -m uvicorn app:app --port "$PORT_RASTRO" --host 127.0.0.1) >"$temp/rastro.log" 2>&1 &
+pids+=("$!")
 for url in "${checks[@]}"; do
   for round in {1..60}; do curl --noproxy '*' -fs "$url" >/dev/null && break; sleep 1; done
   if ! curl --noproxy '*' -fs "$url" >/dev/null; then tail -30 "$temp/"*.log; exit 1; fi

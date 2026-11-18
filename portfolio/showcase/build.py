@@ -17,6 +17,7 @@ CV = ("Victor_Almeida_Curriculo.pdf", "Victor_Almeida_Curriculo_ATS.txt")
 
 def bundle(destination):
     repository = subprocess.check_output(["git", "rev-parse", "--show-toplevel"], cwd=ROOT, text=True).strip()
+    revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repository, text=True).strip()
     with tempfile.TemporaryDirectory() as folder:
         archive = Path(folder) / "source.zip"
         history = Path(folder) / "historico.bundle"
@@ -25,6 +26,9 @@ def bundle(destination):
         shutil.copyfile(archive, destination)
         with ZipFile(destination, "a", compression=ZIP_DEFLATED) as package:
             package.write(history, "historico.bundle")
+            package.writestr("VERSAO-DO-PACOTE.txt", f"Repositório: {REPO}\nCommit: {revision}\n"
+                             "O código deste pacote corresponde ao commit acima.\n"
+                             "O arquivo historico.bundle preserva o histórico Git desse commit.\n")
 
 
 def build_home():
@@ -61,8 +65,10 @@ def build_case(slug, case):
 <main class="article" id="estudo">
 <p class="overline">{esc(case["category"])}</p><h1>{name}</h1>
 <p class="question">{esc(case["question"])}</p>
+<p class="project-stack">{esc(case["stack"])}</p>
 <video controls playsinline preload="none" poster="../media/{slug}.webp" aria-label="Demonstração de {name}">
 <source src="../media/{slug}.mp4" type="video/mp4" /><track kind="captions" srclang="pt-BR" label="Português" src="../media/{slug}.vtt" />{english}
+Seu navegador não reproduz este vídeo. A transcrição e o link para baixar o MP4 estão disponíveis nesta página.
 </video>
 <details class="transcript"><summary>Ler a transcrição do vídeo</summary><dl>{transcript}</dl></details>
 <h2>O problema e a solução</h2><p>{esc(case["brief"])}</p><p>{esc(case["decision"])}</p>
@@ -71,6 +77,7 @@ def build_case(slug, case):
 <h2>Executar localmente</h2><p>Na pasta <code>portfolio</code> do repositório, inicie os serviços com Docker Compose.</p>
 <pre>{esc(case["cmd"])}</pre><p>Abra <code>http://localhost:{case["port"]}</code>.</p>
 <div class="resource-links"><a href="../media/{slug}.mp4" download>Baixar MP4</a><a href="../media/{slug}-mobile.webp">Ver no celular</a><a href="../caderno-aplicado.zip" download>Baixar os quatro projetos e o histórico Git</a></div>
+<p class="portfolio-note">Projeto pessoal com dados fictícios e implementação assistida por IA.</p>
 </main></body></html>'''
 
 

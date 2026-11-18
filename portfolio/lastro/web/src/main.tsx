@@ -17,16 +17,31 @@ import { money, names, type Entry, type Status } from "./ledger";
 type Session = { logged: boolean; name: string | null };
 const csv = "referencia;data;recebido\nREP-1047;2026-11-16;710,00\nREP-1048;2026-11-16;1950,00";
 async function api<T>(path: string, body?: unknown): Promise<T> {
-  const response = await fetch("/api/" + path, {
-    method: body === undefined ? "GET" : "POST",
-    headers: { "Content-Type": "application/json", "X-Lastro-Client": "desk" },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
-  if (!response.ok) {
-    const problem = await response.json().catch(() => ({}));
-    throw new Error(problem.detail || "A operação não pôde ser concluída.");
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 12_000);
+  try {
+    const response = await fetch("/api/" + path, {
+      method: body === undefined ? "GET" : "POST",
+      headers: { "Content-Type": "application/json", "X-Lastro-Client": "desk" },
+      body: body === undefined ? undefined : JSON.stringify(body),
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      const problem = await response.json().catch(() => ({}));
+      if (controller.signal.aborted) throw new Error("timeout");
+      throw new Error(problem.detail || "A operação não pôde ser concluída.");
+    }
+    return response.status === 204 ? (undefined as T) : await response.json();
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new Error(body === undefined
+        ? "A leitura demorou além do esperado. Tente atualizar a página."
+        : "Não recebemos a confirmação a tempo. O resultado pode já ter sido gravado. Atualize a página para conferir os dados antes de tentar novamente.");
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeout);
   }
-  return response.status === 204 ? (undefined as T) : response.json();
 }
 function Modal({ title, close, children }: { title: string; close: () => void; children: ReactNode }) {
   const ref = useRef<HTMLDialogElement>(null);

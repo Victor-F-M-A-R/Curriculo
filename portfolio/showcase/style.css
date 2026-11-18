@@ -61,6 +61,10 @@ video:focus-visible {
   outline: 3px solid #b57b23;
   outline-offset: 3px;
 }
+summary:focus-visible {
+  outline: 3px solid #b57b23;
+  outline-offset: 3px;
+}
 p,
 h1,
 h2,
@@ -202,6 +206,60 @@ footer a {
 }
 .works {
   padding-block: clamp(38px, 5vw, 75px);
+}
+.profile {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  align-items: center;
+  gap: clamp(26px, 6vw, 90px);
+  padding-block: 42px;
+  border-bottom: 1px solid var(--rule);
+}
+.profile h2 {
+  font: 400 clamp(32px, 3.4vw, 48px)/1.12 Instrument, Georgia;
+  margin-block: 12px 14px;
+}
+.profile p:not(.overline) {
+  line-height: 1.55;
+  max-width: 620px;
+}
+.resume-options {
+  display: grid;
+  gap: 12px;
+}
+.resume-link {
+  display: block;
+  padding: 17px 20px;
+  border: 1px solid var(--rule);
+  text-decoration: none;
+}
+.resume-link:hover {
+  background: #e3e7d7;
+  border-color: var(--ink);
+}
+.resume-link strong {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 17px;
+}
+.resume-link > span {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.portfolio-note,
+.video-help {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 22px;
+}
+.portfolio-note {
+  border-top: 1px solid var(--rule);
+  padding-top: 20px;
 }
 .works-head {
   align-items: flex-end;
@@ -363,11 +421,15 @@ footer a {
     gap: 12px;
   }
   .cover,
+  .profile,
   .theater {
     grid-template-columns: 1fr;
   }
   .cover {
     padding-block: 36px;
+  }
+  .profile {
+    padding-block: 30px;
   }
   .cover h1 {
     font-size: 75px;
@@ -452,4 +514,21 @@ footer nav { display: flex; gap: 12px 20px; flex-wrap: wrap; }
   .article { margin-block: 30px; }
   .article h1 { font-size: 57px; }
   .article h2 { font-size: 34px; }
+}
+@media (max-width: 400px) {
+  .bar {
+    height: auto;
+    min-height: 70px;
+    flex-wrap: wrap;
+    padding-block: 14px;
+    gap: 12px;
+  }
+  .top nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+  }
+  .profile .text-link {
+    overflow-wrap: anywhere;
+  }
 }

@@ -13,6 +13,7 @@ from fastapi import FastAPI, Header, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from psycopg import OperationalError
+from psycopg.errors import LockNotAvailable, QueryCanceled
 from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool, PoolTimeout
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
@@ -41,7 +42,8 @@ async def lifespan(app):
     app.state.demo = os.getenv("RASTRO_DEMO", "") == "1"
     app.state.token = os.environ.get("RASTRO_INGEST_TOKEN", "")
     with ConnectionPool(url, min_size=1, max_size=6, timeout=5, open=False,
-                        kwargs={"row_factory": dict_row, "connect_timeout": 4}) as pool:
+                        kwargs={"row_factory": dict_row, "connect_timeout": 4,
+                                "options": "-c statement_timeout=8000 -c lock_timeout=2000"}) as pool:
         pool.wait(timeout=25)
         with pool.connection() as db:
             repo.migrate(db)
@@ -70,6 +72,8 @@ async def browser_headers(request, call_next):
 
 @app.exception_handler(OperationalError)
 @app.exception_handler(PoolTimeout)
+@app.exception_handler(LockNotAvailable)
+@app.exception_handler(QueryCanceled)
 async def unavailable(request, exc):
     return JSONResponse(status_code=503, content={"detail": "Banco de dados indisponível."})
 

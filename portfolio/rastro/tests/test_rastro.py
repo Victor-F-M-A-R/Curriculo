@@ -81,7 +81,7 @@ class TelemetryTest(unittest.TestCase):
         with connect() as db:
             self.assertEqual(self.state(db)["unique_count"], 1)
 
-    def test_two_processes_with_different_device_times_keep_newest(self):
+    def test_two_connections_with_different_device_times_keep_newest(self):
         first, later = self.event(2, 10), self.event(3, 20)
         barrier = threading.Barrier(2)
 
@@ -109,4 +109,13 @@ class TelemetryTest(unittest.TestCase):
         with connect() as db, patch.object(demo, "DEMO_VEHICLE", self.asset):
             self.assertEqual([r["outcome"] for r in demo.send_scenario(db)], ["advanced", "replay", "late"])
             self.assertEqual([r["outcome"] for r in demo.send_scenario(db)], ["replay"] * 3)
+            self.assertEqual(self.state(db)["unique_count"], 2)
+
+    def test_demo_reports_conflict_without_overwriting_existing_event(self):
+        existing = demo.reading(self.asset, 5, 24, "-23.492100", "-46.541300", 17)
+        with connect() as db, patch.object(demo, "DEMO_VEHICLE", self.asset):
+            self.assertEqual(repo.ingest(db, existing), "advanced")
+            self.assertEqual([r["outcome"] for r in demo.send_scenario(db)],
+                             ["conflict", "conflict", "late"])
+            self.assertEqual(self.state(db)["speed_kmh"], 17)
             self.assertEqual(self.state(db)["unique_count"], 2)

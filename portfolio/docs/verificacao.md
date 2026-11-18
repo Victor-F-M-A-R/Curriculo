@@ -1,32 +1,53 @@
 # Evidências de execução
 
-Ambiente de referência de 18 de novembro de 2026. Dados sintéticos. Resultados abaixo obtidos antes do empacotamento.
+Revisão de **18 de novembro de 2026**, com dados sintéticos e bases dedicadas. Os resultados desta seção foram medidos novamente no computador de desenvolvimento: serviços Java 21, .NET 10 e Python 3.12 em contêineres Linux, PostgreSQL real e navegador Chromium. Os testes foram executados com recursos limitados e um trabalhador de navegador.
 
-| Verificação | Resultado medido | Como reproduzir |
+## Resultados desta revisão
+
+| Verificação | Resultado medido | Reprodução e escopo |
 | --- | --- | --- |
-| Spring · pátio e políticas de acesso | 5 testes aprovados em H2 e repetidos com PostgreSQL 17.12 | `mvn -f doca-norte/server/pom.xml test` |
-| Spring · projeção da portaria | 1 teste aprovou leitura fresca, defasada, vencida e ausente | `mvn -f doca-norte/portaria/pom.xml test` |
-| .NET · reconciliação | 8 casos aprovados em SQLite e repetidos com PostgreSQL 17.12 | `dotnet test lastro/tests -c Release` |
-| Flutter · aplicativo de campo | 3 testes aprovados, análise estática limpa e artefato Flutter Web de distribuição compilado | `flutter test`, `flutter analyze`, `flutter build web` em `doca-norte/field` |
-| FastAPI · assistente | 7 testes aprovados, incluindo isolamento de sessão, citação inventada, perda de medida, fila e reenvio | `python -m unittest -v` em `farol/service` |
-| Chromium · produtos completos | 7 testes aprovados. Reserva completa, importação/replay, login, revisão, citação e largura de tela | `bash tests/run-local.sh` após compilar os projetos |
-| Interface · enquadramento | Três produtos exercitados em 320, 390 e 1280 px. O documento coube na largura antes e após interação. | [Demonstrações](demonstracoes.md) |
-| FastAPI → n8n 2.48.5 → Inbox .NET | Entrega confirmada; reenvio manteve exatamente um evento; as duas bordas rejeitaram chamadas sem a credencial | `python tests/n8n_verify.py` |
-| Docker Compose | Configuração resolvida para cinco serviços na base e oito no perfil de automação. O host de verificação não forneceu daemon Docker. | `docker compose config --quiet` e `docker compose -f compose.yaml -f compose.automation.yaml --profile automation config --quiet` |
-| RAG · modo extrativo | Seção correta em 17 de 18 perguntas respondíveis, recuperação top-3 em 18 de 18 e 4 de 4 recusas corretas | [Resultado por pergunta](../farol/service/data/evaluation.json) |
-| RAG · Qwen local em CPU | Dois papéis executados por HTTPX e LangChain no caso WAN. Ensaio com as 22 perguntas disponível por consulta. | [Configuração e resultados](modelo.md) |
+| Spring · pátio e políticas de acesso | **7 testes aprovados em H2 e 7 em PostgreSQL** | `mvn -f doca-norte/server/pom.xml test`. Disputa de reserva, repetição, versão obrigatória, CSRF e papéis de leitura/escrita com identidades OIDC de teste. |
+| Spring · projeção da portaria | **1 teste aprovado** | `mvn -f doca-norte/portaria/pom.xml test`. Leituras atual, defasada, vencida e ausente. |
+| .NET · conciliação | **10 testes aprovados em SQLite e 10 em PostgreSQL** | `dotnet test lastro/tests -c Release`. Replay, rollback de lote, valores em centavos, isolamento por mesa, paginação com empate de horário e limite de bytes UTF-8. |
+| Lastro · contraste dos estados | **1 teste aprovado, cobrindo os cinco estados com contraste mínimo de 4,5:1** | `npm test` em `lastro/web`. Mede os pares de cores do CSS; não equivale a uma avaliação completa de acessibilidade. |
+| FastAPI · Farol | **14 testes aprovados** | `python -m unittest -v` em `farol/service`. Evidência literal e completa, recusas, isolamento de sessão, expiração, revisão concorrente e reenvio da fila. |
+| PostgreSQL · Rastro | **13 testes aprovados** | `python -m unittest discover -s tests -v` em `rastro`. Banco real, HTTP real, concorrência entre conexões, eventos fora de ordem, replay, conflito, rollback, autenticação e recuperação após bloqueio. |
+| Chromium · quatro produtos | **14 testes aprovados, sem cenários ignorados** | `bash tests/run-local.sh` com PostgreSQL configurado. Reserva, atualização após conflito, resposta de leitura atrasada, importação e replay, confirmação perdida, login, auditoria Blazor, citação, revisão, telemetria e recuperação de erro. |
+| RAG · recuperação no modo extrativo | **18/18 fontes corretas, 18/18 acertos top-3 e 4/4 recusas corretas** | `python evaluate.py --output data/evaluation.json` em `farol/service`. [Resultado por pergunta](../farol/service/data/evaluation.json). |
+| RAG · conteúdo no modo extrativo | **12/12 casos aprovados: 8 respostas completas e fundamentadas, 4 recusas corretas** | `python evaluate.py --suite content --output data/content-evaluation.json`. [Resultado por pergunta](../farol/service/data/content-evaluation.json). |
+| Demonstrações em MP4 | **4 arquivos de 27 s, 1440 × 810, H.264/yuv420p**, com legendas em português; Lastro também em inglês | Captura de operações nas aplicações em execução, seguida de composição e conferência dos fluxos com FFprobe. [Vídeos e reprodução das capturas](demonstracoes.md). |
+
+As repetições em dois bancos verificam os mesmos casos em cada mecanismo; não representam testes únicos adicionais. O [resumo estruturado](evidence/validation-2026-11-18.json) registra as contagens e os hashes SHA-256 dos quatro filmes, sem credenciais ou caminhos particulares do ambiente.
+
+## Interface, teclado e enquadramento
+
+A suíte usa **1280 × 840** como tamanho padrão e exercita os quatro aplicativos também em **390 px**. Doca e Rastro têm cenários adicionais em **320 px**. Os cenários correspondentes conferem que o documento cabe na largura disponível. Lastro verifica a seleção no celular, o retorno do foco ao repasse e a auditoria filtrada; Rastro verifica seleção por Tab/Enter e recuperação depois de falha na consulta.
+
+A apresentação dos projetos foi inspecionada no navegador em desktop e 320 px. Os links dos dois currículos, a seleção do projeto pelo teclado e a transcrição expansível foram conferidos. Essa amostra não cobre todas as combinações de navegador, dispositivo ou tecnologia assistiva.
+
+## Evidências históricas e validações separadas
+
+| Item | Situação nesta revisão |
+| --- | --- |
+| Qwen local e adaptadores HTTPX/LangChain | **Ensaio histórico preservado, sem nova execução do modelo.** [Configuração, respostas e limitações](modelo.md). As métricas atuais acima pertencem exclusivamente ao modo extrativo. |
+| Flutter | O registro anterior documenta 3 testes, análise estática e build web. **Não houve nova execução local nesta revisão.** A validação remota da branch será conferida no GitHub Actions; o resultado deve ser associado ao commit verificado. |
+| FastAPI → n8n → Inbox .NET | O registro anterior documenta entrega, replay e rejeição de chamadas sem credencial. A API Inbox foi compilada novamente nesta sessão. A nova execução integrada do workflow permanece uma verificação separada. |
+| Imagens dos produtos e Docker Compose | Os testes locais usaram contêineres de SDK e aplicações compiladas. Isso não comprova por si só o build das imagens finais nem a inicialização do conjunto Compose. O job remoto de contêineres verificará também o perfil de automação; o resultado ainda precisa ser conferido para esta branch. |
+| SQL Server | A compilação do adaptador está confirmada localmente. A nova execução contra SQL Server real pertence ao [workflow dedicado](https://github.com/Victor-F-M-A-R/Curriculo/actions/workflows/sql-server.yml), cujo resultado ainda precisa ser conferido para esta branch. |
+| Plano de consulta Rastro | A [captura em PostgreSQL 16.2](../rastro/evidence/explain-pg16.txt) é anterior a esta revisão e usa 60.000 eventos sintéticos. Os tempos não foram medidos novamente nesta sessão. |
+
+[Consultar as execuções do GitHub Actions](https://github.com/Victor-F-M-A-R/Curriculo/actions/workflows/verify.yml). Uma configuração de workflow ou uma execução anterior aprovada não substitui o resultado do commit publicado.
 
 ## Limites da demonstração
 
-Os testes usaram bibliotecas reais, processos HTTP, persistência e o Chromium. Flutter Web não mede a latência da biometria nem o desempenho de um aparelho físico. O papel OIDC foi exercitado em teste de política de grupo. O login em um tenant corporativo aguarda configuração.
+Os testes utilizam bibliotecas reais, processos HTTP, persistência e navegador. OIDC foi exercitado com identidades de teste, sem a troca completa com um provedor corporativo. Flutter Web não demonstra biometria nem desempenho em um aparelho físico.
 
-Os adaptadores para SQL Server e Azure Cosmos DB foram compilados. A integração contra instâncias externas, o deploy em AWS, o teste de carga e a operação de produção ficam fora dos resultados locais.
-
-O GitHub Actions executa duas verificações a cada publicação. Uma compila as interfaces, exercita os serviços com bancos locais e PostgreSQL e percorre os fluxos no Chromium. A outra analisa o cliente Flutter, executa seus testes e gera a distribuição web. [Histórico das verificações](https://github.com/Victor-F-M-A-R/Curriculo/actions/workflows/verify.yml)
+Os adaptadores SQL Server e Azure Cosmos DB foram compilados, mas a conexão com instâncias reais desses serviços não integra os resultados locais acima. Deploy AWS, carga sustentada, recuperação de backup e operação em produção também não foram verificados nesta sessão. Os dados de todos os projetos são fictícios; os resultados do Farol se restringem ao acervo e às perguntas publicados.
 
 ## Repetir os testes ponta a ponta
 
-1. Instale Node 24, Java 21 com Maven, .NET 10 e Python 3.12 com `farol/service/requirements.txt`.
-2. Em cada `web/`, execute `npm ci && npm run build`. Execute `mvn -f doca-norte/server/pom.xml package`, `mvn -f doca-norte/portaria/pom.xml package` e `dotnet build lastro/server -c Release`.
-3. Em `tests/`, execute `npm ci` e `npx playwright install chromium`. No Linux, se faltarem dependências, use a opção oficial `--with-deps`.
-4. Na raiz em Bash, execute `bash tests/run-local.sh`. O script inicia os serviços com dados descartáveis, opera o navegador e encerra apenas os processos que iniciou. Escolha portas alternativas com `PORT_DOCA`, `PORT_LASTRO`, `PORT_FAROL` e `PORT_GATE`.
+1. Disponibilize Node 24, Java 21 com Maven, .NET 10, Python 3.12 e uma base PostgreSQL **descartável e exclusiva dos testes**. Instale as dependências de `farol/service/requirements.txt` e `rastro/requirements.txt` em um ambiente Python isolado.
+2. Em `doca-norte/web`, `lastro/web` e `farol/web`, execute `npm ci` e `npm run build`. Compile `mvn -f doca-norte/server/pom.xml package`, `mvn -f doca-norte/portaria/pom.xml package` e `dotnet build lastro/server -c Release`, a partir de `portfolio/`.
+3. Em `portfolio/tests/`, execute `npm ci` e `npx playwright install chromium`. No Linux, se faltarem dependências, use a opção oficial `--with-deps`.
+4. Configure `RASTRO_DATABASE_URL` e a autenticação para a base dedicada, conforme o [README do Rastro](../rastro/README.md). Execute `bash tests/run-local.sh` a partir de `portfolio/`. O script exige PostgreSQL e inicia o Rastro para evitar que seus cenários sejam ignorados.
+5. O script encerra apenas os processos que iniciou. As portas podem ser alteradas com `PORT_DOCA`, `PORT_LASTRO`, `PORT_FAROL`, `PORT_GATE` e `PORT_RASTRO`. Para repetir Doca e Lastro em PostgreSQL, use também as variáveis de teste descritas nos READMEs de cada projeto.

@@ -1,13 +1,16 @@
 WEBVTT
 
-00:00:00.000 --> 00:00:03.350
-O operador seleciona a Doca 01 e informa a transportadora.
+00:00:00.000 --> 00:00:04.000
+Como impedir que duas pessoas reservem a mesma doca?
 
-00:00:03.350 --> 00:00:05.050
-A reserva atualiza a ficha, os contadores e a maquete.
+00:00:04.000 --> 00:00:10.000
+O operador reserva a Doca 01 para a transportadora. A reserva muda a posição que os outros operadores podem selecionar.
 
-00:00:05.050 --> 00:00:06.650
-O início da descarga muda a doca para Em operação.
+00:00:10.000 --> 00:00:16.000
+O início da descarga altera o estado da doca. A maquete e a ficha refletem a resposta da API.
 
-00:00:06.650 --> 00:00:09.920
-A liberação devolve a doca ao pátio. Os três movimentos ficam no livro.
+00:00:16.000 --> 00:00:22.000
+O histórico conserva as três movimentações. Depois da liberação, a doca pode receber outra carga.
+
+00:00:22.000 --> 00:00:27.000
+Uma doca livre e três movimentos no histórico.

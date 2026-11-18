@@ -88,5 +88,27 @@ class HttpContractTest(unittest.TestCase):
 
     def test_ingest_requires_token_and_demo_can_be_disabled(self):
         self.assertEqual(self.request("POST", "/api/events", self.event)[0], 401)
+        self.assertEqual(self.request("POST", "/api/events", self.event, "wrong-token")[0], 401)
         self.assertEqual(self.request("POST", "/api/demo/scenario")[0], 404)
         self.assertFalse(self.request("GET", "/api/fleet")[1]["demo"])
+
+    def test_external_ingest_is_disabled_without_configured_token(self):
+        with patch.object(app.state, "token", ""):
+            self.assertEqual(self.request("POST", "/api/events", self.event, self.key)[0], 503)
+        self.assertEqual(self.request("GET", f"/api/vehicles/{self.asset}/events")[1]["events"], [])
+
+    def test_history_rejects_missing_vehicle_and_unbounded_limit(self):
+        path = f"/api/vehicles/{self.asset}/events"
+        self.assertEqual(self.request("GET", path + "?limit=0")[0], 422)
+        self.assertEqual(self.request("GET", path + "?limit=101")[0], 422)
+        self.assertEqual(self.request("GET", "/api/vehicles/NOT-REGISTERED/events")[0], 404)
+
+    def test_lock_timeout_rolls_back_and_same_event_can_be_retried(self):
+        # Hold the vehicle from a second connection to reproduce a busy writer.
+        with psycopg.connect(os.environ["RASTRO_DATABASE_URL"]) as blocker:
+            blocker.execute("SELECT 1 FROM rastro.vehicles WHERE vehicle_id = %s FOR UPDATE", (self.asset,))
+            status, payload = self.request("POST", "/api/events", self.event, self.key)
+            self.assertEqual((status, payload), (503, {"detail": "Banco de dados indisponível."}))
+            self.assertEqual(self.request("GET", f"/api/vehicles/{self.asset}/events")[1]["events"], [])
+        self.assertEqual(self.request("POST", "/api/events", self.event, self.key),
+                         (201, {"outcome": "advanced"}))

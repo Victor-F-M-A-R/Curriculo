@@ -6,6 +6,7 @@ screen sequences come from the running product.
 """
 import argparse
 import json
+import os
 import subprocess
 import tempfile
 from functools import lru_cache
@@ -26,7 +27,15 @@ LANCZOS = Image.Resampling.LANCZOS
 def font(size, style="sans"):
     files = {"sans": "DejaVuSans.ttf", "bold": "DejaVuSans-Bold.ttf",
              "serif": "DejaVuSerif.ttf", "mono": "DejaVuSansMono.ttf"}
-    return ImageFont.truetype(files[style], size)
+    try:
+        return ImageFont.truetype(files[style], size)
+    except OSError:
+        # Windows does not ship DejaVu. Use installed system fonts without
+        # downloading or redistributing another font family.
+        windows = {"sans": "arial.ttf", "bold": "arialbd.ttf",
+                   "serif": "georgia.ttf", "mono": "consola.ttf"}
+        directory = Path(os.environ.get("WINDIR", "C:/Windows")) / "Fonts"
+        return ImageFont.truetype(str(directory / windows[style]), size)
 
 
 def wrap(draw, text, width, face):
@@ -104,7 +113,7 @@ def write_track(path, lines):
     for duration, text in zip(DURATIONS, lines, strict=True):
         cues.extend([f"{timestamp(elapsed)} --> {timestamp(elapsed + duration)}", text, ""])
         elapsed += duration
-    path.write_text("\n".join(cues) + "\n", encoding="utf-8")
+    path.write_text("\n".join(cues).rstrip() + "\n", encoding="utf-8")
 
 
 def verify_stream(path):
@@ -139,7 +148,7 @@ def render(key, source, destination):
         encoder = subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24",
                                     "-s", f"{W}x{H}", "-framerate", str(FPS), "-i", "pipe:0",
                                     "-vf", "fps=24,format=yuv420p", "-c:v", "libx264", "-preset", "veryfast",
-                                    "-crf", "20", "-threads", "3", str(raw)], stdin=subprocess.PIPE)
+                                    "-crf", "20", "-threads", "2", str(raw)], stdin=subprocess.PIPE)
         def hold(frame, seconds):
             pixels = frame.tobytes()
             for _ in range(seconds * FPS):

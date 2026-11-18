@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-18",
+  "scope": "Local verification of four portfolio applications with synthetic data",
+  "environment": {
+    "host": "Windows",
+    "services": "Linux SDK containers with limited resources",
+    "java": "21",
+    "dotnet": "10",
+    "python": "3.12",
+    "browser": "Chromium",
+    "browser_workers": 1
+  },
+  "test_runs": [
+    {"suite": "Doca server", "database": "H2", "passed": 7, "failed": 0, "skipped": 0},
+    {"suite": "Doca server", "database": "PostgreSQL", "passed": 7, "failed": 0, "skipped": 0},
+    {"suite": "Portaria", "passed": 1, "failed": 0, "skipped": 0},
+    {"suite": "Lastro", "database": "SQLite", "passed": 10, "failed": 0, "skipped": 0},
+    {"suite": "Lastro", "database": "PostgreSQL", "passed": 10, "failed": 0, "skipped": 0},
+    {"suite": "Lastro status contrast", "passed": 1, "failed": 0, "states_checked": 5, "minimum_ratio": 4.5},
+    {"suite": "Farol service", "passed": 14, "failed": 0},
+    {"suite": "Rastro SQL and HTTP", "database": "PostgreSQL", "passed": 13, "failed": 0},
+    {"suite": "Chromium products", "passed": 14, "failed": 0, "skipped": 0}
+  ],
+  "evaluation": {
+    "mode": "extractive",
+    "retrieval": {"cases": 22, "answerable": 18, "correct_cited_answers": 18, "retrieval_hits_at_3": 18, "unanswerable": 4, "correct_abstentions": 4},
+    "content": {"cases": 12, "answerable": 8, "complete_grounded_answers": 8, "unanswerable": 4, "correct_abstentions": 4, "passed": 12},
+    "qwen_rerun": false
+  },
+  "media": {
+    "source": "Chromium capture of running applications, edited with on-screen text",
+    "duration_seconds_each": 27,
+    "width": 1440,
+    "height": 810,
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "files": [
+      {"file": "doca.mp4", "captions": ["por"], "sha256": "b575a7da2db73149f763572242b71464029a5987a802fdde7f48043342d6bfa9"},
+      {"file": "lastro.mp4", "captions": ["por", "eng"], "sha256": "8f676defea83127fff90ae1834282372ef0fa09514beb969daa908518f51512f"},
+      {"file": "farol.mp4", "captions": ["por"], "sha256": "f00f737198d9392613b435d5f70e0e859c4c27a13dfb3a01fd06cbf03a2c34c6"},
+      {"file": "rastro.mp4", "captions": ["por"], "sha256": "83bb656e80efcbfdf169eb7b1f44b0d655b6687345200c588a0ca17edc0c4905"}
+    ]
+  },
+  "not_repeated_locally": [
+    "Flutter analysis, tests and web build",
+    "Final product Docker image builds and Compose automation profile",
+    "FastAPI to n8n to Inbox integrated delivery",
+    "SQL Server integration",
+    "Qwen HTTPX and LangChain evaluation",
+    "Rastro historical PostgreSQL 16.2 query plan benchmark"
+  ],
+  "limits": [
+    "Repeated database runs are not additional distinct test cases",
+    "Extractive evaluation is limited to the published synthetic corpus and questions",
+    "No physical-device biometrics, production load, backup recovery, corporate OIDC tenant or AWS deployment validated",
+    "Remote checks must be associated with the actual published commit"
+  ]
+}

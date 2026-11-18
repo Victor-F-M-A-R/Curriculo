@@ -10,6 +10,7 @@ const names = { free: "Livre", servicing: "Em operação", booked: "Reservada" }
 const nav = document.querySelector(".selector");
 const player = document.getElementById("demo");
 const section = document.getElementById("projetos");
+const videoHelp = document.getElementById("video-help");
 let selected;
 
 function display(key) {
@@ -27,6 +28,9 @@ function display(key) {
   document.getElementById("source").href =
     "https://github.com/Victor-F-M-A-R/Curriculo/tree/main/portfolio/" + info.project;
   player.pause();
+  videoHelp.hidden = true;
+  document.getElementById("video-download").href = "media/" + key + ".mp4";
+  document.getElementById("video-transcript").href = "case/" + key + ".html";
   player.poster = "media/" + key + ".webp";
   player.setAttribute("aria-label", "Demonstração de " + info.name);
   player.querySelector("source").src = "media/" + key + ".mp4";
@@ -45,7 +49,7 @@ function syncLocation() {
   if (Object.hasOwn(cases, key)) {
     display(key);
     section.scrollIntoView({ block: "start", behavior: "instant" });
-  } else {
+  } else if (!selected) {
     display("doca");
   }
 }
@@ -59,6 +63,8 @@ nav.addEventListener("click", (event) => {
   display(key);
 });
 window.addEventListener("hashchange", syncLocation);
+player.addEventListener("error", () => { videoHelp.hidden = false; });
+player.querySelector("source").addEventListener("error", () => { videoHelp.hidden = false; });
 syncLocation();
 
 mountYard(document.getElementById("scene"), {

@@ -56,7 +56,7 @@ A mostra contém as páginas individuais, a maquete de pátio, o currículo para
 
 Inicie os quatro aplicativos com bases de demonstração descartáveis. Use `RASTRO_DEMO=1` e o cenário ainda sem reenvios no Rastro. A gravação cria movimentos, concilia um extrato e executa o cenário de telemetria. Para reproduzir o filme de cada produto separadamente, acrescente `--only doca`, `--only lastro`, `--only farol` ou `--only rastro` aos dois comandos de produção.
 
-Instale as dependências Playwright em `tests/`, FFmpeg com libx264 e ffprobe, as fontes DejaVu e Pillow. A partir de `portfolio/`, execute o seguinte.
+Instale as dependências Playwright em `tests/`, FFmpeg com libx264 e ffprobe, e Pillow. Em Linux, disponibilize as fontes DejaVu. No Windows, quando DejaVu não está instalada, o editor usa Arial, Georgia e Consolas do próprio sistema. A partir de `portfolio/`, execute o seguinte.
 
 ```sh
 (cd tests && npm ci && npx playwright install chromium)

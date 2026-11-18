@@ -1,0 +1,16 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:04.000
+Qual posição mostrar quando os eventos da frota chegam fora de ordem?
+
+00:00:04.000 --> 00:00:10.000
+A mesa reúne a última posição dos veículos. Os dados deste cenário de demonstração estão em PostgreSQL.
+
+00:00:10.000 --> 00:00:16.000
+A chegada registra uma atualização, um reenvio e um atraso. A leitura antiga fica no histórico e preserva a posição mais recente.
+
+00:00:16.000 --> 00:00:22.000
+Repetir o cenário identifica três reenvios. A linha do tempo permite inspecionar as leituras do veículo.
+
+00:00:22.000 --> 00:00:27.000
+A posição atual é preservada e o histórico explica a chegada.
