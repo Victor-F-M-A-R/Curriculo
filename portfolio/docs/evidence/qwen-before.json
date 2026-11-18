@@ -1,0 +1,477 @@
+{
+  "suite": "Farol — validação de fonte e abstenção",
+  "provider": "llama.cpp b12503",
+  "model": "Qwen2.5-1.5B-Instruct-Q4_K_M",
+  "transport": "httpx",
+  "temperature": 0,
+  "cpu_threads": 4,
+  "context_tokens": 4096,
+  "elapsed_seconds": 79.983,
+  "accuracy": {
+    "pass": 21,
+    "total": 22
+  },
+  "in_scope": {
+    "correct_source": 17,
+    "total": 18
+  },
+  "out_of_scope": {
+    "abstained": 4,
+    "total": 4
+  },
+  "mode_counts": {
+    "seleção por LLM": 15,
+    "extrativo de contingência": 2,
+    "extrativo": 5
+  },
+  "unsupported_quotes": 0,
+  "median_seconds_per_case": 4.287,
+  "measurement": "A expectação aceita qualquer seção listada na pergunta e exige uma citação literalmente presente. A pontuação não verifica se o trecho contém cada fato da resposta esperada.",
+  "cases": [
+    {
+      "query": "Quantas falhas na WAN Ipê fazem a Cedro assumir?",
+      "kind": "answer",
+      "expected": [
+        "RB-01#s1"
+      ],
+      "actual": [
+        "RB-01#s1"
+      ],
+      "answer": "Depois de três falhas consecutivas na Ipê, o roteador transfere o tráfego para a Cedro automaticamente.",
+      "state": "answered",
+      "mode": "seleção por LLM",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 4.132,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1341.3,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "A internet principal voltou. Quanto tempo de estabilidade espero antes de voltar o tráfego?",
+      "kind": "answer",
+      "expected": [
+        "RB-01#s2"
+      ],
+      "actual": [
+        "RB-01#s2"
+      ],
+      "answer": "Depois que a WAN Ipê volta a responder, mantenha o tráfego na Cedro por dez minutos consecutivos de estabilidade. Se houver nova falha, reinicie essa contagem. Ao fim do período, o plantonista autoriza o retorno à Ipê e anota o horário no chamado.",
+      "state": "answered",
+      "mode": "seleção por LLM",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 4.592,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1250.7,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "Os dois circuitos caíram juntos. Quem avisamos dentro do campus?",
+      "kind": "answer",
+      "expected": [
+        "RB-01#s3"
+      ],
+      "actual": [
+        "RB-01#s3"
+      ],
+      "answer": "A secretaria recebe um aviso pelo ramal interno.",
+      "state": "answered",
+      "mode": "seleção por LLM",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 3.45,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1159.5,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "O documento da secretaria travou na fila de impressão. Posso cancelar os trabalhos dos outros?",
+      "kind": "answer",
+      "expected": [
+        "RB-02#s1"
+      ],
+      "actual": [
+        "RB-02#s1"
+      ],
+      "answer": "Cancele apenas o trabalho do solicitante com a autorização dele.",
+      "state": "answered",
+      "mode": "seleção por LLM",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 3.542,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1178.5,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "Em qual percentual do toner o almoxarifado deve ser acionado?",
+      "kind": "answer",
+      "expected": [
+        "RB-02#s2"
+      ],
+      "actual": [
+        "RB-02#s2"
+      ],
+      "answer": "Quando o painel indicar toner em 15% ou menos, abra uma solicitação de suprimento ao almoxarifado. Informe o patrimônio da impressora, o modelo do cartucho e o percentual exibido. Após a troca, registre o lote novo e encaminhe o cartucho usado ao ponto de coleta da secretaria.",
+      "state": "answered",
+      "mode": "seleção por LLM",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 5.553,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1232.5,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "O projetor diz sem sinal. Em que entrada fica o cabo da mesa?",
+      "kind": "answer",
+      "expected": [
+        "RB-03#s1"
+      ],
+      "actual": [
+        "RB-03#s1"
+      ],
+      "answer": "Se o projetor está ligado e exibe “sem sinal”, confira a entrada selecionada. O cabo fixo da mesa entra em HDMI 1. Conecte o notebook de referência ao mesmo cabo e anote se houve imagem. Se o teste falhar, o kit do armário A2 contém um cabo HDMI de reposição para manter a aula.",
+      "state": "answered",
+      "mode": "extrativo de contingência",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 4.859,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1267.6,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "O professor não encontra a tela para transmitir sem fio. Em qual rede o receptor deve estar?",
+      "kind": "answer",
+      "expected": [
+        "RB-03#s2"
+      ],
+      "actual": [
+        "RB-03#s2"
+      ],
+      "answer": "Para projetar sem fio, o professor e o receptor da sala precisam estar na rede Campus-Docente. Confira na tela inicial do receptor o nome no formato SALA- seguido do número da sala. Se a tela continuar ausente na lista de transmissão, use o cabo HDMI da mesa para a aula e informe o nome do receptor ao suporte audiovisual.",
+      "state": "answered",
+      "mode": "seleção por LLM",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 4.677,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1170.8,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "O professor pode renovar o empréstimo do Chromebook no fim do turno?",
+      "kind": "answer",
+      "expected": [
+        "RB-04#s1"
+      ],
+      "actual": [
+        "RB-04#s1"
+      ],
+      "answer": "Cada empréstimo vale por um turno. A renovação depende de disponibilidade e deve ser pedida antes do fim do turno.",
+      "state": "answered",
+      "mode": "seleção por LLM",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 3.877,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1237.2,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "Um aluno devolveu o Chromebook com a dobradiça quebrada. O equipamento volta para a prateleira?",
+      "kind": "answer",
+      "expected": [
+        "RB-04#s2"
+      ],
+      "actual": [
+        "RB-04#s2"
+      ],
+      "answer": "Na devolução de um Chromebook com avaria, marque o ativo como “em inspeção” e retire-o da prateleira de empréstimos. Anote o patrimônio e o defeito observado. Fotografe somente a parte danificada, com a tela apagada. O balcão pode liberar outra unidade após registrar a devolução da primeira.",
+      "state": "answered",
+      "mode": "seleção por LLM",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 5.167,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1325.2,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "A falha P1 atingiu dois blocos. De quanto em quanto tempo sai um informe?",
+      "kind": "answer",
+      "expected": [
+        "RB-05#s1"
+      ],
+      "actual": [
+        "RB-05#s1"
+      ],
+      "answer": "Registre no chamado quais blocos estão afetados.",
+      "state": "answered",
+      "mode": "seleção por LLM",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 3.646,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1203.1,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "Só uma sala teve problema e há um contorno. Qual a prioridade e o prazo inicial?",
+      "kind": "answer",
+      "expected": [
+        "RB-05#s2"
+      ],
+      "actual": [
+        "RB-05#s2"
+      ],
+      "answer": "Quando uma única sala fica sem um recurso necessário à aula e dispõe de um contorno, o chamado entra como P2. Confirme o recebimento em até 30 minutos. Registre o identificador da sala, o contorno oferecido e a confirmação do docente.",
+      "state": "answered",
+      "mode": "seleção por LLM",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 4.641,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1235.0,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "Quem dá o aceite de uma mudança programada e quando podemos executá-la?",
+      "kind": "answer",
+      "expected": [
+        "RB-06#s1"
+      ],
+      "actual": [],
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "state": "abstained",
+      "mode": "extrativo",
+      "source_and_state_correct": false,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 1.192,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1187.3,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "Depois da mudança, o teste de aceitação falhou de novo. Quando começa a reversão?",
+      "kind": "answer",
+      "expected": [
+        "RB-06#s2"
+      ],
+      "actual": [
+        "RB-06#s2"
+      ],
+      "answer": "Depois de aplicar a mudança, execute o teste de aceitação descrito no registro. Duas falhas seguidas nesse teste acionam a reversão. O executor restaura a configuração anterior aprovada, repete o teste e registra o resultado e o horário. O gestor do serviço recebe o informe no mesmo chamado.",
+      "state": "answered",
+      "mode": "seleção por LLM",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 4.57,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1045.1,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "Por quantos dias fica guardada a cópia de segurança de um arquivo apagado?",
+      "kind": "answer",
+      "expected": [
+        "RB-07#s1"
+      ],
+      "actual": [
+        "RB-07#s1"
+      ],
+      "answer": "Há uma cópia por noite, conservada por 14 dias corridos.",
+      "state": "answered",
+      "mode": "seleção por LLM",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 3.67,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1166.0,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "A restauração do arquivo sobrescreve diretamente o caminho original?",
+      "kind": "answer",
+      "expected": [
+        "RB-07#s2"
+      ],
+      "actual": [
+        "RB-07#s2"
+      ],
+      "answer": "Restaure primeiro numa pasta temporária identificada pelo número do chamado. O dono da pasta abre a cópia e verifica o conteúdo. Somente depois do aceite registrado o suporte pode recolocar o arquivo no caminho original. Registre a versão escolhida e o destino final.",
+      "state": "answered",
+      "mode": "seleção por LLM",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 4.512,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1148.0,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "Quais dados preciso deixar no quadro de passagem para o próximo plantonista?",
+      "kind": "answer",
+      "expected": [
+        "RB-08#s1"
+      ],
+      "actual": [
+        "RB-08#s1"
+      ],
+      "answer": "Na troca de plantão, cada incidente aberto precisa de quatro informações no quadro de passagem: número do chamado, impacto atual, próxima ação e horário da próxima atualização. Quem assume o turno confirma o recebimento no quadro. A responsabilidade muda no momento desse aceite.",
+      "state": "answered",
+      "mode": "seleção por LLM",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 4.443,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1129.0,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "Quem precisa confirmar a normalização antes de encerrar um incidente?",
+      "kind": "answer",
+      "expected": [
+        "RB-08#s2"
+      ],
+      "actual": [
+        "RB-08#s2"
+      ],
+      "answer": "Para encerrar um incidente, obtenha a confirmação de quem utiliza o serviço e registre o horário de normalização. Resuma a causa conhecida, a ação realizada e uma pendência que precise de acompanhamento. Quando a causa permanece em investigação, vincule essa investigação ao chamado antes do fechamento.",
+      "state": "answered",
+      "mode": "seleção por LLM",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 4.647,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1261.7,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "Onde encontro orientação sobre usar o cabo HDMI para continuar uma aula?",
+      "kind": "answer",
+      "expected": [
+        "RB-03#s1",
+        "RB-03#s2"
+      ],
+      "actual": [
+        "RB-03#s2"
+      ],
+      "answer": "Para projetar sem fio, o professor e o receptor da sala precisam estar na rede Campus-Docente. Confira na tela inicial do receptor o nome no formato SALA- seguido do número da sala. Se a tela continuar ausente na lista de transmissão, use o cabo HDMI da mesa para a aula e informe o nome do receptor ao suporte audiovisual.",
+      "state": "answered",
+      "mode": "extrativo de contingência",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 4.794,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1192.0,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "Qual é o preço mensal do contrato da operadora da WAN Cedro?",
+      "kind": "abstain",
+      "expected": [],
+      "actual": [],
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "state": "abstained",
+      "mode": "extrativo",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 1.18,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 1176.7,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "Quem ganhou o campeonato de xadrez deste semestre?",
+      "kind": "abstain",
+      "expected": [],
+      "actual": [],
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "state": "abstained",
+      "mode": "extrativo",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 0.979,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 976.2,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "Qual é a chave Pix da associação de pais?",
+      "kind": "abstain",
+      "expected": [],
+      "actual": [],
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "state": "abstained",
+      "mode": "extrativo",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 0.956,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 953.1,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    },
+    {
+      "query": "Em qual dia começa a matrícula da educação infantil?",
+      "kind": "abstain",
+      "expected": [],
+      "actual": [],
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "state": "abstained",
+      "mode": "extrativo",
+      "source_and_state_correct": true,
+      "verbatim_when_cited": true,
+      "elapsed_seconds": 0.902,
+      "plan": {
+        "name": "Planejamento da busca",
+        "ms": 898.8,
+        "detail": "buscar_acervo · todos os manuais"
+      }
+    }
+  ]
+}

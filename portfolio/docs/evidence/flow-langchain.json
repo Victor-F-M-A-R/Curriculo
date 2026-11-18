@@ -1,0 +1,49 @@
+{
+  "provider": "llama.cpp b12503",
+  "model": "qwen2.5-1.5b",
+  "transport": "langchain",
+  "context_size": 4096,
+  "cpu_threads": 4,
+  "query": "Quantas falhas na WAN Ipê fazem a Cedro assumir?",
+  "elapsed_seconds": 2.359,
+  "result": {
+    "state": "answered",
+    "answer": "Depois de três falhas consecutivas na Ipê, o roteador transfere o tráfego para a Cedro automaticamente.",
+    "evidence": [
+      {
+        "id": "RB-01#s1",
+        "title": "Continuidade dos links de internet",
+        "heading": "Quando o link de reserva assume",
+        "text": "A WAN Ipê é o link principal de internet do campus. A WAN Cedro fica em reserva. O monitor testa a saída a cada 20 segundos. Depois de três falhas consecutivas na Ipê, o roteador transfere o tráfego para a Cedro automaticamente. O plantonista registra o horário da troca e verifica o portal acadêmico a partir da rede de alunos.",
+        "owner": "Operações de rede",
+        "revision": "2026-10-06",
+        "quote": "Depois de três falhas consecutivas na Ipê, o roteador transfere o tráfego para a Cedro automaticamente."
+      }
+    ],
+    "mode": "seleção por LLM",
+    "trace": [
+      {
+        "name": "Planejamento da busca",
+        "ms": 1375.3,
+        "detail": "buscar_acervo · todos os manuais"
+      },
+      {
+        "name": "Busca vetorial",
+        "ms": 15.9,
+        "detail": "3 trechos recuperados por similaridade no SQLite."
+      },
+      {
+        "name": "Verificação de cobertura",
+        "ms": 0.1,
+        "detail": "Evidência suficiente para citar."
+      },
+      {
+        "name": "Seleção de evidência",
+        "ms": 968.0,
+        "detail": "seleção por LLM · origem conferida em RB-01#s1."
+      }
+    ]
+  },
+  "verified": true,
+  "used_model": true
+}

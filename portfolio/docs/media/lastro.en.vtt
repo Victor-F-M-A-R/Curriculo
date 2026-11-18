@@ -1,0 +1,13 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:03.400
+An analyst opens the reconciliation desk and loads a statement with two transfers.
+
+00:00:03.400 --> 00:00:05.200
+Reconciliation flags a BRL 17.50 difference on transfer REP-1048.
+
+00:00:05.200 --> 00:00:08.400
+The analyst opens the entry and explains the confirmed fee.
+
+00:00:08.400 --> 00:00:11.640
+The entry is marked as reviewed. The audit trail preserves the explanation.

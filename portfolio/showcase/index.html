@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#18221e" />
+    <title>Caderno aplicado — Victor Almeida</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="model/yard.css" />
+  </head>
+  <body>
+    <a class="skip" href="#projetos">Pular para os projetos</a>
+    <header class="top">
+      <div class="wrap bar">
+        <a class="wordmark" href="#inicio">Victor <i>Almeida</i></a>
+        <div class="edition">Engenharia de software</div>
+        <nav>
+          <a href="#projetos">Projetos</a><a href="caderno-aplicado.zip" download>Código-fonte ↗</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <section class="hero" id="inicio">
+        <div class="wrap cover">
+          <div class="cover-copy">
+            <p class="overline"><span></span>CADERNO APLICADO</p>
+            <h1>Sistemas em<br /><em>operação.</em></h1>
+            <p class="lede">
+              Um pátio de cargas, uma mesa de conciliação e um assistente de plantão. Três estudos de
+              engenharia, da interface à persistência.
+            </p>
+            <a class="index-link" href="#projetos">Ver demonstrações <b>↓</b></a>
+          </div>
+          <figure class="hero-model">
+            <div class="figure-top"><span>DOCA NORTE</span><span>MODELO INTERATIVO</span></div>
+            <div id="scene"></div>
+            <figcaption>
+              <strong id="dock-caption">D1 · Livre</strong><span>Selecione uma doca no modelo</span>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+      <section class="wrap works" id="projetos">
+        <div class="works-head">
+          <div>
+            <p class="overline">SELEÇÃO DE PROJETOS</p>
+            <h2>Caderno de demonstrações.</h2>
+          </div>
+          <span class="edition">Dados fictícios · Execuções gravadas</span>
+        </div>
+        <div class="selector" aria-label="Escolher projeto">
+          <button data-project="doca" aria-pressed="true">Doca Norte <small>Operações</small></button
+          ><button data-project="lastro" aria-pressed="false">Lastro <small>Financeiro</small></button
+          ><button data-project="farol" aria-pressed="false">
+            Farol <small>Inteligência artificial</small>
+          </button>
+        </div>
+        <div class="theater">
+          <div class="video">
+            <video
+              id="demo"
+              controls
+              playsinline
+              preload="metadata"
+              poster="media/doca.webp"
+              aria-label="Demonstração do Doca Norte"
+            >
+              <source src="media/doca.mp4" type="video/mp4" />
+              <track kind="captions" srclang="pt-BR" label="Português" src="media/doca.vtt" />
+            </video>
+          </div>
+          <article id="case" aria-live="polite">
+            <p class="overline" id="category">OPERAÇÕES LOGÍSTICAS</p>
+            <h3 id="title">Doca Norte</h3>
+            <p class="blurb" id="blurb">
+              Reserve uma doca, inicie a descarga e libere a posição. A maquete acompanha cada mudança do
+              pátio.
+            </p>
+            <dl>
+              <dt>Decisão de engenharia</dt>
+              <dd id="decision">
+                A reserva usa uma trava no banco e uma chave de repetição. Duas reservas simultâneas
+                disputam a mesma doca.
+              </dd>
+              <dt>Stack principal</dt>
+              <dd id="stack">Java · Spring Boot · Angular · Flutter · PostgreSQL</dd>
+            </dl>
+            <a id="readme" class="case-link" href="case/doca.html">Ler estudo de caso <span>↗</span></a>
+          </article>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <div class="wrap">
+        <span>Victor Almeida / Portfólio técnico</span
+        ><a href="caderno-aplicado.zip" download>Baixar os três projetos e o histórico Git ↓</a>
+      </div>
+    </footer>
+    <script type="module" src="show.js"></script>
+  </body>
+</html>
