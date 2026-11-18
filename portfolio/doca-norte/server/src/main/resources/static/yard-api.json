@@ -1,0 +1,249 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Doca Norte · Operações de pátio",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/yard": {
+      "get": {
+        "summary": "Ler docas e movimentos recentes",
+        "responses": {
+          "200": {
+            "description": "Leitura transacional do pátio",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snapshot"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/session": {
+      "get": {
+        "summary": "Obter identidade e token CSRF da sessão atual",
+        "responses": {
+          "200": {
+            "description": "Sessão HTTP",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/docks/{id}/moves": {
+      "post": {
+        "summary": "Aplicar transição à doca e registrar evento",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-TOKEN",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Command"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Estado atual após execução ou replay",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dock"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Comando ou UUID inválido"
+          },
+          "403": {
+            "description": "CSRF ou permissão de operador ausente"
+          },
+          "404": {
+            "description": "Doca desconhecida"
+          },
+          "409": {
+            "description": "Conflito de versão, estado ou idempotência"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Dock": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "cargo",
+          "carrier",
+          "status",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "cargo": {
+            "type": "string"
+          },
+          "carrier": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "free",
+              "booked",
+              "servicing"
+            ]
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "Movement": {
+        "type": "object",
+        "required": [
+          "dockId",
+          "action",
+          "carrier",
+          "actor",
+          "at"
+        ],
+        "properties": {
+          "dockId": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "carrier": {
+            "type": "string"
+          },
+          "actor": {
+            "type": "string"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Command": {
+        "type": "object",
+        "required": [
+          "action",
+          "carrier",
+          "expectedVersion"
+        ],
+        "properties": {
+          "action": {
+            "enum": [
+              "book",
+              "start",
+              "release",
+              "cancel"
+            ]
+          },
+          "carrier": {
+            "type": "string"
+          },
+          "expectedVersion": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "Snapshot": {
+        "type": "object",
+        "required": [
+          "docks",
+          "moves"
+        ],
+        "properties": {
+          "docks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Dock"
+            }
+          },
+          "moves": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Movement"
+            }
+          }
+        }
+      },
+      "Session": {
+        "type": "object",
+        "required": [
+          "actor",
+          "canWrite",
+          "federated",
+          "csrfHeader",
+          "csrf"
+        ],
+        "properties": {
+          "actor": {
+            "type": "string"
+          },
+          "canWrite": {
+            "type": "boolean"
+          },
+          "federated": {
+            "type": "boolean"
+          },
+          "csrfHeader": {
+            "type": "string"
+          },
+          "csrf": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
