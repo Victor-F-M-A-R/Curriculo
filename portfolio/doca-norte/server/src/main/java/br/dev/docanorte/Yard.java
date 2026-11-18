@@ -1,5 +1,8 @@
 package br.dev.docanorte;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,10 +30,15 @@ public class Yard {
     long version
   ) {}
 
-  public record Command(String action, String carrier, long expectedVersion) {}
+  public record Command(
+    String action,
+    String carrier,
+    @JsonProperty(required = true) @JsonSetter(nulls = Nulls.FAIL) long expectedVersion
+  ) {}
 
   public record Move(
     String dockId,
+    long dockVersion,
     String action,
     String carrier,
     String actor,
@@ -77,6 +85,7 @@ public class Yard {
       (r, i) ->
         new Move(
           r.getString("dock_id"),
+          r.getLong("expected_version") + 1,
           r.getString("action"),
           r.getString("carrier"),
           r.getString("actor"),

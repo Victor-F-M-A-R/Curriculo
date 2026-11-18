@@ -1,64 +1,108 @@
-"""Build the self-contained portfolio gallery. Run with Python 3.10+ from a Git checkout."""
+"""Build the self-contained portfolio gallery from a Git checkout (Python 3.10+)."""
 import argparse
 import html
+import json
 import shutil
 import subprocess
 import tempfile
 from pathlib import Path
-from zipfile import ZipFile, ZIP_DEFLATED
+from zipfile import ZIP_DEFLATED, ZipFile
 
-ROOT=Path(__file__).resolve().parents[1]
-CASES={
-    "doca":("Doca Norte","O que acontece se dois operadores reservarem a mesma doca?",
-            "A leitura na tela pode envelhecer entre a seleção e o clique. O serviço Spring trava a linha, compara a versão recebida e persiste a mudança com um evento na mesma transação.",
-            "Duas operações simultâneas sobre D1 produziram um sucesso e um conflito. A regra passou em H2 e PostgreSQL.",
-            "O aplicativo Flutter consome a leitura da portaria. O teste em aparelho físico ainda é necessário para medir biometria e fluidez nativa.",
-            "doca-norte/server/src/main/java/br/dev/docanorte/Yard.java","docker compose up --build -d doca portaria"),
-    "lastro":("Lastro","Como rejeitar um extrato sem deixar meio lote gravado?",
-            "O parser converte valores em centavos e confere datas e referências. A transação inclui todos os recebimentos e o evento de auditoria. Um novo envio do mesmo arquivo encontra sua impressão digital.",
-            "O teste colocou uma referência nova no início e uma duplicada no final. O banco reverteu a primeira linha e o evento. A suíte passou em SQLite e PostgreSQL.",
-            "A projeção para Cosmos reutiliza o ID do evento em cada upsert. O adaptador foi compilado e aguarda validação com uma instância real.",
-            "lastro/server/Book.cs","docker compose up --build -d lastro"),
-    "farol":("Farol","Como mostrar de onde saiu a resposta de um agente?",
-            "O arquivista escolhe a busca no acervo ou em um manual. O índice SQLite-vec recupera as seções. O editor extrai a resposta e o servidor verifica se a citação existe literalmente na fonte.",
-            "Um modelo Qwen de 1,5 bilhão de parâmetros foi executado em CPU. A fila de revisão percorreu FastAPI, n8n e .NET. Reenviar o evento preservou uma única linha de revisão.",
-            "O conjunto tem 22 perguntas de desenvolvimento. Uma pergunta sobre mudança programada revelou uma recusa indevida. A matriz identifica quais métricas medem recuperação e quais exigem revisão humana.",
-            "farol/service/search.py","docker compose up --build -d farol"),
-}
+ROOT = Path(__file__).resolve().parents[1]
+SHOWCASE = ROOT / "showcase"
+CASES = json.loads((SHOWCASE / "cases.json").read_text(encoding="utf-8"))
+REPO = "https://github.com/Victor-F-M-A-R/Curriculo"
+CV = ("Victor_Almeida_Curriculo.pdf", "Victor_Almeida_Curriculo_ATS.txt")
 
-def bundle(dest):
-    repository = subprocess.check_output(
-        ["git", "rev-parse", "--show-toplevel"], cwd=ROOT, text=True
-    ).strip()
+
+def bundle(destination):
+    repository = subprocess.check_output(["git", "rev-parse", "--show-toplevel"], cwd=ROOT, text=True).strip()
     with tempfile.TemporaryDirectory() as folder:
-        archive=Path(folder)/"source.zip"
-        history=Path(folder)/"historico.bundle"
-        subprocess.run(["git","archive","--format=zip","-o",str(archive),"HEAD"],cwd=repository,check=True)
-        subprocess.run(["git","bundle","create",str(history),"HEAD","--branches","--tags"],cwd=ROOT,check=True)
-        shutil.copyfile(archive,dest)
-        with ZipFile(dest,"a",compression=ZIP_DEFLATED) as z:z.write(history,"historico.bundle")
+        archive = Path(folder) / "source.zip"
+        history = Path(folder) / "historico.bundle"
+        subprocess.run(["git", "archive", "--format=zip", "-o", str(archive), "HEAD"], cwd=repository, check=True)
+        subprocess.run(["git", "bundle", "create", str(history), "HEAD"], cwd=repository, check=True)
+        shutil.copyfile(archive, destination)
+        with ZipFile(destination, "a", compression=ZIP_DEFLATED) as package:
+            package.write(history, "historico.bundle")
+
+
+def build_home():
+    page = (SHOWCASE / "index.html").read_text(encoding="utf-8")
+    links = []
+    metadata = {}
+    for slug, c in CASES.items():
+        current = ' aria-current="true"' if slug == "doca" else ""
+        links.append(f'<a href="case/{slug}.html" data-project="{slug}"{current}>'
+                     f'{html.escape(c["name"])} <small>{html.escape(c["label"])}</small></a>')
+        metadata[slug] = {field: c[field] for field in ("name", "category", "brief", "stack", "project")}
+        metadata[slug]["english"] = "english" in c
+    payload = json.dumps(metadata, ensure_ascii=False).replace("<", "\\u003c")
+    return page.replace("<!-- PROJECT_LINKS -->", "\n".join(links)).replace("<!-- CASE_DATA -->", payload)
+
+
+def build_case(slug, case):
+    esc = html.escape
+    name = esc(case["name"])
+    labels = [(0, "Escopo", case["question"])]
+    labels.extend((start, part[0], " ".join(part[1:])) for start, part in zip([4, 10, 16], case["scenes"], strict=True))
+    labels.append((22, "Resultado", case["outcome"]))
+    transcript = "\n".join(f"<dt>0:{start:02} · {esc(label)}</dt><dd>{esc(description)}</dd>" for start, label, description in labels)
+    english = f'<track kind="captions" srclang="en" label="English" src="../media/{slug}.en.vtt" />' if "english" in case else ""
+    return f'''<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="description" content="{esc(case["brief"], quote=True)}" />
+<title>{name} · Estudo de caso de Victor Almeida</title><link rel="stylesheet" href="../style.css" />
+</head><body>
+<a href="#estudo" class="skip">Pular para o estudo</a>
+<header class="top"><div class="bar wrap"><a class="wordmark" href="../index.html">Victor <i>Almeida</i></a>
+<nav aria-label="Navegação"><a href="../index.html#{slug}">Projetos</a><a href="../curriculo/{CV[0]}">Currículo PDF</a></nav></div></header>
+<main class="article" id="estudo">
+<p class="overline">{esc(case["category"])}</p><h1>{name}</h1>
+<p class="question">{esc(case["question"])}</p>
+<video controls playsinline preload="none" poster="../media/{slug}.webp" aria-label="Demonstração de {name}">
+<source src="../media/{slug}.mp4" type="video/mp4" /><track kind="captions" srclang="pt-BR" label="Português" src="../media/{slug}.vtt" />{english}
+</video>
+<details class="transcript"><summary>Ler a transcrição do vídeo</summary><dl>{transcript}</dl></details>
+<h2>O problema e a solução</h2><p>{esc(case["brief"])}</p><p>{esc(case["decision"])}</p>
+<h2>Como verificar</h2><p>{esc(case["evidence"])}</p><p>{esc(case["limit"])}</p>
+<div class="resource-links"><a href="{REPO}/blob/main/portfolio/{case["path"]}">{esc(case["action"])}</a><a href="{REPO}/tree/main/portfolio/{case["project"]}">Código e documentação</a></div>
+<h2>Executar localmente</h2><p>Na pasta <code>portfolio</code> do repositório, inicie os serviços com Docker Compose.</p>
+<pre>{esc(case["cmd"])}</pre><p>Abra <code>http://localhost:{case["port"]}</code>.</p>
+<div class="resource-links"><a href="../media/{slug}.mp4" download>Baixar MP4</a><a href="../media/{slug}-mobile.webp">Ver no celular</a><a href="../caderno-aplicado.zip" download>Baixar os quatro projetos e o histórico Git</a></div>
+</main></body></html>'''
+
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument("--out",type=Path,required=True)
-    parser.add_argument("--archive",type=Path);args=parser.parse_args()
-    out=args.out.resolve()
-    if out==ROOT or out==ROOT/"showcase":raise SystemExit("Use um diretório de saída dedicado.")
-    out.mkdir(exist_ok=True,parents=True)
-    for name in ["index.html","show.js","style.css"]:shutil.copyfile(ROOT/"showcase"/name,out/name)
-    for name,src in [("media",ROOT/"docs/media"),("fonts",ROOT/"showcase/fonts")]:
-        shutil.copytree(src,out/name,dirs_exist_ok=True)
-    (out/"model").mkdir(exist_ok=True)
-    for suffix in ["css","js"]:
-        name="yard."+suffix;shutil.copyfile(ROOT/"doca-norte/web/src"/name,out/"model"/name)
-    (out/"case").mkdir(exist_ok=True)
-    for key,(title,question,decision,evidence,limit,source,cmd) in CASES.items():
-        page=f"""<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title} · Caderno aplicado</title><link rel="stylesheet" href="../style.css"></head>
-        <body><header class="top"><div class="bar wrap"><a class="wordmark" href="../index.html">Victor <i>Almeida</i></a><a href="../index.html#{key}">Voltar à demonstração ↗</a></div></header>
-        <main class="article"><p class="overline">ESTUDO DE CASO</p><h1>{title}</h1><h2>{question}</h2><p>{decision}</p>
-        <img src="../media/{key}.webp" alt="Interface real do {title}"><h2>O que o teste mostrou</h2><p>{evidence}</p><p>{limit}</p><h2>Rodar localmente</h2><p>Extraia o código e execute na pasta que contém <code>compose.yaml</code>.</p><pre>{html.escape(cmd)}</pre><p>Entrada de código para sua leitura:</p><pre>{html.escape(source)}</pre>
-        <a href="../caderno-aplicado.zip" download>Baixar o código e o histórico Git ↓</a></main></body></html>"""
-        (out/"case"/(key+".html")).write_text(page,encoding="utf-8")
-    if args.archive:shutil.copyfile(args.archive,out/"caderno-aplicado.zip")
-    else:bundle(out/"caderno-aplicado.zip")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument("--archive", type=Path, help="Use um pacote de código já construído.")
+    args = parser.parse_args()
+    out = args.out.resolve()
+    if out in {ROOT, SHOWCASE, ROOT.parent}:
+        raise SystemExit("Use um diretório de saída dedicado.")
+    out.mkdir(exist_ok=True, parents=True)
+    (out / "index.html").write_text(build_home(), encoding="utf-8")
+    for name in ("show.js", "style.css"):
+        shutil.copyfile(SHOWCASE / name, out / name)
+    for name, source in [("media", ROOT / "docs/media"), ("fonts", SHOWCASE / "fonts")]:
+        shutil.copytree(source, out / name, dirs_exist_ok=True)
+    for folder in ("case", "model", "curriculo"):
+        (out / folder).mkdir(exist_ok=True)
+    for suffix in ("css", "js"):
+        name = "yard." + suffix
+        shutil.copyfile(ROOT / "doca-norte/web/src" / name, out / "model" / name)
+    for name in CV:
+        shutil.copyfile(ROOT.parent / "curriculo" / name, out / "curriculo" / name)
+    for slug, case in CASES.items():
+        (out / "case" / f"{slug}.html").write_text(build_case(slug, case), encoding="utf-8")
+    target = out / "caderno-aplicado.zip"
+    if args.archive:
+        shutil.copyfile(args.archive, target)
+    else:
+        bundle(target)
 
-if __name__=="__main__":main()
+
+if __name__ == "__main__":
+    main()

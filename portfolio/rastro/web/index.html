@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#112c35">
+  <title>Rastro · Monitor da frota</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/assets/style.css">
+  <script type="module" src="/assets/monitor.js"></script>
+</head>
+<body>
+  <a class="skip" href="#monitor">Ir para o monitor</a>
+  <header class="bar"><div class="wrap bar-inner">
+    <div class="brand"><b class="brand-mark" aria-hidden="true">↗</b>Rastro</div>
+    <span class="area">Telemetria de frotas</span>
+    <span class="db-status" role="status"><i></i><span id="db-status">Conectando</span></span>
+  </div></header>
+  <main id="monitor" class="wrap">
+    <div class="hero">
+      <div><p id="dataset" class="eyebrow">Operação</p><h1>Monitor da frota</h1></div>
+      <div class="actions">
+        <button type="button" class="secondary" id="reload">Atualizar</button>
+        <button type="button" class="primary" id="simulate" hidden>Simular chegada</button>
+      </div>
+    </div>
+    <p id="notice" role="alert" hidden></p>
+    <section aria-label="Resumo da frota" class="totals">
+      <div><span>Veículos</span><strong id="vehicles-total">—</strong></div>
+      <div><span>Posições únicas</span><strong id="events-total">—</strong></div>
+      <div><span>Leituras atrasadas</span><strong id="late-total">—</strong></div>
+    </section>
+    <div class="layout">
+      <section class="panel fleets" aria-labelledby="fleet-heading">
+        <div class="panel-title"><h2 id="fleet-heading">Veículos</h2></div>
+        <div id="vehicle-list"><p class="muted">Carregando frota…</p></div>
+      </section>
+      <section class="panel track" aria-labelledby="track-heading">
+        <div class="panel-title"><div><p class="eyebrow">Trajeto observado</p><h2 id="track-heading">Selecione um veículo</h2></div>
+          <span class="live-label" id="vehicle-code"></span></div>
+        <canvas id="track-map" aria-hidden="true"></canvas>
+        <div class="facts">
+          <div><span>Última leitura · Brasília</span><strong id="last-time">—</strong></div>
+          <div><span>Velocidade registrada</span><strong id="last-speed">—</strong></div>
+          <div><span>Latitude / longitude</span><strong id="coordinates">—</strong></div>
+        </div>
+      </section>
+    </div>
+    <section id="scenario-result" class="result" aria-live="polite" hidden>
+      <h2>Comprovante da chegada</h2>
+      <p id="result-summary"></p><ol id="result-items"></ol>
+    </section>
+    <section aria-labelledby="timeline-heading" class="panel timeline">
+      <div class="panel-title"><div><p class="eyebrow">Mais recentes primeiro</p><h2 id="timeline-heading">Histórico de posições</h2></div>
+        <span class="muted" id="timeline-asset"></span></div>
+      <div id="event-list"></div>
+    </section>
+  </main>
+</body>
+</html>

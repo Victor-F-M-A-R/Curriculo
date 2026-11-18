@@ -35,6 +35,10 @@ def initialize():
             id text primary key, run_id text unique not null references runs(id) on delete cascade,
             delivery text not null, attempts integer not null default 0, next_at real not null default 0
           );
+          create index if not exists runs_by_created on runs(created);
+          create view if not exists visible_runs as
+            select * from runs where created >= (strftime('%s','now') - 604800)
+            or exists(select 1 from reviews where run_id=runs.id and delivery in ('queued','sending'));
         """)
 
 
@@ -64,7 +68,7 @@ def list_runs(session):
         return [
             dict(r)
             for r in db.execute(
-                "select id,question,created from runs where session=? order by created desc limit 30",
+                "select id,question,created from visible_runs where session=? order by created desc limit 30",
                 (session,),
             )
         ]
@@ -73,7 +77,7 @@ def list_runs(session):
 def get(session, ident):
     with connection() as db:
         row = db.execute(
-            """select r.*,v.delivery from runs r left join reviews v on v.run_id=r.id
+            """select r.*,v.delivery from visible_runs r left join reviews v on v.run_id=r.id
                           where r.session=? and r.id=?""",
             (session, ident),
         ).fetchone()
@@ -87,17 +91,19 @@ def get(session, ident):
 
 def review(session, ident, webhook):
     with connection() as db:
-        if not db.execute(
-            "select 1 from runs where session=? and id=?", (session, ident)
-        ).fetchone():
-            return None
+        # Scope the insert itself so a concurrent history deletion cannot leave
+        # a pending review for a run that has disappeared.
         db.execute(
-            "insert into reviews(id,run_id,delivery) values(?,?,?) on conflict(run_id) do nothing",
-            (uuid.uuid4().hex, ident, "queued" if webhook else "local"),
+            """insert into reviews(id,run_id,delivery)
+               select ?,id,? from visible_runs where session=? and id=?
+               on conflict(run_id) do nothing""",
+            (uuid.uuid4().hex, "queued" if webhook else "local", session, ident),
         )
-        return db.execute(
-            "select delivery from reviews where run_id=?", (ident,)
-        ).fetchone()[0]
+        row = db.execute(
+            """select reviews.delivery from reviews join visible_runs r on r.id=reviews.run_id
+               where r.session=? and r.id=?""", (session, ident)
+        ).fetchone()
+        return row["delivery"] if row else None
 
 
 def claim():

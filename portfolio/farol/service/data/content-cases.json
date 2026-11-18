@@ -1,0 +1,14 @@
+[
+  {"id":"C01","query":"Depois que o link principal responde de novo, quem autoriza a volta e por quanto tempo ele precisa ficar estável?","expected":["RB-01#s2"],"facts":["plantonista","dez minutos"]},
+  {"id":"C02","query":"O balcão precisa de que documento do professor para emprestar um Chromebook e por quanto tempo vale a retirada?","expected":["RB-04#s1"],"facts":["crachá","um turno"]},
+  {"id":"C03","query":"Ao pedir a cópia de um arquivo apagado, que duas informações o dono da pasta entrega ao suporte?","expected":["RB-07#s1"],"facts":["caminho","última data"]},
+  {"id":"C04","query":"Se a projeção sem fio da sala sumir, em qual rede confiro o receptor e qual cabo mantém a aula?","expected":["RB-03#s2"],"facts":["Campus-Docente","HDMI"]},
+  {"id":"C05","query":"Para fechar um incidente, quem confirma o serviço e qual horário fica no registro?","expected":["RB-08#s2"],"facts":["quem utiliza o serviço","horário de normalização"]},
+  {"id":"C06","query":"Na passagem de plantão, o que o próximo turno precisa saber sobre o impacto e o acompanhamento?","expected":["RB-08#s1"],"facts":["impacto atual","próxima ação","horário da próxima atualização"]},
+  {"id":"C07","query":"O que faço com o cartucho usado da impressora após a troca e qual identificação anoto?","expected":["RB-02#s2"],"facts":["lote novo","ponto de coleta"]},
+  {"id":"C08","query":"No retorno de um Chromebook avariado, onde ele fica e que parte pode ser fotografada?","expected":["RB-04#s2"],"facts":["em inspeção","parte danificada","tela apagada"]},
+  {"id":"C09","query":"Qual é a mensalidade para usar a rede Campus-Docente?","expected":[],"facts":[]},
+  {"id":"C10","query":"Quanto custa cada cartucho da impressora da secretaria?","expected":[],"facts":[]},
+  {"id":"C11","query":"Qual é o nome do fornecedor do Chromebook da escola?","expected":[],"facts":[]},
+  {"id":"C12","query":"Onde consigo o cardápio das refeições da cantina?","expected":[],"facts":[]}
+]

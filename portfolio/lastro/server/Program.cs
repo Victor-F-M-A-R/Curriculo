@@ -47,6 +47,8 @@ app.Use(
     async (ctx, next) =>
     {
         ctx.Response.Headers["X-Content-Type-Options"] = "nosniff";
+        ctx.Response.Headers["Content-Security-Policy"] = "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'";
+        ctx.Response.Headers["Referrer-Policy"] = "same-origin";
         if (
             ctx.Request.Path.StartsWithSegments("/api")
             || ctx.Request.Path.StartsWithSegments("/audit")

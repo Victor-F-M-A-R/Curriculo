@@ -233,20 +233,20 @@ dl {
   width: 6px;
 }
 .matched {
-  --c: #50765f;
+  --c: #315f45;
   --p: #dce9d9;
 }
 .disputed,
 .orphan {
-  --c: #995219;
+  --c: #81420f;
   --p: #f5e1bb;
 }
 .pending {
-  --c: #666e70;
+  --c: #475455;
   --p: #e1e4e0;
 }
 .reviewed {
-  --c: #426286;
+  --c: #315272;
   --p: #e0e7ee;
 }
 .strip i,
@@ -317,8 +317,8 @@ form textarea {
 }
 .row small {
   display: block;
-  color: #647268;
-  font-size: 9px;
+  color: #4e6053;
+  font-size: 11px;
 }
 .row b {
   font-size: 14px;
@@ -347,6 +347,16 @@ form textarea {
 }
 .detail h2 {
   margin: 0 0 12px;
+}
+.detail h2:focus-visible {
+  outline: 2px solid #85502c;
+  outline-offset: 3px;
+}
+.back-to-row {
+  display: none;
+}
+.empty-results {
+  padding-block: 16px;
 }
 .detail dl {
   margin: 20px 0;
@@ -483,6 +493,21 @@ dialog .dark {
   }
   .detail {
     position: static;
+    scroll-margin-top: 10px;
+  }
+  .back-to-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    background: transparent;
+    border: 0;
+    padding: 0 0 7px;
+    color: var(--dark);
+    text-decoration: underline;
+  }
+  .row {
+    min-height: 44px;
   }
   .filters {
     flex-direction: column;

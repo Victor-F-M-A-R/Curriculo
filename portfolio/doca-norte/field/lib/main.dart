@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -40,6 +42,9 @@ class FieldScreen extends StatefulWidget {
 class _FieldScreenState extends State<FieldScreen> with WidgetsBindingObserver {
   List<Dock> docks = [];
   String? error;
+  DateTime? confirmedAt;
+  Timer? readExpiry;
+  bool expired = false;
   bool busy = false, readingNote = false, noteVisible = false;
   int backgroundEpoch = 0;
   static const labels = {
@@ -56,12 +61,19 @@ class _FieldScreenState extends State<FieldScreen> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    readExpiry?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      final last = confirmedAt;
+      if (last == null || DateTime.now().difference(last) > const Duration(seconds: 20)) {
+        refresh();
+      }
+    }
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.hidden) {
       backgroundEpoch++;
@@ -75,15 +87,24 @@ class _FieldScreenState extends State<FieldScreen> with WidgetsBindingObserver {
     if (busy) return;
     setState(() {
       busy = true;
-      error = null;
     });
     try {
       final data = await widget.load();
-      if (mounted) setState(() => docks = data);
+      if (!mounted) return;
+      setState(() {
+        docks = data;
+        confirmedAt = DateTime.now();
+        expired = false;
+        error = null;
+      });
+      readExpiry?.cancel();
+      readExpiry = Timer(const Duration(seconds: 20), () {
+        if (mounted) setState(() => expired = true);
+      });
     } catch (_) {
       if (mounted) {
         setState(
-          () => error = 'Sem leitura atualizada da portaria. Confira o endpoint e tente novamente.',
+          () => error = 'Sem leitura atualizada da portaria. Tente atualizar o pátio.',
         );
       }
     } finally {
@@ -100,6 +121,7 @@ class _FieldScreenState extends State<FieldScreen> with WidgetsBindingObserver {
     setState(() => readingNote = true);
     const vault = FlutterSecureStorage();
     try {
+      final epoch = backgroundEpoch;
       final auth = LocalAuthentication();
       if (!await auth.canCheckBiometrics ||
           (await auth.getAvailableBiometrics()).isEmpty) {
@@ -111,7 +133,7 @@ class _FieldScreenState extends State<FieldScreen> with WidgetsBindingObserver {
       )) {
         return;
       }
-      final epoch = backgroundEpoch;
+      if (!mounted || epoch != backgroundEpoch) return;
       final previous = await vault.read(key: 'note-${dock.id}') ?? '';
       if (!mounted || epoch != backgroundEpoch) return;
       noteVisible = true;
@@ -169,6 +191,15 @@ class _FieldScreenState extends State<FieldScreen> with WidgetsBindingObserver {
               'Docas do pátio',
               style: Theme.of(context).textTheme.headlineLarge,
             ),
+            if (confirmedAt case final time?)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  'Leitura recebida às ${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(time), alwaysUse24HourFormat: true)}',
+                ),
+              ),
+            if (expired && error == null)
+              const Text('Leitura antiga. Atualize antes de orientar o pátio.'),
             if (busy) const LinearProgressIndicator(),
             if (error != null)
               Padding(

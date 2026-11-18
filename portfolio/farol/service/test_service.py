@@ -1,11 +1,13 @@
 import os
 import tempfile
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from unittest.mock import patch
 
 import storage
 from app import INDEX, app
 from fastapi.testclient import TestClient
+from evaluate import evaluate_content, grade_content
 from search import answer
 
 
@@ -77,6 +79,58 @@ class FarolTest(unittest.TestCase):
             404,
         )
 
+    def test_change_approval_and_window_survive_the_paraphrase(self):
+        item = self.client.post(
+            "/api/ask",
+            json={"query": "Quem dá o aceite de uma mudança programada e quando podemos executá-la?"},
+        ).json()
+        self.assertEqual(item["evidence"][0]["id"], "RB-06#s1")
+        for fact in ("responsável técnico", "gestor do serviço", "19h às 20h"):
+            self.assertIn(fact, item["answer"])
+
+    def test_contact_question_requires_both_field_and_subject_in_the_passage(self):
+        missing = answer(INDEX, "Qual o telefone do fabricante do Chromebook?", use_model=False)
+        present = answer(INDEX, "Onde aparece o nome do receptor para projeção sem fio?", use_model=False)
+        self.assertEqual(missing["state"], "abstained")
+        self.assertEqual(present["evidence"][0]["id"], "RB-03#s2")
+
+    def test_right_section_with_incomplete_answer_fails_content_grade(self):
+        passage = next(p for p in INDEX.passages if p.id == "RB-05#s1")
+        quote = "Registre no chamado quais blocos estão afetados."
+        case = {"id": "partial", "query": "De quanto em quanto tempo?", "expected": [passage.id],
+                "facts": ["15 minutos"]}
+        result = {"state": "answered", "mode": "fixture", "answer": quote,
+                  "evidence": [{"id": passage.id, "quote": quote}]}
+        row = grade_content(case, result, {passage.id: passage.text})
+        self.assertTrue(row["source_correct"] and row["literal"])
+        self.assertEqual(row["missing_facts"], ["15 minutos"])
+        self.assertFalse(row["pass"])
+
+    def test_content_regression_matches_the_facts_and_refusals(self):
+        rows = evaluate_content()["rows"]
+        self.assertEqual([row["id"] for row in rows if not row["pass"]], [])
+
+    def test_two_simultaneous_reviews_create_one_event(self):
+        ident = storage.save("same-session", "Consulta para revisar", {})
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results = [pool.submit(storage.review, "same-session", ident, True) for _ in range(2)]
+        self.assertEqual([future.result() for future in results], ["queued", "queued"])
+        with storage.connection() as db:
+            self.assertEqual(db.execute("select count(*) from reviews where run_id=?", (ident,)).fetchone()[0], 1)
+
+    def test_old_runs_hidden_on_read_even_without_a_new_question(self):
+        sid = "test-session"
+        expired = storage.save(sid, "Encerrada", {})
+        pending = storage.save(sid, "Entrega em andamento", {})
+        storage.review(sid, pending, True)
+        with storage.connection() as db:
+            db.execute("update runs set created=0")
+        self.assertEqual([r["id"] for r in storage.list_runs(sid)], [pending])
+        self.assertIsNone(storage.get(sid, expired))
+        self.assertIsNone(storage.review(sid, expired, True))
+        self.assertIsNone(storage.review("other-session", pending, True))
+        self.assertEqual(storage.get(sid, pending)["delivery"], "queued")
+
     def test_model_cannot_introduce_unquoted_text(self):
         # Provider contract only. No remote model or paid call is used.
         q = "Quantas falhas na WAN Ipê fazem a Cedro assumir?"
@@ -133,6 +187,14 @@ class FarolTest(unittest.TestCase):
             patch("search.httpx.post", return_value=response),
         ):
             _, quote = select_with_model(query, [(1, section)])
+        self.assertIn("15 minutos", quote)
+
+    def test_incident_update_interval_retains_context_for_the_other_deadline(self):
+        from search import select_with_model
+        section = next(p for p in INDEX.passages if p.id == "RB-05#s1")
+        acknowledgement = "O plantonista confirma o recebimento em até cinco minutos"
+        with patch("search.model_json", return_value={"id": section.id, "quote": acknowledgement}):
+            _, quote = select_with_model("Qual é o intervalo entre os informes P1?", [(1, section)])
         self.assertIn("15 minutos", quote)
 
     def test_outbox_lease_and_retry(self):

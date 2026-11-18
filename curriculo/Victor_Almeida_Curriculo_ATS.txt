@@ -1,0 +1,40 @@
+Victor Fernando Almeida Rodrigues
+Desenvolvimento de software, automação e IA aplicada
+São Paulo, SP | victor.f.a.r277@gmail.com
+https://github.com/Victor-F-M-A-R/Curriculo
+
+Perfil profissional
+Tenho experiência em suporte de TI escolar e avaliação de respostas de IA. Busco atuar com desenvolvimento e automação de processos que dependem de dados confiáveis.
+
+Experiência
+
+DataAnnotation | 04/03/2026 a 24/06/2026
+Avaliei respostas geradas por inteligência artificial na plataforma DataAnnotation.
+
+Suporte, infraestrutura e dados em ambiente escolar
+Investiguei travamentos na recepção testando atualizações, rede, memória da máquina virtual e execução local. Identifiquei o limite dos Raspberry Pi, propus a substituição e instalei três Dell All-in-One com migração dos dados.
+Implantei estações com Raspberry Pi, cabeamento e suportes impressos em 3D. Configurei grupos no Active Directory e endereços IP pelo UniFi Cloud Key. Participei da migração para Windows Server 2022 com o supervisor de TI.
+Criei relatórios de matrículas, inadimplência e gastos de manutenção no Power BI e controlei licenças no Excel. Após treinamento do Google, capacitei professores e coordenadores no uso do Gemini para aulas e avaliações.
+
+Projetos pessoais
+Portfólio com dados fictícios e implementação assistida por IA.
+
+Farol | Python, FastAPI, React e n8n
+Assistente que busca evidências em manuais com RAG, cita o trecho de origem e encaminha perguntas sem resposta para revisão.
+
+Rastro | PostgreSQL e SQL
+Telemetria de frotas que trata reenvios e eventos fora de ordem para conservar o histórico e identificar a posição mais recente de cada veículo.
+
+Lastro | C#, ASP.NET Core, Dapper, React e Blazor
+Conciliação financeira que impede lançamentos duplicados, reverte lotes com conflito e preserva a trilha de auditoria.
+
+Doca Norte | Java, Spring Boot, Angular e Flutter
+Reserva transacional de docas. Quando duas pessoas disputam a mesma posição, apenas uma reserva é aceita e a portaria recebe o estado atualizado.
+
+Outros trabalhos com IA
+No EvalLedger, orientei os agentes de IA que escreveram o código de uma ferramenta de comparação de respostas e usei Git para organizar o projeto.
+
+Formação e idiomas
+Análise e Desenvolvimento de Sistemas, Universidade Cruzeiro do Sul. Disciplinas cursadas até o segundo semestre. Graduação não concluída.
+Curso introdutório de IA do Google e estudos on-line em engenharia de prompts e automação com agentes.
+Português nativo e inglês intermediário.

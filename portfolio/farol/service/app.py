@@ -74,6 +74,8 @@ async def scoped(request: Request, call_next):
     existing = len(incoming) == 48 and all(c in "0123456789abcdef" for c in incoming)
     request.state.session = incoming if existing else secrets.token_hex(24)
     response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "same-origin"
     if request.url.path.startswith("/api/"):
         response.headers["Cache-Control"] = "no-store"
         if not existing:

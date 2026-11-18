@@ -274,6 +274,12 @@ footer {
     Georgia;
   margin: 14px 0;
 }
+.result-question {
+  margin-top: 15px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink);
+}
 .source {
   color: var(--ink);
   justify-content: flex-start;
@@ -284,6 +290,11 @@ footer {
 }
 .source > svg:last-child {
   margin-left: auto;
+}
+.source small {
+  display: block;
+  margin-top: 3px;
+  color: #435447;
 }
 .trace {
   border-bottom: 1px solid var(--rule);
@@ -344,6 +355,15 @@ footer {
 }
 .manual-body section {
   margin-top: 16px;
+  scroll-margin-block: 2rem;
+}
+.manual-body section:focus {
+  outline: 2px solid var(--orange);
+  outline-offset: 5px;
+}
+.manual-body mark {
+  background: #f4deb2;
+  color: var(--ink);
 }
 .manual-body h3 {
   font-weight: 600;

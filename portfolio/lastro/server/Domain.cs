@@ -36,6 +36,8 @@ public record Event(
     string Stamp
 );
 
+public record AuditSlice(IReadOnlyList<Event> Events, bool HasMore);
+
 public record Login(string User, string Password);
 
 public record ImportRequest(string Csv);
@@ -51,7 +53,7 @@ public static class Batch
 {
     public static (string Fingerprint, List<Receipt> Rows) Parse(string? input)
     {
-        if (string.IsNullOrWhiteSpace(input) || input.Length > 100_000)
+        if (string.IsNullOrWhiteSpace(input) || input.Length > 100_000 || Encoding.UTF8.GetByteCount(input) > 100_000)
             throw new DeskError("O arquivo deve ter entre 1 byte e 100 KB.");
         var canonical = input.TrimStart('\uFEFF').Replace("\r\n", "\n").Trim();
         using var reader = new TextFieldParser(new StringReader(canonical));

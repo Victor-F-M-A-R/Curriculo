@@ -3,37 +3,18 @@ import { createRoot } from "react-dom/client";
 import {
   ArrowDownToLine,
   ArrowRight,
-  ArrowUpRight,
   BookOpenText,
   Check,
-  CircleDot,
   Layers2,
   Scale,
   Upload,
   X,
 } from "lucide-react";
 import "./style.css";
-type Status = "matched" | "disputed" | "reviewed" | "pending" | "orphan";
-type Entry = {
-  reference: string;
-  merchant: string;
-  expected: number | null;
-  received: number | null;
-  day: string;
-  reason: string | null;
-  delta: number;
-  status: Status;
-};
+import { LedgerDesk } from "./LedgerDesk";
+import { money, names, type Entry, type Status } from "./ledger";
+
 type Session = { logged: boolean; name: string | null };
-const names: Record<Status, string> = {
-  matched: "Conciliado",
-  disputed: "Divergente",
-  reviewed: "Revisado",
-  pending: "Pendente",
-  orphan: "Sem título",
-};
-const fmt = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
-const money = (v: number | null) => (v === null ? "—" : fmt.format(v / 100));
 const csv = "referencia;data;recebido\nREP-1047;2026-11-16;710,00\nREP-1048;2026-11-16;1950,00";
 async function api<T>(path: string, body?: unknown): Promise<T> {
   const response = await fetch("/api/" + path, {
@@ -50,7 +31,13 @@ async function api<T>(path: string, body?: unknown): Promise<T> {
 function Modal({ title, close, children }: { title: string; close: () => void; children: ReactNode }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
-    ref.current?.showModal();
+    const dialog = ref.current;
+    const opener = document.activeElement;
+    dialog?.showModal();
+    return () => {
+      dialog?.close();
+      if (opener instanceof HTMLElement && opener.isConnected) opener.focus({ preventScroll: true });
+    };
   }, []);
   return (
     <dialog
@@ -74,12 +61,10 @@ function Modal({ title, close, children }: { title: string; close: () => void; c
 function App() {
   const [rows, setRows] = useState<Entry[]>([]),
     [session, setSession] = useState<Session>({ logged: false, name: null });
-  const [selected, setSelected] = useState("REP-1043"),
-    [filter, setFilter] = useState("all"),
-    [query, setQuery] = useState("");
   const [modal, setModal] = useState<"import" | "account" | null>(null),
-    [content, setContent] = useState(""),
-    [note, setNote] = useState("");
+    [content, setContent] = useState("");
+  const fileRead = useRef(0);
+  const [readingFile, setReadingFile] = useState(false);
   const [mode, setMode] = useState<"login" | "register">("login"),
     [user, setUser] = useState(""),
     [pass, setPass] = useState("");
@@ -109,25 +94,15 @@ function App() {
   useEffect(() => {
     void initialize();
   }, []);
-  const active = rows.find((r) => r.reference === selected);
-  const visible = rows.filter(
-    (r) =>
-      (filter === "all" || r.status === filter) &&
-      (r.reference + " " + r.merchant)
-        .toLocaleLowerCase("pt-BR")
-        .includes(query.toLocaleLowerCase("pt-BR")),
-  );
   const expected = rows.reduce((s, r) => s + (r.expected || 0), 0),
     received = rows.reduce((s, r) => s + (r.received || 0), 0);
   const exception = rows.filter((r) => r.status === "disputed" || r.status === "orphan"),
     amount = exception.reduce((s, r) => s + Math.abs(r.delta), 0);
-  function choose(ref: string) {
-    setSelected(ref);
-    setNote("");
-    setFeedback("");
-    setError("");
-  }
   function open(which: "import" | "account") {
+    fileRead.current++;
+    setReadingFile(false);
+    setContent("");
+    setPass("");
     setModalError("");
     setError("");
     setModal(which);
@@ -148,6 +123,7 @@ function App() {
   }
   function processBatch(e: FormEvent) {
     e.preventDefault();
+    if (!content.trim() || busy || readingFile) return;
     execute(async () => {
       const r = await api<{ count: number; replay: boolean }>("book/import", { csv: content });
       await load();
@@ -155,30 +131,30 @@ function App() {
       setFeedback(r.replay ? "Este lote já havia sido importado." : r.count + " repasses importados.");
     }, true);
   }
-  function review(e: FormEvent) {
-    e.preventDefault();
-    if (!active) return;
-    execute(async () => {
-      await api("book/" + active.reference + "/review", { note });
+  function review(reference: string, note: string) {
+    void execute(async () => {
+      await api("book/" + encodeURIComponent(reference) + "/review", { note });
       await load();
-      setNote("");
       setFeedback("Justificativa registrada na auditoria.");
     });
+  }
+  function clearWorkspace() {
+    fileRead.current++;
+    setReadingFile(false);
+    setRows([]);
+    setLoaded(false);
+    setContent("");
+    setSession({ logged: false, name: null });
+    setModal(null);
   }
   function sign(e: FormEvent) {
     e.preventDefault();
     execute(async () => {
       await api(mode, { user, password: pass });
       setPass("");
-      setSession(await api("session"));
-      await load();
-      setModal(null);
-      setFeedback("Mesa de " + user + " aberta.");
+      clearWorkspace();
+      await initialize();
     }, true);
-  }
-  function changeFilter(value: string) {
-    setFilter(value);
-    setFeedback("");
   }
   return (
     <>
@@ -191,7 +167,7 @@ function App() {
           <a href="/audit" className="audit-top">
             <BookOpenText size={16} /> Auditoria
           </a>
-          <button className="account" onClick={() => open("account")}>
+          <button className="account" disabled={!loaded || busy} onClick={() => open("account")}>
             {session.name || "Conta"}
           </button>
         </div>
@@ -210,25 +186,26 @@ function App() {
             <Upload size={16} /> Importar extrato
           </button>
         </div>
-        <div className="summary">
+        <div className="summary" aria-busy={!loaded}>
           <section className="exposure">
             <span className="tag">
               <Scale size={15} /> EM DIVERGÊNCIA ABERTA
             </span>
-            <strong>{money(amount)}</strong>
+            <strong>{loaded ? money(amount) : "—"}</strong>
             <p>
-              {exception.length}{" "}
-              {exception.length === 1 ? "referência para revisar" : "referências para revisar"}
+              {loaded
+                ? exception.length + (exception.length === 1 ? " referência para revisar" : " referências para revisar")
+                : "Carregando lançamentos…"}
             </p>
           </section>
           <section className="balances">
             <div>
               <span>Valor previsto</span>
-              <b>{money(expected)}</b>
+              <b>{loaded ? money(expected) : "—"}</b>
             </div>
             <div>
               <span>Valor recebido</span>
-              <b>{money(received)}</b>
+              <b>{loaded ? money(received) : "—"}</b>
             </div>
             <div className="strip" aria-label="Distribuição por situação">
               {(Object.keys(names) as Status[]).map((s) => {
@@ -261,112 +238,9 @@ function App() {
             {feedback}
           </p>
         )}
-        <div className="desk">
-          <section className="register">
-            <div className="section-head">
-              <h2>Livro de repasses</h2>
-              <span className="type">{rows.length} REFERÊNCIAS</span>
-            </div>
-            <div className="filters">
-              <select
-                aria-label="Filtrar por situação"
-                value={filter}
-                onChange={(e) => changeFilter(e.target.value)}
-              >
-                <option value="all">Todas as situações</option>
-                {Object.entries(names).map(([s, l]) => (
-                  <option key={s} value={s}>
-                    {l}
-                  </option>
-                ))}
-              </select>
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Buscar referência ou empresa"
-                aria-label="Buscar referência ou empresa"
-              />
-            </div>
-            <div className="list">
-              <div className="thead">
-                <span>Favorecido / ref.</span>
-                <span>Recebido</span>
-                <span>Situação</span>
-              </div>
-              {visible.map((r) => (
-                <button
-                  key={r.reference}
-                  className={"row " + (selected === r.reference ? "selected" : "")}
-                  onClick={() => choose(r.reference)}
-                  aria-pressed={selected === r.reference}
-                >
-                  <span>
-                    <b>{r.merchant}</b>
-                    <small>{r.reference}</small>
-                  </span>
-                  <span>{money(r.received)}</span>
-                  <span>
-                    <i className={"badge " + r.status}>{names[r.status]}</i>
-                  </span>
-                </button>
-              ))}
-              {!visible.length && (
-                <p>{loaded ? "Nenhum repasse corresponde à busca." : "Abrindo sua mesa…"}</p>
-              )}
-            </div>
-          </section>
-          <aside className="detail">
-            {active && (
-              <>
-                <p className="type">
-                  <CircleDot size={15} /> FICHA DE CONCILIAÇÃO
-                </p>
-                <p className="ref">{active.reference}</p>
-                <h2>{active.merchant}</h2>
-                <i className={"badge " + active.status}>{names[active.status]}</i>
-                <dl>
-                  <div>
-                    <dt>Competência</dt>
-                    <dd>{active.day.split("-").reverse().join("/")}</dd>
-                  </div>
-                  <div>
-                    <dt>Previsto</dt>
-                    <dd>{money(active.expected)}</dd>
-                  </div>
-                  <div>
-                    <dt>Recebido</dt>
-                    <dd>{money(active.received)}</dd>
-                  </div>
-                  <div>
-                    <dt>Diferença</dt>
-                    <dd>{money(active.delta)}</dd>
-                  </div>
-                </dl>
-                {["disputed", "orphan"].includes(active.status) && (
-                  <form onSubmit={review}>
-                    <label htmlFor="note">Justificativa de revisão</label>
-                    <textarea
-                      id="note"
-                      placeholder="Descreva o motivo da diferença…"
-                      value={note}
-                      onChange={(e) => setNote(e.target.value)}
-                      minLength={8}
-                      maxLength={500}
-                      required
-                    />
-                    <button className="dark" disabled={busy || note.trim().length < 8}>
-                      Registrar revisão <ArrowRight size={15} />
-                    </button>
-                  </form>
-                )}
-                {active.reason && <p className="reason">{active.reason}</p>}
-                <a className="audit-link" href="/audit">
-                  Abrir trilha de auditoria <ArrowUpRight size={14} />
-                </a>
-              </>
-            )}
-          </aside>
-        </div>
+        {loaded && (
+          <LedgerDesk key={session.name} rows={rows} busy={busy} onReview={review} />
+        )}
       </main>
       {modal === "import" && (
         <Modal
@@ -384,21 +258,45 @@ function App() {
                 accept=".csv,text/csv"
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
-                  if (file) {
-                    if (file.size > 100000) {
-                      setModalError("Use um arquivo de até 100 KB.");
-                      return;
-                    }
-                    setContent(await file.text());
+                  const request = ++fileRead.current;
+                  setContent("");
+                  setModalError("");
+                  setReadingFile(false);
+                  if (!file) return;
+                  if (file.size > 100_000) {
+                    setModalError("Use um arquivo de até 100 KB.");
+                    return;
+                  }
+                  setReadingFile(true);
+                  try {
+                    const value = await file.text();
+                    if (request === fileRead.current) setContent(value);
+                  } catch {
+                    if (request === fileRead.current) setModalError("O arquivo não pôde ser lido.");
+                  } finally {
+                    if (request === fileRead.current) setReadingFile(false);
                   }
                 }}
               />
             </label>
             <label>
               Conteúdo do lote
-              <textarea required value={content} onChange={(e) => setContent(e.target.value)} rows={6} />
+              <textarea
+                required maxLength={100_000} value={content} rows={6}
+                onChange={(e) => {
+                  fileRead.current++;
+                  setReadingFile(false);
+                  setModalError("");
+                  setContent(e.target.value);
+                }}
+              />
             </label>
-            <button type="button" className="example" onClick={() => setContent(csv)}>
+            <button type="button" className="example" onClick={() => {
+              fileRead.current++;
+              setReadingFile(false);
+              setModalError("");
+              setContent(csv);
+            }}>
               <ArrowDownToLine size={14} /> Usar extrato de exemplo
             </button>
             {modalError && (
@@ -406,7 +304,7 @@ function App() {
                 {modalError}
               </p>
             )}
-            <button className="dark" disabled={!content || busy}>
+            <button className="dark" disabled={!content || busy || readingFile}>
               Conciliar lote <ArrowRight size={16} />
             </button>
           </form>
@@ -465,8 +363,8 @@ function App() {
               onClick={() =>
                 execute(async () => {
                   await api("logout", {});
+                  clearWorkspace();
                   await initialize();
-                  setModal(null);
                 }, true)
               }
             >

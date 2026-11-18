@@ -1,4 +1,5 @@
 using Lastro;
+using Dapper;
 using Microsoft.Extensions.Configuration;
 using Xunit;
 
@@ -82,5 +83,41 @@ public class BookTests : IDisposable
         Assert.Null(row.Expected);
         Assert.Equal(4517, row.Received);
         Assert.Equal("orphan", row.Status);
+    }
+
+    [Fact]
+    public void AuditHonorsWorkspaceFiltersAndOrderWhenTimestampsTie()
+    {
+        string other = book.Create();
+        book.Review(other, "REP-1043", "Revisão da outra mesa.");
+        book.Review(desk, "REP-1043", "Revisão da mesa selecionada.");
+        for (int i = 0; i < Book.AuditPageSize; i++)
+            book.Import(desk, Head + $"PAG-{i:D2};2026-11-17;1,00");
+
+        // Imports can share the same clock tick. The event ID is the cursor's tiebreaker.
+        using var db = book.Open();
+        db.Execute("update events set stamp=@stamp where workspace=@desk",
+            new { desk, stamp = "2026-11-17T12:00:00.0000000+00:00" });
+        var first = book.BrowseEvents(desk);
+        Assert.Equal(Book.AuditPageSize, first.Events.Count);
+        Assert.True(first.HasMore);
+        var last = first.Events[^1];
+        var next = book.BrowseEvents(desk, beforeStamp: last.Stamp, beforeId: last.Id);
+        Assert.False(next.HasMore);
+        Assert.Equal(2, next.Events.Count);
+        var ids = first.Events.Concat(next.Events).Select(ev => ev.Id).ToList();
+        Assert.Equal(ids.Count, ids.Distinct().Count());
+        Assert.Equal(ids.OrderByDescending(id => id, StringComparer.Ordinal), ids);
+
+        var review = Assert.Single(book.BrowseEvents(desk, "review", "rep-1043").Events);
+        Assert.Equal("Revisão da mesa selecionada.", review.Detail);
+        Assert.Empty(book.BrowseEvents(desk, "import", "REP-1043").Events);
+    }
+
+    [Fact]
+    public void CsvSizeIsMeasuredInUtf8Bytes()
+    {
+        string input = Head + new string('é', 50_000);
+        Assert.Contains("100 KB", Assert.Throws<DeskError>(() => Batch.Parse(input)).Message);
     }
 }

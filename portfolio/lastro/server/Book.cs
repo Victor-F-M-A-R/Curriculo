@@ -58,6 +58,11 @@ public sealed class Book(IConfiguration configuration)
                     : $"create table if not exists {name} ({ddl})";
             db.Execute(sql);
         }
+        const string index = "ix_events_workspace_stamp_id";
+        const string onEvents = " on events(workspace,stamp desc,id desc)";
+        db.Execute(Engine == "sqlserver"
+            ? $"if not exists (select 1 from sys.indexes where object_id=object_id(N'events') and name='{index}') create index {index}{onEvents}"
+            : $"create index if not exists {index}{onEvents}");
     }
 
     public static bool UniqueViolation(DbException e) =>
@@ -161,22 +166,24 @@ public sealed class Book(IConfiguration configuration)
 
     private record AccountRow(string Hash, string Workspace);
 
-    public List<Entry> Entries(string w, DbConnection? connection = null, DbTransaction? tx = null)
+    public List<Entry> Entries(string w, DbConnection? connection = null, DbTransaction? tx = null, string? reference = null)
     {
         using var owned = connection is null ? Open() : null;
         var db = connection ?? owned!;
+        var invoiceFilter = reference is null ? "" : " and i.reference=@reference";
+        var receiptFilter = reference is null ? "" : " and r.reference=@reference";
         return db.Query<Entry>(
-                """
+                $"""
                 select i.reference as Reference,i.merchant as Merchant,i.expected as Expected,r.received as Received,
                        i.day as Day,v.reason as Reason from invoices i
                 left join receipts r on i.workspace=r.workspace and i.reference=r.reference
-                left join reviews v on i.workspace=v.workspace and i.reference=v.reference where i.workspace=@w
+                left join reviews v on i.workspace=v.workspace and i.reference=v.reference where i.workspace=@w{invoiceFilter}
                 union all select r.reference, @unmapped, null, r.received, r.day, v.reason from receipts r
                 left join invoices i on i.workspace=r.workspace and i.reference=r.reference
                 left join reviews v on r.workspace=v.workspace and r.reference=v.reference
-                where r.workspace=@w and i.reference is null order by Reference
+                where r.workspace=@w and i.reference is null{receiptFilter} order by Reference
                 """,
-                new { w, unmapped = "Sem título correspondente" },
+                new { w, reference, unmapped = "Sem título correspondente" },
                 tx
             )
             .ToList();
@@ -230,7 +237,7 @@ public sealed class Book(IConfiguration configuration)
             throw new DeskError("Registre uma justificativa de 8 a 500 caracteres.");
         using var db = Open();
         using var tx = db.BeginTransaction();
-        var entry = Entries(w, db, tx).SingleOrDefault(x => x.Reference == reference)
+        var entry = Entries(w, db, tx, reference).SingleOrDefault(x => x.Reference == reference)
             ?? throw new DeskError("Referência desconhecida.", 404);
         if (entry.Status is not ("disputed" or "orphan"))
             throw new DeskError("Apenas divergências abertas aceitam revisão.", 409);
@@ -287,5 +294,34 @@ public sealed class Book(IConfiguration configuration)
                 new { w }
             )
             .ToList();
+    }
+
+    public const int AuditPageSize = 20;
+
+    public AuditSlice BrowseEvents(
+        string workspace, string? kind = null, string? reference = null,
+        string? beforeStamp = null, string? beforeId = null)
+    {
+        var conditions = new List<string> { "workspace=@workspace" };
+        if (!string.IsNullOrWhiteSpace(kind))
+            conditions.Add("kind=@kind");
+        if (!string.IsNullOrWhiteSpace(reference))
+            conditions.Add("ref=@reference");
+        if (!string.IsNullOrEmpty(beforeStamp) && !string.IsNullOrEmpty(beforeId))
+            conditions.Add("(stamp < @beforeStamp or (stamp = @beforeStamp and id < @beforeId))");
+        var limit = Engine == "sqlserver" ? "offset 0 rows fetch next @take rows only" : "limit @take";
+        using var db = Open();
+        var events = db.Query<Event>(
+            $"""
+            select id,workspace,kind,ref,detail,stamp from events
+            where {string.Join(" and ", conditions)}
+            order by stamp desc,id desc {limit}
+            """,
+            new { workspace, kind, reference = reference?.Trim().ToUpperInvariant(), beforeStamp, beforeId, take = AuditPageSize + 1 }
+        ).ToList();
+        bool hasMore = events.Count > AuditPageSize;
+        if (hasMore)
+            events.RemoveAt(AuditPageSize);
+        return new AuditSlice(events, hasMore);
     }
 }

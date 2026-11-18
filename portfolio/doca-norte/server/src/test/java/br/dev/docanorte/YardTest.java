@@ -84,7 +84,8 @@ class YardTest {
     );
     assertThat(dock.status()).isEqualTo("free");
     assertThat(dock.carrier()).isEmpty();
-    assertThat(yard.snapshot().moves()).hasSize(3);
+    assertThat(yard.snapshot().moves()).extracting(Yard.Move::dockVersion)
+      .containsExactlyInAnyOrder(1L, 2L, 3L);
   }
 
   @Test
@@ -138,6 +139,21 @@ class YardTest {
       .perform(get("/api/yard"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.docks.length()").value(6));
+  }
+
+  @Test
+  void aMoveNeedsAnExplicitObservedVersion() throws Exception {
+    var path = "/api/docks/D1/moves";
+    for (var body : List.of(
+      "{\"action\":\"book\",\"carrier\":\"Arara\"}",
+      "{\"action\":\"book\",\"carrier\":\"Arara\",\"expectedVersion\":null}"
+    )) {
+      mvc.perform(post(path).with(csrf())
+          .header("Idempotency-Key", UUID.randomUUID())
+          .contentType("application/json").content(body))
+        .andExpect(status().isBadRequest());
+    }
+    assertThat(yard.snapshot().moves()).isEmpty();
   }
 
   @Test

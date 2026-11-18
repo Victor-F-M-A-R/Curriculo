@@ -4,15 +4,14 @@ import {
   ArrowRight,
   ArrowUpRight,
   BookOpen,
-  Check,
   ChevronRight,
   Clock3,
   CornerDownLeft,
-  FileText,
   Layers3,
   RadioTower,
   Search,
 } from "lucide-react";
+import { EvidenceResult, HighlightedPassage, type Run } from "./EvidenceResult";
 import "./style.css";
 
 type Section = { id: string; heading: string; text: string };
@@ -24,17 +23,6 @@ type Manual = {
   revision: string;
   sections: Section[];
 };
-type Stage = { name: string; ms: number; detail: string };
-type Run = {
-  id: string;
-  question: string;
-  state: "answered" | "abstained";
-  answer: string;
-  mode: string;
-  delivery: string | null;
-  evidence: { id: string; title: string; heading: string; revision: string; quote: string }[];
-  trace: Stage[];
-};
 type Visit = { id: string; question: string; created: number };
 type Tab = "Consulta" | "Acervo" | "Histórico";
 const examples = [
@@ -42,13 +30,6 @@ const examples = [
   "Em qual percentual do toner o almoxarifado deve ser acionado?",
   "Qual é o preço mensal do contrato da WAN Cedro?",
 ];
-const deliveries: Record<string, string> = {
-  local: "Na fila local",
-  queued: "Aguardando n8n",
-  sending: "Enviando ao n8n",
-  delivered: "Recebida pelo n8n",
-  failed: "Entrega falhou",
-};
 async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
   const res = await fetch("/api/" + path, {
     ...options,
@@ -86,7 +67,9 @@ function App() {
   }, []);
   useEffect(() => {
     if (tab === "Acervo" && openDoc) {
-      document.getElementById(openDoc)?.scrollIntoView({ block: "center" });
+      const section = document.getElementById(openDoc);
+      section?.focus({ preventScroll: true });
+      section?.scrollIntoView({ block: "center" });
     }
   }, [tab, openDoc]);
   async function ask(value: string) {
@@ -151,6 +134,7 @@ function App() {
       setError((e as Error).message);
     }
   }
+  const citation = run?.evidence.find((item) => item.id === openDoc);
   const sections = docs.reduce((total, d) => total + d.sections.length, 0);
   return (
     <>
@@ -252,47 +236,14 @@ function App() {
                 </div>
               )}
               {run && (
-                <div ref={resultRef} tabIndex={-1} className="result">
-                  <div className="result-head">
-                    <span className="kicker">
-                      {run.state === "answered" ? <Check size={15} /> : <Search size={15} />}{" "}
-                      {run.state === "answered" ? "TRECHO VERIFICADO" : "SEM EVIDÊNCIA SUFICIENTE"}
-                    </span>
-                    <span className="small-label">{run.mode}</span>
-                  </div>
-                  <p className="answer">{run.answer}</p>
-                  {run.evidence.map((e) => (
-                    <button key={e.id} className="source" onClick={() => source(e.id)}>
-                      <FileText size={17} />
-                      <span>
-                        <b>{e.id}</b> · {e.heading}
-                      </span>
-                      <ChevronRight size={16} />
-                    </button>
-                  ))}
-                  <details className="trace">
-                    <summary>Ver execução da consulta</summary>
-                    <ol>
-                      {run.trace.map((t) => (
-                        <li key={t.name}>
-                          <b>{t.name}</b>
-                          <span>{t.ms} ms</span>
-                          <p>{t.detail}</p>
-                        </li>
-                      ))}
-                    </ol>
-                  </details>
-                  {run.delivery ? (
-                    <p className="delivery">
-                      {deliveries[run.delivery]}{" "}
-                      <button onClick={() => showVisit(run.id)}>Atualizar</button>
-                    </p>
-                  ) : (
-                    <button className="link-button" disabled={busy} onClick={review}>
-                      Encaminhar para revisão <ArrowUpRight size={14} />
-                    </button>
-                  )}
-                </div>
+                <EvidenceResult
+                  run={run}
+                  busy={busy}
+                  resultRef={resultRef}
+                  source={source}
+                  review={review}
+                  refresh={() => showVisit(run.id)}
+                />
               )}
             </section>
             <aside className="archive-cover">
@@ -333,6 +284,17 @@ function App() {
               <Layers3 size={14} /> DOCUMENTAÇÃO DE CAMPO
             </p>
             <h1>Acervo técnico.</h1>
+            {citation && (
+              <button
+                className="link-button"
+                onClick={() => {
+                  setTab("Consulta");
+                  requestAnimationFrame(() => resultRef.current?.focus());
+                }}
+              >
+                Voltar à resposta
+              </button>
+            )}
             <label className="filter">
               <Search size={16} />
               <input
@@ -361,9 +323,12 @@ function App() {
                         {d.owner} / REVISÃO {d.revision}
                       </p>
                       {d.sections.map((s) => (
-                        <section key={s.id} id={d.id + "#" + s.id}>
+                        <section key={s.id} id={d.id + "#" + s.id} tabIndex={-1}>
                           <h3>{s.heading}</h3>
-                          <p>{s.text}</p>
+                          <HighlightedPassage
+                            text={s.text}
+                            quote={citation?.id === d.id + "#" + s.id ? citation.quote : undefined}
+                          />
                         </section>
                       ))}
                     </div>

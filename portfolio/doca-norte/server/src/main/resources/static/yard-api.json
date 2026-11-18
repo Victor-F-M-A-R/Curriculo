@@ -147,6 +147,7 @@
         "type": "object",
         "required": [
           "dockId",
+          "dockVersion",
           "action",
           "carrier",
           "actor",
@@ -155,6 +156,11 @@
         "properties": {
           "dockId": {
             "type": "string"
+          },
+          "dockVersion": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Versão da doca após este movimento"
           },
           "action": {
             "type": "string"

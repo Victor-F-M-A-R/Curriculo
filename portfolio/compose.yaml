@@ -47,6 +47,16 @@ services:
       LLM_BASE_URL: ${LLM_BASE_URL:-}
       LLM_MODEL: ${LLM_MODEL:-}
       LLM_API_KEY: ${LLM_API_KEY:-}
+  rastro:
+    build: ./rastro
+    depends_on:
+      postgres: { condition: service_healthy }
+    ports: ["127.0.0.1:8084:8080"]
+    environment:
+      RASTRO_DATABASE_URL: host=postgres dbname=portfolio user=portfolio
+      PGPASSWORD: ${POSTGRES_PASSWORD:-demo-local-apenas}
+      RASTRO_DEMO: "1"
+      RASTRO_INGEST_TOKEN: ${RASTRO_INGEST_TOKEN:-}
   inbox:
     profiles: [automation]
     build: ./farol/inbox

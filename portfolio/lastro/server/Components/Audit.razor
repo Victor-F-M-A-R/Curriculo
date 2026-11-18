@@ -1,13 +1,90 @@
 @page "/audit"
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.WebUtilities
 @inject Lastro.Book Book
-<header><a href="/">← Voltar à mesa</a><b>LASTRO / AUDITORIA</b></header>
-<main><p>LIVRO AUXILIAR</p><h1>Trilha de eventos.</h1>
-@if (Http?.User.FindFirstValue("workspace") is string workspace) {
-    var events = Book.Events(workspace);
-    <p>@events.Count evento(s) nesta mesa. Horários em UTC.</p>
-    @foreach(var ev in events) {<article><time>@ev.Stamp.Substring(0,19).Replace("T"," ")</time><h2>@ev.Ref</h2><div>@ev.Detail</div><small>@ev.Kind · @ev.Id</small></article>}
-} else {<p>Abra uma mesa para consultar sua trilha.</p><a href="/">Abrir mesa</a>}
+
+<header>
+    <a href="/">← Voltar à mesa</a>
+    <b>LASTRO / AUDITORIA</b>
+</header>
+<main>
+    <p>CONCILIAÇÃO DE REPASSES</p>
+    <h1>Trilha de eventos.</h1>
+    @if (audit is null)
+    {
+        <p>Abra uma mesa para consultar sua trilha.</p>
+        <a href="/">Abrir mesa</a>
+    }
+    else
+    {
+        <form class="filters" method="get" action="/audit">
+            <label for="audit-kind">Tipo de evento
+                <select id="audit-kind" name="tipo">
+                    <option value="" selected="@(string.IsNullOrEmpty(Kind))">Todos os eventos</option>
+                    <option value="opened" selected="@(Kind == "opened")">Abertura</option>
+                    <option value="import" selected="@(Kind == "import")">Importação</option>
+                    <option value="review" selected="@(Kind == "review")">Revisão</option>
+                </select>
+            </label>
+            <label for="audit-reference">Referência exata
+                <input id="audit-reference" name="referencia" value="@Reference" maxlength="64" placeholder="Ex. REP-1048" />
+            </label>
+            <button type="submit">Filtrar</button>
+        </form>
+        <div class="results">
+            <p>@audit.Events.Count @(audit.Events.Count == 1 ? "evento nesta página" : "eventos nesta página") · Horários em UTC</p>
+            @if (HasFilters || HasCursor) { <a href="/audit">Limpar filtros</a> }
+        </div>
+        @if (audit.Events.Count == 0)
+        {
+            <p class="empty">Nenhum evento encontrado nesta mesa com os filtros atuais.</p>
+        }
+        @foreach (var item in audit.Events)
+        {
+            <article>
+                <div class="meta"><strong>@KindLabel(item.Kind)</strong><time datetime="@item.Stamp">@item.Stamp.Substring(0, 19).Replace("T", " ") UTC</time></div>
+                <h2>@item.Ref</h2>
+                <p>@item.Detail</p>
+                <small>ID @item.Id</small>
+            </article>
+        }
+        @if (HasCursor || audit.HasMore)
+        {
+            <nav aria-label="Páginas da auditoria">
+                @if (HasCursor) { <a href="@PageUrl(null)">Eventos mais recentes</a> }
+                @if (audit.HasMore) { <a href="@PageUrl(audit.Events[^1])">Eventos anteriores →</a> }
+            </nav>
+        }
+    }
 </main>
-@code {[CascadingParameter] public HttpContext? Http {get;set;} }
+
+@code {
+    [CascadingParameter] public HttpContext? Http { get; set; }
+    [SupplyParameterFromQuery(Name = "tipo")] public string? Kind { get; set; }
+    [SupplyParameterFromQuery(Name = "referencia")] public string? Reference { get; set; }
+    [SupplyParameterFromQuery(Name = "antes")] public string? BeforeStamp { get; set; }
+    [SupplyParameterFromQuery(Name = "evento")] public string? BeforeId { get; set; }
+    private Lastro.AuditSlice? audit;
+    private bool HasFilters => !string.IsNullOrWhiteSpace(Kind) || !string.IsNullOrWhiteSpace(Reference);
+    private bool HasCursor => !string.IsNullOrEmpty(BeforeStamp) && !string.IsNullOrEmpty(BeforeId);
+
+    protected override void OnParametersSet()
+    {
+        if (Http?.User.FindFirstValue("workspace") is string workspace)
+            audit = Book.BrowseEvents(workspace, Kind, Reference, BeforeStamp, BeforeId);
+    }
+
+    private static string KindLabel(string kind) => kind switch
+    {
+        "opened" => "Abertura",
+        "import" => "Importação",
+        "review" => "Revisão",
+        _ => kind
+    };
+
+    private string PageUrl(Lastro.Event? last) => QueryHelpers.AddQueryString("/audit",
+        new Dictionary<string, string?> {
+            ["tipo"] = Kind, ["referencia"] = Reference, ["antes"] = last?.Stamp, ["evento"] = last?.Id
+        });
+}

@@ -9,6 +9,7 @@ export interface Dock {
   version: number;
 }
 export interface Movement {
+  dockVersion?: number;
   dockId: string;
   action: Action;
   carrier: string;

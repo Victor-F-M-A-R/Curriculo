@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "test": "node --test tests/contrast.test.mjs",
+    "prebuild": "npm test",
     "build": "tsc --noEmit && vite build"
   },
   "dependencies": {

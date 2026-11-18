@@ -32,6 +32,27 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('Livre'), findsOneWidget);
   });
+  testWidgets('conserva a leitura confirmada e sinaliza que envelheceu', (tester) async {
+    var requests = 0;
+    await tester.pumpWidget(FieldApp(load: () async {
+      requests++;
+      if (requests == 2) throw StateError('leitura indisponível');
+      return [const Dock('D1', 'Doca 01', 'Seca', 'free', '')];
+    }));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Leitura recebida às'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 21));
+    expect(find.textContaining('Leitura antiga'), findsOneWidget);
+    await tester.tap(find.byTooltip('Atualizar pátio'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Sem leitura atualizada'), findsOneWidget);
+    expect(find.textContaining('Livre'), findsOneWidget);
+    await tester.tap(find.byTooltip('Atualizar pátio'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Sem leitura atualizada'), findsNothing);
+    expect(find.textContaining('Leitura antiga'), findsNothing);
+  });
+
   test('cliente interpreta o contrato REST da portaria', () async {
     final client = MockClient((req) async {
       expect(req.url.path, '/api/field');

@@ -17,8 +17,17 @@ from vector_store import VectorStore
 
 DATA = Path(__file__).parent / "data"
 STOP = set(
-    "a o os as que do da das dos de um uma em e na no nos nas para por pelo pela ao aos com qual quais quanto quantas quando quem como se ou me eu posso deve sao e mais meu minha fica sobre".split()
+    "a o os as que do da das dos de um uma em e na no nos nas para por pelo pela ao aos com qual quais quanto quantas quando quem como se ou me eu posso podemos deve sao e mais meu minha fica sobre la lo las los".split()
 )
+# Operational terms share the same search feature across inflection and wording.
+# This vocabulary contains neither section identifiers nor expected answers.
+TERM_GROUPS = (
+    ("aprovacao", "aprovacoes", "aprova", "aprovar", "aceite", "aceites"),
+    ("planejada", "planejadas", "planejado", "planejados", "programada", "programadas", "programado", "programados"),
+    ("custo", "custos", "custa", "custam", "preco", "precos", "mensalidade", "tarifa", "orcamento"),
+)
+SEARCH_TERM = {variant: group[0] for group in TERM_GROUPS for variant in group}
+CONTACT_FIELD = re.compile(r"\b(nome|contato|telefone|ramal|endereco|e-?mail)\s+d(?:e|os?|as?)\s+([a-z0-9-]+)")
 
 
 def normalize(text: str) -> str:
@@ -31,7 +40,7 @@ def normalize(text: str) -> str:
 
 def words(text: str) -> list[str]:
     return [
-        w
+        SEARCH_TERM.get(w, w)
         for w in re.findall(r"[a-z0-9]+", normalize(text))
         if w not in STOP and len(w) > 1
     ]
@@ -90,6 +99,12 @@ class Index:
         self.lexicon = {w for p in text for w in words(p)}
 
     def query(self, query: str, document: str | None = None):
+        # A manual about a device is not itself evidence for a named supplier
+        # or a contact detail. Require both the requested field and its subject.
+        fields = {
+            token for field, subject in CONTACT_FIELD.findall(normalize(query))
+            for token in words(f"{field} {subject}")
+        }
         vector = hstack(
             [
                 self.terms.transform([query]) * (0.48**0.5),
@@ -97,11 +112,12 @@ class Index:
             ],
             format="csr",
         )
-        ranked = self.store.rank(vector, len(self.passages) if document else 3)
+        ranked = self.store.rank(vector, len(self.passages) if document or fields else 3)
         return [
             (score, self.passages[i])
             for i, score in ranked
-            if document is None or self.passages[i].id.split("#")[0] == document
+            if (document is None or self.passages[i].id.split("#")[0] == document)
+            and (not fields or fields.issubset(words(self.passages[i].text)))
         ][:3]
 
     def supported(self, query, hits):
@@ -110,7 +126,7 @@ class Index:
             return False
         # Proper nouns alone often match the wrong subject. Require lexical support for the remaining question.
         coverage = len(tokens & self.lexicon) / len(tokens)
-        commercial = {"preco", "custo", "mensalidade", "valor", "tarifa", "orcamento"}
+        commercial = {"custo", "valor"}
         if tokens & commercial and not any(
             set(words(p.text)) & commercial for _, p in hits[:1]
         ):
@@ -128,10 +144,10 @@ def stage(name, start, detail):
     }
 
 
-def answer(index: Index, query: str, document=None):
+def answer(index: Index, query: str, document=None, *, use_model=True):
     trace = []
     start = time.perf_counter()
-    linked = bool(os.getenv("LLM_BASE_URL") and os.getenv("LLM_MODEL"))
+    linked = use_model and bool(os.getenv("LLM_BASE_URL") and os.getenv("LLM_MODEL"))
     scope = document
     if linked and scope is None:
         try:
@@ -198,10 +214,10 @@ def answer(index: Index, query: str, document=None):
     )
     mode = "extrativo"
     if accepted:
-        score, p = hits[0]
+        _, p = hits[0]
         quote = p.text
         start = time.perf_counter()
-        if os.getenv("LLM_BASE_URL") and os.getenv("LLM_MODEL"):
+        if linked:
             try:
                 p, quote = select_with_model(query, hits)
                 mode = "seleção por LLM"
@@ -242,15 +258,21 @@ def select_with_model(query, hits):
     quote = item["quote"].strip()
     if len(quote) < 20 or quote not in p.text:
         raise ValueError("A citação não corresponde ao documento.")
+    query_text = normalize(query)
     asks_measure = re.search(
         r"\b(quant[oa]s?|percentual|intervalo|frequencia|limite|prazo)\b",
-        normalize(query),
+        query_text,
     )
-    magnitude = r"\b(\d+|um|uma|dois|duas|tres|quatro|cinco|seis|sete|oito|nove|dez|quinze|trinta)\s*(%|minuto|hora|dia|segundo|falha|vez)"
-    if (
-        asks_measure
-        and re.search(magnitude, normalize(p.text))
-        and not re.search(magnitude, normalize(quote))
+    multiple_questions = re.search(
+        r"\be\s+(?:quando|quem|qual|quais|quanto|como|onde|em que|em qual|por quanto)\b",
+        query_text,
+    )
+    # A short answer can retain the wrong number from a section (e.g. the
+    # acknowledgement deadline instead of the update interval). Preserve context.
+    magnitude = r"\b(?:\d+|um|uma|dois|duas|tres|quatro|cinco|seis|sete|oito|nove|dez|quinze|trinta)\s*(?:%|minutos?\b|horas?\b|dias?\b|segundos?\b|falhas?\b|vez(?:es)?\b)"
+    if multiple_questions or (
+        asks_measure and
+        set(re.findall(magnitude, normalize(p.text))) - set(re.findall(magnitude, normalize(quote)))
     ):
         quote = p.text
     return p, quote

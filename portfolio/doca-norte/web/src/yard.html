@@ -1,3 +1,4 @@
+<a class="skip-link" href="#main">Ir para o pátio</a>
 <header class="top">
   <div class="top-in">
     <a href="#main" class="brand"><i class="dn-mark" aria-hidden="true"></i>Doca Norte</a
@@ -5,18 +6,35 @@
     ><span class="crew"><i></i>{{session()?.actor || 'Conectando'}}</span>
   </div>
 </header>
-<main id="main">
+<main id="main" tabindex="-1">
   <section class="intro">
     <div>
       <p class="eyebrow">Centro de controle / Pátio A</p>
       <h1>Controle de pátio<span>.</span></h1>
     </div>
-    <div class="sync"><small>ÚLTIMA LEITURA</small><b>{{synced() || '—'}}</b></div>
+    <div class="sync">
+      <div class="read-time">
+        <small>Última leitura</small>
+        @if(lastRead(); as last){
+        <time [attr.datetime]="last.toISOString()">{{clock.format(last)}}</time>
+        } @else { <b>—</b> }
+      </div>
+      <div class="read-controls">
+        <span class="quality" [attr.data-state]="freshness()" role="status" aria-label="Qualidade da leitura">
+          {{qualityLabels[freshness()]}}
+        </span>
+        <button type="button" class="refresh" (click)="refresh()" [disabled]="reading() || busy()">Atualizar leitura</button>
+      </div>
+    </div>
   </section>
+  @if(freshness()==='stale' || freshness()==='unavailable'){
+  <p class="read-warning">@if(lastRead()){Exibindo a última leitura confirmada. As operações voltam após a atualização.}
+  @else {A conexão com o pátio falhou. Use “Atualizar leitura” para tentar novamente.}</p>
+  }
   <div class="statbar">
     @for(status of statuses;track status){
     <div [class]="'stat '+status">
-      <i></i><span>{{labels[status]}}</span><strong>{{count(status)}}</strong>
+      <i></i><span>{{labels[status]}}</span><strong>{{lastRead() ? count(status) : '—'}}</strong>
     </div>
     }
   </div>
@@ -27,13 +45,14 @@
         <span>ISOMÉTRICA</span>
       </div>
       <div #scene class="scene"></div>
-      <div class="dock-switches" aria-label="Selecionar doca">
+      <div class="dock-switches" role="group" aria-label="Selecionar doca">
         @for(d of data().docks;track d.id){<button
           [class.active]="d.id===selected()"
           [attr.aria-pressed]="d.id===selected()"
+          [attr.aria-label]="d.name + ' · ' + labels[d.status]"
           (click)="select(d.id)"
         >
-          {{d.id}}<i [class]="d.status"></i></button
+          {{d.id}}<i [class]="d.status" aria-hidden="true"></i></button
         >}
       </div>
     </article>
@@ -58,29 +77,31 @@
           <label for="carrier">Reservar para</label
           ><input
             id="carrier"
+            [disabled]="busy() || freshness()!=='fresh'"
             maxlength="50"
             placeholder="Nome da transportadora"
             required
             [value]="carrier"
             (input)="carrier=$any($event.target).value"
-          /><button class="primary" [disabled]="busy()">Reservar doca <span>↗</span></button>
+          /><button class="primary" [disabled]="busy() || freshness()!=='fresh'">Reservar doca <span>↗</span></button>
         </form>
-        } @if(d.status==='booked'){<button class="primary" [disabled]="busy()" (click)="move(d,'start')">
+        } @if(d.status==='booked'){<button class="primary" [disabled]="busy() || freshness()!=='fresh'" (click)="move(d,'start')">
           Iniciar descarga <span>→</span></button
-        ><button class="textbutton" [disabled]="busy()" (click)="move(d,'cancel')">
+        ><button class="textbutton" [disabled]="busy() || freshness()!=='fresh'" (click)="move(d,'cancel')">
           Cancelar reserva</button
         >} @if(d.status==='servicing'){<button
           class="primary"
-          [disabled]="busy()"
+          [disabled]="busy() || freshness()!=='fresh'"
           (click)="move(d,'release')"
         >
           Liberar doca <span>→</span></button
-        >} } @else if(session()?.federated){<a class="primary" href="/oauth2/authorization/yard"
+        >} } @else if(sessionProblem()){<p class="failure">Sessão indisponível. Atualize a leitura para reconectar.</p>
+        } @else if(session()?.federated){<a class="primary" href="/oauth2/authorization/yard"
           >Entrar como operador</a
         >}
       </div>
       } @else {
-      <p class="detail">Carregando docas…</p>
+      <p class="detail">{{freshness()==='unavailable' ? 'Sem dados confirmados do pátio.' : 'Carregando docas…'}}</p>
       }
     </aside>
   </section>
@@ -93,13 +114,13 @@
       <h2>Livro de movimentos</h2>
       <span>{{data().moves.length}} RECENTES</span>
     </div>
-    @for(m of data().moves;track m){
+    @for(m of data().moves;track m.dockId + '/' + (m.dockVersion ?? m.at + m.action)){
     <div class="entry">
-      <time>{{m.at.slice(11,19) + ' UTC'}}</time><b>{{m.dockId}}</b><span>{{actions[m.action]}}</span
+      <time [attr.datetime]="m.at">{{m.at.slice(11,19) + ' UTC'}}</time><b>{{m.dockId}}</b><span>{{actions[m.action]}}</span
       ><span>{{m.carrier}}</span>
     </div>
     } @empty {
-    <p>A primeira operação do turno aparecerá aqui.</p>
+    <p>{{lastRead() ? 'A primeira operação do turno aparecerá aqui.' : 'Aguardando a leitura do histórico.'}}</p>
     }
   </section>
 </main>

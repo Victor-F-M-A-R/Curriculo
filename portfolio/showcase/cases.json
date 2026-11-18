@@ -1,0 +1,101 @@
+{
+  "doca": {
+    "name": "Doca Norte",
+    "category": "Operações logísticas",
+    "label": "Pátio",
+    "stack": "Java · Spring Boot · Angular · Flutter · PostgreSQL",
+    "brief": "Acompanhe uma carga da reserva à liberação de uma doca. A tela, a portaria e o histórico acompanham o movimento.",
+    "question": "Como impedir que duas pessoas reservem a mesma doca?",
+    "decision": "O banco trava a linha e a API compara a versão que o operador viu na tela. A mudança de estado e o evento compartilham a transação. A portaria sinaliza quando sua última leitura envelhece.",
+    "evidence": "O teste envia duas reservas simultâneas à mesma posição. Ele exige um único vencedor, um conflito e um movimento durável. O teste de portaria distingue leitura atual, defasada e vencida.",
+    "limit": "O pátio usa transportadoras fictícias. O ensaio de biometria do aplicativo Flutter em aparelho físico é uma verificação separada.",
+    "project": "doca-norte",
+    "path": "doca-norte/server/src/test/java/br/dev/docanorte/YardTest.java",
+    "action": "Ver o teste de concorrência",
+    "cmd": "docker compose up --build -d doca portaria",
+    "port": 8081,
+    "accent": "#F4C76B",
+    "scenes": [
+      ["Antes da descarga", "O operador reserva a Doca 01 para a transportadora.", "A reserva muda a posição que os outros operadores podem selecionar."],
+      ["Da reserva à descarga", "O início da descarga altera o estado da doca.", "A maquete e a ficha refletem a resposta da API."],
+      ["Posição liberada", "O histórico conserva as três movimentações.", "Depois da liberação, a doca pode receber outra carga."]
+    ],
+    "outcome": "Uma doca livre e três movimentos no histórico."
+  },
+  "lastro": {
+    "name": "Lastro",
+    "category": "Operações financeiras",
+    "label": "Conciliação",
+    "stack": "C# · ASP.NET Core · Dapper · React · Blazor",
+    "brief": "Importe um extrato, descubra a diferença entre o previsto e o recebido e registre a decisão da pessoa responsável.",
+    "question": "Como tratar um repasse divergente sem alterar o valor original?",
+    "decision": "O serviço valida os valores em centavos e grava o lote em uma transação. O arquivo ganha uma impressão digital. Uma revisão entra no livro como um novo evento.",
+    "evidence": "A reimportação mantém o total e o histórico financeiro. Um teste separado coloca uma referência conflitante na última linha do lote e verifica a reversão das linhas anteriores.",
+    "limit": "Os repasses são fictícios. A matriz de execução do projeto identifica os bancos verificados e os adaptadores que ainda exigem uma instância externa.",
+    "project": "lastro",
+    "path": "lastro/tests/BookTests.cs",
+    "action": "Ver os testes de conciliação",
+    "cmd": "docker compose up --build -d lastro",
+    "port": 8082,
+    "accent": "#B8D8AE",
+    "scenes": [
+      ["Entrada do extrato", "O analista importa um arquivo com dois repasses.", "A mesa compara cada referência com o título previsto."],
+      ["Reenvio do mesmo lote", "Reimportar o extrato preserva os totais.", "O repasse REP-1048 traz uma diferença de R$ 17,50."],
+      ["Decisão rastreável", "A auditoria conserva a justificativa da diferença.", "A anotação fica disponível para consulta na página Blazor."]
+    ],
+    "outcome": "Um lote reconhecido no reenvio e uma decisão auditável.",
+    "english": [
+      "Lastro is a reconciliation desk for a fictional payment operation. How can an analyst explain a discrepancy while preserving the original amount?",
+      "The analyst imports two transfers. The desk compares each reference to its expected payment.",
+      "Importing the same statement again preserves the totals. Transfer REP-1048 has a BRL 17.50 discrepancy.",
+      "The analyst records the fee explanation and opens the audit trail in Blazor.",
+      "The replay is recognized. The original amount and the analyst’s decision remain available for review."
+    ]
+  },
+  "farol": {
+    "name": "Farol",
+    "category": "IA aplicada a operações",
+    "label": "Assistente",
+    "stack": "Python · FastAPI · SQLite-vec · React · n8n",
+    "brief": "Faça uma pergunta de plantão, confira o trecho que sustenta a resposta e encaminhe dúvidas sem cobertura para revisão.",
+    "question": "Como saber se uma orientação de IA tem respaldo no manual?",
+    "decision": "A busca recupera trechos do acervo aprovado. O servidor confere a origem da evidência e pode encaminhar uma pergunta para a fila de revisão. A sessão conserva o histórico das consultas.",
+    "evidence": "O ensaio publicado do Qwen local registra a resposta e a seção recuperada por pergunta. O projeto também documenta uma falha em que a seleção omitiu o intervalo de 15 minutos e o teste que protege a correção.",
+    "limit": "O acervo é sintético. A gravação usa o modo extrativo do aplicativo. Os resultados com Qwen e a integração externa de revisão têm registros próprios no repositório.",
+    "project": "farol",
+    "path": "docs/evidence/qwen-final.json",
+    "action": "Ver o ensaio com Qwen",
+    "cmd": "docker compose up --build -d farol",
+    "port": 8083,
+    "accent": "#FFAD89",
+    "scenes": [
+      ["Consulta ao acervo", "O plantonista pergunta quem aprova uma mudança de rede.", "O manual identifica os dois responsáveis e a janela de quarta-feira."],
+      ["Verificação da fonte", "Um clique abre a seção correspondente no manual.", "O plantonista consegue confrontar a orientação com o texto de origem."],
+      ["Pergunta sem cobertura", "O preço do contrato exige revisão humana.", "O assistente sinaliza a falta de evidência e registra o pedido."]
+    ],
+    "outcome": "Uma resposta com fonte e uma pergunta na fila de revisão."
+  },
+  "rastro": {
+    "name": "Rastro",
+    "category": "Dados de frota",
+    "label": "Telemetria",
+    "stack": "PostgreSQL · SQL · Python · FastAPI",
+    "brief": "Inspecione posições de veículos e acompanhe o efeito de uma leitura nova, uma duplicada e outra que chegou com atraso.",
+    "question": "Qual posição mostrar quando os eventos da frota chegam fora de ordem?",
+    "decision": "A ingestão distingue a hora da leitura da hora em que chegou ao sistema. PostgreSQL conserva o histórico das leituras aceitas e a posição corrente de cada veículo.",
+    "evidence": "O cenário reenvia o mesmo lote ao banco. A interface compara a atualização válida, a leitura atrasada e as repetições com o histórico do veículo.",
+    "limit": "O cenário usa posições e veículos fictícios. Os planos de consulta e o conjunto de testes estão disponíveis para repetição em uma instância PostgreSQL.",
+    "project": "rastro",
+    "path": "rastro/README.md",
+    "action": "Examinar SQL, índices e execução",
+    "cmd": "docker compose up --build -d rastro",
+    "port": 8084,
+    "accent": "#8FE1D2",
+    "scenes": [
+      ["Estado inicial", "A mesa reúne a última posição dos veículos.", "Os dados deste cenário de demonstração estão em PostgreSQL."],
+      ["Eventos fora de ordem", "A chegada registra uma atualização, um reenvio e um atraso.", "A leitura antiga fica no histórico e preserva a posição mais recente."],
+      ["Segundo envio", "Repetir o cenário identifica três reenvios.", "A linha do tempo permite inspecionar as leituras do veículo."]
+    ],
+    "outcome": "A posição atual é preservada e o histórico explica a chegada."
+  }
+}
