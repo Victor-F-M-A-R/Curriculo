@@ -27,10 +27,13 @@ CASES={
 }
 
 def bundle(dest):
+    repository = subprocess.check_output(
+        ["git", "rev-parse", "--show-toplevel"], cwd=ROOT, text=True
+    ).strip()
     with tempfile.TemporaryDirectory() as folder:
         archive=Path(folder)/"source.zip"
         history=Path(folder)/"historico.bundle"
-        subprocess.run(["git","archive","--format=zip","-o",str(archive),"HEAD"],cwd=ROOT,check=True)
+        subprocess.run(["git","archive","--format=zip","-o",str(archive),"HEAD"],cwd=repository,check=True)
         subprocess.run(["git","bundle","create",str(history),"HEAD","--branches","--tags"],cwd=ROOT,check=True)
         shutil.copyfile(archive,dest)
         with ZipFile(dest,"a",compression=ZIP_DEFLATED) as z:z.write(history,"historico.bundle")
