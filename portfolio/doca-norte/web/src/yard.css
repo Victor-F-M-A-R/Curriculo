@@ -1,0 +1,182 @@
+.dn-yard {
+  --dn-ink: #e7ece2;
+  position: relative;
+  isolation: isolate;
+  inline-size: 100%;
+  aspect-ratio: 1.87;
+  min-block-size: 205px;
+  overflow: hidden;
+  border-radius: inherit;
+  color: var(--dn-ink);
+  background-color: #252e29;
+  background-image:
+    radial-gradient(circle, #a5b5a51c 0.75px, transparent 0.9px),
+    radial-gradient(ellipse at 45% 38%, #455044 0%, #303a32 49%, #222a26 100%);
+  background-size:
+    16px 16px,
+    auto;
+  font-family: "Barlow", "Arial", sans-serif;
+  font-synthesis: none;
+}
+.dn-yard__surface,
+.dn-yard__pins {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.dn-yard__surface {
+  display: block;
+  touch-action: pan-y;
+  cursor: grab;
+}
+.dn-yard--dragging .dn-yard__surface {
+  cursor: grabbing;
+}
+.dn-yard__pins {
+  pointer-events: none;
+}
+.dn-yard__pin,
+.dn-yard__control {
+  appearance: none;
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.dn-yard__pin {
+  --pin-ink: #adcdb8;
+  position: absolute;
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transform: translate(-50%, -100%);
+  padding: 0 5px;
+  height: 20px;
+  min-width: 30px;
+  color: #e9eee5;
+  background: #252e29;
+  border: 1px solid #8c9c8b;
+  border-radius: 3px;
+  box-shadow: 0 2px 4px #0f191b60;
+  font:
+    700 10px/1 "IBM Plex Mono",
+    "Courier New",
+    monospace;
+  letter-spacing: 0.015em;
+}
+.dn-yard__pin::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  background: var(--pin-ink);
+  border-radius: 50%;
+}
+.dn-yard__pin::after {
+  content: "";
+  position: absolute;
+  width: 1px;
+  height: 4px;
+  top: 100%;
+  left: 50%;
+  background: #e0e5d3;
+}
+.dn-yard__pin[data-state="free"] {
+  --pin-ink: #a4cfb4;
+}
+.dn-yard__pin[data-state="booked"] {
+  --pin-ink: #efbc6d;
+}
+.dn-yard__pin[data-state="servicing"] {
+  --pin-ink: #87bfd1;
+}
+.dn-yard__pin[data-state="unknown"] {
+  --pin-ink: #98a099;
+}
+.dn-yard__pin[aria-pressed="true"] {
+  z-index: 1;
+  color: #202820;
+  background: #f0c67f;
+  border-color: #fff1c9;
+  box-shadow: 0 0 0 2px #1d272296;
+}
+.dn-yard__pin[aria-pressed="true"]::before {
+  background: #283129;
+  box-shadow: 0 0 0 1px #ffffff3b;
+}
+.dn-yard__pin:disabled {
+  opacity: 0.68;
+  cursor: default;
+}
+.dn-yard__controls {
+  display: flex;
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  background: #212b24ed;
+  border: 1px solid #97a59261;
+  border-radius: 5px;
+  overflow: visible;
+}
+.dn-yard__control {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  width: 34px;
+  height: 32px;
+  font:
+    20px/1 "Arial",
+    sans-serif;
+  color: #e3e8dc;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+}
+.dn-yard__control + .dn-yard__control {
+  border-left: 1px solid #8a9c8940;
+}
+.dn-yard__control:disabled {
+  color: #778378;
+  cursor: default;
+}
+.dn-yard__control:not(:disabled):hover,
+.dn-yard__control:not(:disabled):active {
+  background: #52604e;
+}
+.dn-yard__pin:not(:disabled):hover {
+  border-color: #f1dfaf;
+}
+.dn-yard__pin:focus-visible,
+.dn-yard__control:focus-visible {
+  outline: 2px solid #ffdda3;
+  outline-offset: 3px;
+  z-index: 2;
+}
+@media (max-width: 550px) {
+  .dn-yard__pin {
+    height: 19px;
+    min-width: 25px;
+    padding-inline: 3px;
+    gap: 3px;
+  }
+  .dn-yard__pin::before {
+    width: 4px;
+    height: 4px;
+  }
+  .dn-yard__controls {
+    right: 7px;
+    bottom: 7px;
+  }
+}
+@media (forced-colors: active) {
+  .dn-yard__pin,
+  .dn-yard__control,
+  .dn-yard__controls {
+    border: 1px solid ButtonText;
+  }
+  .dn-yard__pin[aria-pressed="true"] {
+    outline: 3px solid Highlight;
+  }
+}

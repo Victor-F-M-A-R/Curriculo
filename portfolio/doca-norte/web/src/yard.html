@@ -1,0 +1,105 @@
+<header class="top">
+  <div class="top-in">
+    <a href="#main" class="brand"><i class="dn-mark" aria-hidden="true"></i>Doca Norte</a
+    ><span class="facility">TERMINAL INTERMODAL</span
+    ><span class="crew"><i></i>{{session()?.actor || 'Conectando'}}</span>
+  </div>
+</header>
+<main id="main">
+  <section class="intro">
+    <div>
+      <p class="eyebrow">Centro de controle / Pátio A</p>
+      <h1>Controle de pátio<span>.</span></h1>
+    </div>
+    <div class="sync"><small>ÚLTIMA LEITURA</small><b>{{synced() || '—'}}</b></div>
+  </section>
+  <div class="statbar">
+    @for(status of statuses;track status){
+    <div [class]="'stat '+status">
+      <i></i><span>{{labels[status]}}</span><strong>{{count(status)}}</strong>
+    </div>
+    }
+  </div>
+  <section class="workbench">
+    <article class="yard-panel">
+      <div class="panel-heading">
+        <h2>Vista do terminal</h2>
+        <span>ISOMÉTRICA</span>
+      </div>
+      <div #scene class="scene"></div>
+      <div class="dock-switches" aria-label="Selecionar doca">
+        @for(d of data().docks;track d.id){<button
+          [class.active]="d.id===selected()"
+          [attr.aria-pressed]="d.id===selected()"
+          (click)="select(d.id)"
+        >
+          {{d.id}}<i [class]="d.status"></i></button
+        >}
+      </div>
+    </article>
+    <aside class="inspector">
+      @if(dock();as d){
+      <div class="panel-heading"><span>ORDEM DE OPERAÇÃO</span><span>REV {{d.version}}</span></div>
+      <div class="detail">
+        <p [class]="'pill '+d.status">{{labels[d.status]}}</p>
+        <h2>{{d.name}}</h2>
+        <dl>
+          <div>
+            <dt>Categoria</dt>
+            <dd>{{d.cargo}}</dd>
+          </div>
+          <div>
+            <dt>Transportadora</dt>
+            <dd>{{d.carrier || 'Disponível'}}</dd>
+          </div>
+        </dl>
+        @if(session()?.canWrite){ @if(d.status==='free'){
+        <form (submit)="$event.preventDefault();move(d,'book')">
+          <label for="carrier">Reservar para</label
+          ><input
+            id="carrier"
+            maxlength="50"
+            placeholder="Nome da transportadora"
+            required
+            [value]="carrier"
+            (input)="carrier=$any($event.target).value"
+          /><button class="primary" [disabled]="busy()">Reservar doca <span>↗</span></button>
+        </form>
+        } @if(d.status==='booked'){<button class="primary" [disabled]="busy()" (click)="move(d,'start')">
+          Iniciar descarga <span>→</span></button
+        ><button class="textbutton" [disabled]="busy()" (click)="move(d,'cancel')">
+          Cancelar reserva</button
+        >} @if(d.status==='servicing'){<button
+          class="primary"
+          [disabled]="busy()"
+          (click)="move(d,'release')"
+        >
+          Liberar doca <span>→</span></button
+        >} } @else if(session()?.federated){<a class="primary" href="/oauth2/authorization/yard"
+          >Entrar como operador</a
+        >}
+      </div>
+      } @else {
+      <p class="detail">Carregando docas…</p>
+      }
+    </aside>
+  </section>
+  <p class="notice" role="status">{{notice()}}</p>
+  @if(error()){
+  <p class="failure" role="alert">{{error()}}</p>
+  }
+  <section class="journal">
+    <div class="panel-heading">
+      <h2>Livro de movimentos</h2>
+      <span>{{data().moves.length}} RECENTES</span>
+    </div>
+    @for(m of data().moves;track m){
+    <div class="entry">
+      <time>{{m.at.slice(11,19) + ' UTC'}}</time><b>{{m.dockId}}</b><span>{{actions[m.action]}}</span
+      ><span>{{m.carrier}}</span>
+    </div>
+    } @empty {
+    <p>A primeira operação do turno aparecerá aqui.</p>
+    }
+  </section>
+</main>
