@@ -1,0 +1,44 @@
+name: Validar Lastro no SQL Server
+on:
+  push:
+    paths:
+      - "portfolio/lastro/**"
+      - ".github/workflows/sql-server.yml"
+  pull_request:
+    paths:
+      - "portfolio/lastro/**"
+      - ".github/workflows/sql-server.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  persistencia:
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: '10.0.x' }
+      - name: Criar base descartável no SQL Server Express LocalDB
+        shell: powershell
+        run: |
+          $ErrorActionPreference = "Stop"
+          SqlLocalDB.exe start MSSQLLocalDB
+          if ($LASTEXITCODE -ne 0) { throw "Falha ao iniciar LocalDB" }
+          $server = 'Server=(localdb)\MSSQLLocalDB;Integrated Security=true;TrustServerCertificate=true'
+          $db = [System.Data.SqlClient.SqlConnection]::new("$server;Initial Catalog=master")
+          try {
+            $db.Open()
+            $cmd = $db.CreateCommand()
+            $cmd.CommandText = 'CREATE DATABASE LastroCI'
+            $cmd.ExecuteNonQuery() | Out-Null
+            $cmd.CommandText = "SELECT CAST(SERVERPROPERTY('ProductVersion') AS nvarchar(40))"
+            Write-Output ("SQL Server " + $cmd.ExecuteScalar())
+          } finally {
+            $db.Dispose()
+          }
+          "TEST_BOOK_CONNECTION=$server;Initial Catalog=LastroCI" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Exercitar transações e auditoria com o provedor SQL Server
+        env:
+          TEST_BOOK_ENGINE: sqlserver
+        run: dotnet test portfolio/lastro/tests -c Release --logger "console;verbosity=normal"
