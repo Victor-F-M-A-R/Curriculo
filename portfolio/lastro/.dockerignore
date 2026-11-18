@@ -1,0 +1,11 @@
+**/node_modules
+**/target
+**/bin
+**/obj
+**/dist
+**/.angular
+**/build
+**/.dart_tool
+field
+**/*.db*
+**/.env
