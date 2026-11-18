@@ -1,6 +1,6 @@
 # Decisões e revisão de engenharia
 
-Esta revisão registra problemas concretos, decisões e formas de reproduzir a verificação. As [evidências de execução](verificacao.md) distinguem os resultados medidos em 18 de novembro de 2026 dos ensaios históricos e das integrações ainda pendentes.
+Esta revisão registra problemas concretos, decisões e formas de reproduzir a verificação. As [evidências de execução](verificacao.md) distinguem os resultados locais e remotos de 18 de novembro de 2026, os ensaios históricos e os limites da validação.
 
 ## Doca Norte · Duas pessoas escolhem a mesma doca
 

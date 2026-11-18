@@ -31,20 +31,22 @@ Os resultados abaixo foram confirmados no commit [`68390a6079c67f27cb42f8c38f62f
 
 | Verificação | Resultado medido | Execução |
 | --- | --- | --- |
+| Integração geral · serviços, bancos e Chromium | **Job aprovado: 14 cenários de navegador em 28,0 s**, além das suítes de serviços e avaliações Farol | [Job de integração](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690456/job/135174196801). Repetiu Doca com 7 casos por banco, Lastro com 10 por banco, Farol com 14 e Rastro com 13; recuperação e conteúdo mantiveram os resultados da tabela local. |
 | Flutter 3.50.0 · aplicativo de campo | **Análise sem problemas, 4 testes aprovados e build web concluído** | [Job do aplicativo de campo](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690456/job/135174196327). Executado remotamente; não houve nova execução local de Flutter. |
 | Lastro · SQL Server 15.0.4382.1 | **10 testes aprovados** contra SQL Server Express LocalDB real | [Job de persistência](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690985/job/135174195055). Transações, rollback, replay, valores e auditoria exercitados no provedor SQL Server. |
 | Imagens finais e Docker Compose | **6 imagens compiladas e operações dos quatro produtos confirmadas** | [Job de contêineres](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690456/job/135174196928). Imagens Doca, Portaria, Lastro, Farol, Rastro e Inbox; conjunto Compose iniciado com PostgreSQL e perfil de automação. |
 | FastAPI → n8n → Inbox .NET | **Entrega real confirmada, 1 evento persistido após dois reenvios, autenticação e isolamento aprovados** | Mesmo [job de contêineres](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690456/job/135174196928), via `python tests/compose_verify.py`. Workflow e Inbox rejeitaram credenciais ausentes ou inválidas; outra sessão não acessou a consulta. |
 
-## Evidências históricas e verificações restantes
+O [workflow dos produtos](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690456) e o [workflow SQL Server](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690985) concluíram com sucesso para esse commit. Os tempos registrados descrevem essas execuções, sem estimar o desempenho em produção.
+
+## Evidências históricas preservadas
 
 | Item | Situação nesta revisão |
 | --- | --- |
 | Qwen local e adaptadores HTTPX/LangChain | **Ensaio histórico preservado, sem nova execução do modelo.** [Configuração, respostas e limitações](modelo.md). As métricas atuais acima pertencem exclusivamente ao modo extrativo. |
-| Job remoto de integração geral | O resultado completo, incluindo os cenários no navegador do runner, ainda aguarda confirmação. Os 14 cenários locais já estão confirmados na tabela inicial. |
 | Plano de consulta Rastro | A [captura em PostgreSQL 16.2](../rastro/evidence/explain-pg16.txt) é anterior a esta revisão e usa 60.000 eventos sintéticos. Os tempos não foram medidos novamente nesta sessão. |
 
-[Consultar as execuções do GitHub Actions](https://github.com/Victor-F-M-A-R/Curriculo/actions/workflows/verify.yml). Uma configuração de workflow ou uma execução anterior aprovada não substitui o resultado do commit publicado.
+[Consultar outras revisões no GitHub Actions](https://github.com/Victor-F-M-A-R/Curriculo/actions/workflows/verify.yml). Os links da seção anterior apontam as execuções específicas que sustentam este registro.
 
 ## Limites da demonstração
 

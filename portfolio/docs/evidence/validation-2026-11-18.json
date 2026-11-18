@@ -45,7 +45,26 @@
   "remote_validation": {
     "code_commit": "68390a6079c67f27cb42f8c38f62f049801d4db9",
     "branch": "portfolio-dados-e-curriculo",
+    "conclusion": "success",
     "checks": [
+      {
+        "suite": "Full integration job",
+        "conclusion": "success",
+        "browser_passed": 14,
+        "browser_failed": 0,
+        "browser_skipped": 0,
+        "browser_duration_seconds": 28.0,
+        "doca_passed_per_database": 7,
+        "doca_databases": ["H2", "PostgreSQL"],
+        "lastro_passed_per_database": 10,
+        "lastro_databases": ["SQLite", "PostgreSQL"],
+        "farol_passed": 14,
+        "rastro_passed": 13,
+        "farol_retrieval_and_content_match_local": true,
+        "run_id": 44409690456,
+        "job_id": 135174196801,
+        "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690456/job/135174196801"
+      },
       {
         "suite": "Flutter field app",
         "flutter_version": "3.50.0",
@@ -86,9 +105,7 @@
       }
     ]
   },
-  "remote_checks_pending_confirmation": [
-    "Full integration job"
-  ],
+  "remote_checks_pending_confirmation": [],
   "historical_not_repeated": [
     "Qwen HTTPX and LangChain evaluation",
     "Rastro historical PostgreSQL 16.2 query plan benchmark"
