@@ -256,7 +256,10 @@ function App() {
               <span>Valor recebido</span>
               <b>{loaded ? money(received) : "—"}</b>
             </div>
-            <div className="strip" aria-label="Distribuição por situação">
+            <div className="strip" role="img" aria-label={loaded
+              ? "Distribuição por situação: " + Object.entries(names)
+                .map(([status, label]) => `${label}: ${rows.filter(row => row.status === status).length}`).join("; ")
+              : "Carregando distribuição por situação"}>
               {(Object.keys(names) as Status[]).map((s) => {
                 const count = rows.filter((r) => r.status === s).length;
                 return count > 0 ? (

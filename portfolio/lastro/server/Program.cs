@@ -30,6 +30,16 @@ builder.Services.AddAuthorization();
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = 429;
+    options.OnRejected = async (context, cancellation) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        var seconds = context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var delay)
+            ? Math.Max(1, (int)Math.Ceiling(delay.TotalSeconds)) : 60;
+        context.HttpContext.Response.Headers.RetryAfter = seconds.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        await context.HttpContext.Response.WriteAsJsonAsync(new {
+            detail = $"Limite de tentativas atingido. Aguarde {seconds} segundos antes de tentar novamente."
+        }, cancellationToken: cancellation);
+    };
     options.AddPolicy("access", ctx =>
         RateLimitPartition.GetFixedWindowLimiter(
             ctx.Connection.RemoteIpAddress?.ToString() ?? "local",

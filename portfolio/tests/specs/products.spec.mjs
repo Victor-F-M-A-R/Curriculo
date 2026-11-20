@@ -39,22 +39,43 @@ test("conciliação · importar e repetir preserva valores, revisar deixa trilha
   await expect(page.getByRole("heading", { name: "Trilha de eventos." })).toBeVisible();
   await expect(page.getByText("Taxa de serviço confirmada no extrato.")).toBeVisible();
 });
-test("conta · novo usuário pode sair, entrar e recuperar a mesma mesa", async ({ page }) => {
+test("conta · novo usuário pode sair, entrar e recuperar a mesma mesa", async ({ page }, info) => {
+  // The suite shares a loopback IP. Honor the real 30/minute limiter instead of weakening it for CI.
+  test.setTimeout(90_000);
   const name = "analista-" + crypto.randomUUID().slice(0, 8),
     password = "teste-interativo-2026";
+  async function submitAccess(button, path) {
+    async function submit() {
+      const response = page.waitForResponse(result => new URL(result.url()).pathname === path && result.request().method() === "POST");
+      await page.getByRole("button", { name: button, exact: true }).click();
+      return response;
+    }
+    let response = await submit();
+    if (response.status() === 429) {
+      const seconds = Number(response.headers()["retry-after"]);
+      expect(Number.isInteger(seconds) && seconds >= 1 && seconds <= 60).toBe(true);
+      await info.attach("lastro-access-throttle", {
+        body: JSON.stringify({ path, status: response.status(), retryAfterSeconds: seconds }), contentType: "application/json",
+      });
+      await expect(page.getByRole("alert")).toContainText("Limite de tentativas atingido");
+      await page.waitForTimeout(seconds * 1000 + 100);
+      response = await submit();
+    }
+    expect(response.status()).toBe(204);
+  }
   await page.goto(lastro);
   await page.getByRole("button", { name: "Mesa demo" }).click();
   await page.getByRole("button", { name: "Criar conta", exact: true }).click();
   await page.getByLabel("Usuário").fill(name);
   await page.getByLabel("Senha").fill(password);
-  await page.getByRole("button", { name: "Criar minha mesa" }).click();
+  await submitAccess("Criar minha mesa", "/api/register");
   await page.getByRole("button", { name, exact: true }).click();
   await page.getByRole("button", { name: "Sair da conta" }).click();
   await page.getByRole("button", { name: "Mesa demo" }).click();
   await page.getByRole("button", { name: "Entrar", exact: true }).click();
   await page.getByLabel("Usuário").fill(name);
   await page.getByLabel("Senha").fill(password);
-  await page.getByRole("button", { name: "Acessar minha mesa" }).click();
+  await submitAccess("Acessar minha mesa", "/api/login");
   await expect(page.getByRole("button", { name, exact: true })).toBeVisible();
 });
 test("consulta · citação navegável, abstenção e fila de revisão", async ({ page }) => {

@@ -83,6 +83,7 @@ class StalledLoopback {
       }
       final socket = await request.response.detachSocket(writeHeaders: false);
       sockets.add(socket);
+      unawaited(socket.done.then<void>((_) {}, onError: (Object _, StackTrace __) {}));
       void closed() { if (!peerClosed.isCompleted) peerClosed.complete(); }
       socket.listen((_) {}, onDone: closed, onError: (Object _) { closed(); });
       final prefix = utf8.encode('{"sampledAt":');
