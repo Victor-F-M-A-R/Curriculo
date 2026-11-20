@@ -248,6 +248,14 @@ button:focus-visible, a:focus-visible, input:focus-visible {
   overflow: hidden;
   background: #202728;
 }
+.scene > .dn-yard {
+  /* The host owns responsive sizing; a second aspect ratio clipped the controls. */
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  min-block-size: 0;
+  aspect-ratio: auto;
+}
 .dock-switches {
   display: flex;
   border-top: 1px solid var(--line);

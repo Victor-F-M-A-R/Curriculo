@@ -7,6 +7,72 @@ const board = () => ({
 });
 const session = { actor: "Teste", canWrite: true, federated: false, authenticated: false, csrfHeader: "X-Test-Token", csrf: "fixture" };
 
+// Hit-testing the corners catches controls whose CSS box exists but is clipped.
+async function targetGeometry(button) {
+  return button.evaluate(element => {
+    const rect = element.getBoundingClientRect();
+    const scene = document.querySelector(".scene").getBoundingClientRect();
+    const switches = document.querySelector(".dock-switches").getBoundingClientRect();
+    const points = [[.5, .5], [0, 0], [1, 0], [0, 1], [1, 1]];
+    const hits = points.map(([x, y]) => element.contains(document.elementFromPoint(
+      rect.left + 2 + x * (rect.width - 4), rect.top + 2 + y * (rect.height - 4))));
+    const rgb = value => value.match(/[\d.]+/g).map(Number);
+    const luminance = color => color.slice(0, 3).map(n => {
+      const v = n / 255;
+      return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4;
+    }).reduce((sum, v, i) => sum + v * [.2126, .7152, .0722][i], 0);
+    let background = element;
+    let color;
+    do {
+      color = rgb(getComputedStyle(background).backgroundColor);
+      if (color.length === 3 || color[3] === 1) break;
+      background = background.parentElement;
+    } while (background);
+    const fg = luminance(rgb(getComputedStyle(element).color));
+    const bg = luminance(color);
+    return {
+      width: rect.width, height: rect.height, hits,
+      insideScene: rect.left >= scene.left && rect.right <= scene.right
+        && rect.top >= scene.top && rect.bottom <= scene.bottom,
+      aboveSwitches: rect.bottom <= switches.top,
+      contrast: (Math.max(fg, bg) + .05) / (Math.min(fg, bg) + .05),
+    };
+  });
+}
+
+test("Doca · giros e seleção têm alvos inteiros sem sobreposição em desktop e celular", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const width of [1280, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(doca);
+    await expect(page.locator(".dock-switches button")).toHaveCount(6);
+    await page.evaluate(() => document.fonts.ready);
+    // Scroll the whole panel, not the button: scrolling a clipped descendant can
+    // move an overflow:hidden ancestor and conceal the layout regression.
+    await page.locator(".yard-panel").scrollIntoViewIfNeeded();
+    const pin = page.locator(".dn-yard__pin").first();
+    await expect(pin).toHaveAttribute("style", /left:/);
+    for (const direction of ["esquerda", "direita"]) {
+      const turn = page.getByRole("button", { name: `Girar maquete à ${direction}` });
+      const geometry = await targetGeometry(turn);
+      expect(geometry.insideScene, `${width}px: giro contido na maquete`).toBe(true);
+      expect(geometry.aboveSwitches, `${width}px: giro acima do seletor`).toBe(true);
+      expect(geometry.hits, `${width}px: centro e quatro cantos do giro`).toEqual([true, true, true, true, true]);
+      expect(geometry.width).toBeGreaterThanOrEqual(24);
+      expect(geometry.height).toBeGreaterThanOrEqual(24);
+      expect(geometry.contrast).toBeGreaterThanOrEqual(4.5);
+      const before = await pin.getAttribute("style");
+      await turn.click();
+      await expect.poll(() => pin.getAttribute("style")).not.toBe(before);
+    }
+    for (const button of await page.locator(".dock-switches button").all()) {
+      const geometry = await targetGeometry(button);
+      expect(geometry.hits, `${width}px: seletor sem elemento sobreposto`).toEqual([true, true, true, true, true]);
+      expect(geometry.contrast).toBeGreaterThanOrEqual(4.5);
+    }
+  }
+});
+
 test("Doca · contrato inválido e data antiga não substituem a última leitura", async ({ page }) => {
   let payload = board();
   await page.route("**/api/session", route => route.fulfill({ json: session }));

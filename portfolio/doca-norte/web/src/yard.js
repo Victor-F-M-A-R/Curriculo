@@ -538,7 +538,10 @@ function control(label, symbol) {
   button.className = "dn-yard__control";
   button.setAttribute("aria-label", label);
   button.title = label;
-  button.textContent = symbol;
+  const icon = document.createElement("span");
+  icon.setAttribute("aria-hidden", "true");
+  icon.textContent = symbol;
+  button.append(icon);
   return button;
 }
 
