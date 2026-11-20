@@ -2,6 +2,8 @@ using Lastro;
 using Dapper;
 using Microsoft.Extensions.Configuration;
 using Xunit;
+using System.Data.Common;
+using System.Diagnostics;
 
 namespace LastroTests;
 
@@ -10,6 +12,7 @@ public class BookTests : IDisposable
     readonly string path = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".db");
     readonly Book book;
     readonly string desk;
+    readonly IConfiguration configuration;
 
     public BookTests()
     {
@@ -19,7 +22,8 @@ public class BookTests : IDisposable
             ["BOOK_CONNECTION"] = Environment.GetEnvironmentVariable("TEST_BOOK_CONNECTION")
                 ?? $"Data Source={path};Pooling=False",
         };
-        book = new Book(new ConfigurationBuilder().AddInMemoryCollection(settings).Build());
+        configuration = new ConfigurationBuilder().AddInMemoryCollection(settings).Build();
+        book = new Book(configuration);
         book.Migrate();
         desk = book.Create();
     }
@@ -119,5 +123,109 @@ public class BookTests : IDisposable
     {
         string input = Head + new string('é', 50_000);
         Assert.Contains("100 KB", Assert.Throws<DeskError>(() => Batch.Parse(input)).Message);
+    }
+
+    [Fact]
+    public async Task ConcurrentReplaysCreateOneBatchAndEvent()
+    {
+        const string csv = Head + "RACE-01;2026-11-20;99,99";
+        using var ready = new ManualResetEventSlim();
+        var calls = Enumerable.Range(0, 4).Select(_ => Task.Run(() => {
+            ready.Wait(); return book.Import(desk, csv);
+        })).ToArray();
+        ready.Set();
+        var results = await Task.WhenAll(calls);
+        Assert.Single(results, result => !result.Replay);
+        Assert.Equal(3, results.Count(result => result.Replay));
+        Assert.Single(book.Entries(desk), row => row.Reference == "RACE-01");
+        Assert.Single(book.Events(desk), ev => ev.Kind == "import");
+    }
+
+    [Fact]
+    public async Task OverlappingConcurrentBatchesNeverLeavePartialReceipts()
+    {
+        using var ready = new ManualResetEventSlim();
+        var calls = new[] { "LEFT", "RIGHT" }.Select(side => Task.Run(() => {
+            ready.Wait();
+            try { book.Import(desk, Head + $"{side}-01;2026-11-20;1,00\nSHARED-01;2026-11-20;2,00"); return (side, ok: true); }
+            catch (DeskError error) { Assert.Equal(409, error.Status); return (side, ok: false); }
+        })).ToArray();
+        ready.Set();
+        var outcomes = await Task.WhenAll(calls);
+        var winner = Assert.Single(outcomes, result => result.ok).side;
+        var loser = Assert.Single(outcomes, result => !result.ok).side;
+        var rows = book.Entries(desk);
+        Assert.Contains(rows, row => row.Reference == winner + "-01");
+        Assert.DoesNotContain(rows, row => row.Reference == loser + "-01");
+        Assert.Single(book.Events(desk), ev => ev.Kind == "import");
+        Assert.False(book.Import(desk, Head + $"{loser}-01;2026-11-20;1,00").Replay);
+    }
+
+    [Fact]
+    public async Task ConcurrentReviewsKeepOneReasonAndOneEvent()
+    {
+        using var ready = new ManualResetEventSlim();
+        var calls = Enumerable.Range(0, 3).Select(number => Task.Run(() => {
+            ready.Wait();
+            try { book.Review(desk, "REP-1043", $"Revisão concorrente {number}."); return true; }
+            catch (DeskError error) { Assert.Equal(409, error.Status); return false; }
+        })).ToArray();
+        ready.Set();
+        Assert.Single(await Task.WhenAll(calls), ok => ok);
+        var entry = book.Entries(desk).Single(row => row.Reference == "REP-1043");
+        Assert.Equal(entry.Reason, Assert.Single(book.Events(desk), ev => ev.Kind == "review").Detail);
+        Assert.Equal(-3000, entry.Delta);
+    }
+
+    [Fact]
+    public void LockTimeoutRollsBackAndCanRecoverWithSameBatch()
+    {
+        const string csv = Head + "LOCK-01;2026-11-20;0,01";
+        using var db = book.Open();
+        using var tx = db.BeginTransaction();
+        db.Execute("insert into receipts values(@desk,'LOCK-01',1,'2026-11-20')", new { desk }, tx);
+        var watch = Stopwatch.StartNew();
+        Assert.ThrowsAny<DbException>(() => book.Import(desk, csv));
+        Assert.True(watch.Elapsed < TimeSpan.FromSeconds(12), "DB wait must finish before the client confirmation deadline.");
+        tx.Rollback();
+        Assert.DoesNotContain(book.Events(desk), ev => ev.Kind == "import");
+        Assert.False(book.Import(desk, csv).Replay);
+        Assert.True(book.Import(desk, csv).Replay);
+        Assert.Single(book.Events(desk), ev => ev.Kind == "import");
+    }
+
+    [Fact]
+    public void RestartPreservesAccountReceiptsAndReviews()
+    {
+        var user = "qa-" + Guid.NewGuid().ToString("N")[..20];
+        var workspace = book.Create(user, "synthetic-test-hash");
+        var csv = Head + "PERSIST-01;2026-11-20;999999999,99";
+        book.Import(workspace, csv);
+        book.Review(workspace, "PERSIST-01", "Revisão preservada após reabrir.");
+        var restarted = new Book(configuration);
+        restarted.Migrate();
+        Assert.Equal(workspace, restarted.Account(user)!.Value.Workspace);
+        Assert.True(restarted.Import(workspace, csv).Replay);
+        var receipt = restarted.Entries(workspace).Single(row => row.Reference == "PERSIST-01");
+        Assert.Equal(99_999_999_999L, receipt.Received);
+        Assert.Equal("reviewed", receipt.Status);
+        Assert.Equal(3, restarted.Events(workspace).Count);
+    }
+
+    [Fact]
+    public void NewEventsBetweenPagesDoNotRepeatOrHideOlderEvents()
+    {
+        for (int i = 0; i < Book.AuditPageSize + 3; i++)
+            book.Import(desk, Head + $"CURSOR-{i};2026-11-20;0,01");
+        var before = book.Events(desk).Select(ev => ev.Id).ToHashSet();
+        var first = book.BrowseEvents(desk);
+        book.Review(desk, "REP-1043", "Evento novo entre duas páginas.");
+        var last = first.Events[^1];
+        var next = book.BrowseEvents(desk, beforeStamp: last.Stamp, beforeId: last.Id);
+        var traversed = first.Events.Concat(next.Events).Select(ev => ev.Id).ToList();
+        Assert.Equal(before.Count, traversed.Count);
+        Assert.True(before.SetEquals(traversed));
+        Assert.Equal("review", book.BrowseEvents(desk).Events[0].Kind);
+        Assert.Empty(book.BrowseEvents(book.Create(), "review").Events);
     }
 }

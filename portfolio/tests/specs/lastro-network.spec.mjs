@@ -37,10 +37,26 @@ test("Lastro · confirmação perdida libera a tela e conserva o lote já gravad
     const row = page.getByRole("button", { name: /Forma Oficina.*REP-1048/ });
     await expect(row).toContainText("Divergente");
     await importSample();
-    await expect(page.getByRole("status")).toContainText("já havia sido importado");
+    await expect(page.getByRole("status").filter({ hasText: "já havia sido importado" })).toBeVisible();
     const events = await (await page.request.get((process.env.LASTRO_URL ?? "http://127.0.0.1:8082") + "/api/book/events")).json();
     expect(events.filter(event => event.kind === "import")).toHaveLength(1);
   } finally {
     release();
   }
+});
+
+test("Lastro · conexão encerrada após gravar também informa confirmação incerta", async ({ page }) => {
+  await page.route("**/api/book/import", async route => {
+    await route.fetch();
+    await route.abort("connectionreset");
+  });
+  await page.goto(process.env.LASTRO_URL ?? "http://127.0.0.1:8082");
+  await page.getByRole("button", { name: "Importar extrato" }).click();
+  await page.getByRole("button", { name: "Usar extrato de exemplo" }).click();
+  await page.getByRole("button", { name: "Conciliar lote" }).click();
+  await expect(page.getByRole("alert")).toContainText("O resultado pode já ter sido gravado");
+  await expect(page.getByRole("button", { name: "Conciliar lote" })).toBeEnabled();
+  await page.getByRole("button", { name: "Fechar", exact: true }).click();
+  await page.reload();
+  await expect(page.getByRole("button", { name: /Forma Oficina.*REP-1048/ })).toContainText("Divergente");
 });

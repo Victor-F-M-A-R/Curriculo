@@ -27,6 +27,7 @@ def initialize():
     with connection() as db:
         db.execute("pragma journal_mode=wal")
         db.executescript("""
+          create table if not exists session_versions(session text primary key, version integer not null default 0);
           create table if not exists runs(
             id text primary key, session text not null, question text not null, result text not null, created real not null
           );
@@ -42,9 +43,28 @@ def initialize():
         """)
 
 
-def save(session, question, result):
+def version(session):
+    with connection() as db:
+        row = db.execute('select version from session_versions where session=?', (session,)).fetchone()
+        return row[0] if row else 0
+
+
+def erase(session):
+    # Invalidate answers started before the reset, including requests from other
+    # tabs. The version and deletion commit atomically with respect to save().
+    with connection() as db:
+        db.execute('begin immediate')
+        db.execute('insert into session_versions values(?,1) on conflict(session) do update set version=version+1', (session,))
+        db.execute('delete from runs where session=?', (session,))
+
+
+def save(session, question, result, expected_version=None):
     ident = uuid.uuid4().hex
     with connection() as db:
+        db.execute('begin immediate')
+        row = db.execute('select version from session_versions where session=?', (session,)).fetchone()
+        if expected_version is not None and expected_version != (row[0] if row else 0):
+            return None
         db.execute(
             "insert into runs values(?,?,?,?,?)",
             (
@@ -110,8 +130,11 @@ def claim():
     now = time.time()
     with connection() as db:
         db.execute("begin immediate")
+        # A worker may crash after its final attempt. Expiry must terminate that
+        # lease instead of allowing an unbounded sequence of restarted sends.
+        db.execute("update reviews set delivery='failed' where delivery in ('queued','sending') and attempts>=6 and next_at<=?", (now,))
         item = db.execute(
-            """select id,run_id,attempts from reviews where delivery in ('queued','sending') and next_at<=?
+            """select id,run_id,attempts from reviews where delivery in ('queued','sending') and attempts<6 and next_at<=?
                            order by next_at,id limit 1""",
             (now,),
         ).fetchone()

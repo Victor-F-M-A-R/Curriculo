@@ -2,21 +2,24 @@
 
 import hmac
 import os
+import base64
+import binascii
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Literal
 from uuid import UUID
 
 from fastapi import FastAPI, Header, HTTPException, Query, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from psycopg import OperationalError
 from psycopg.errors import LockNotAvailable, QueryCanceled
 from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool, PoolTimeout
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 import demo
 import repository as repo
@@ -30,10 +33,41 @@ class Reading(BaseModel):
     vehicle_id: str = Field(pattern=r"^[A-Z0-9-]{1,24}$")
     event_id: UUID
     observed_at: AwareDatetime
-    device_seq: int = Field(ge=0, le=2147483647)
+    device_seq: int = Field(strict=True, ge=0, le=2147483647)
     latitude: Decimal = Field(ge=-90, le=90, max_digits=9, decimal_places=6)
     longitude: Decimal = Field(ge=-180, le=180, max_digits=9, decimal_places=6)
-    speed_kmh: int = Field(ge=0, le=220)
+    speed_kmh: int = Field(strict=True, ge=0, le=220)
+
+    @field_validator("observed_at", mode="before")
+    @classmethod
+    def timestamp_text(cls, value):
+        if not isinstance(value, str) or "T" not in value:
+            raise ValueError("Use data e hora ISO 8601 com T e fuso explícito.")
+        return value
+
+
+class HistoryCursor(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    version: Literal[1] = 1
+    vehicle_id: str
+    observed_at: AwareDatetime
+    device_seq: int = Field(strict=True, ge=0, le=2147483647)
+
+
+def read_cursor(value, vehicle_id):
+    try:
+        raw = base64.b64decode(value + "=" * (-len(value) % 4), altchars=b"-_", validate=True)
+        cursor = HistoryCursor.model_validate_json(raw)
+        if cursor.vehicle_id != vehicle_id:
+            raise ValueError("different vehicle")
+        return cursor.observed_at, cursor.device_seq
+    except (ValueError, binascii.Error, ValidationError):
+        raise HTTPException(422, "Cursor de histórico inválido para este veículo.") from None
+
+
+def next_cursor(vehicle_id, event):
+    cursor = HistoryCursor(vehicle_id=vehicle_id, observed_at=event["observed_at"], device_seq=event["device_seq"])
+    return base64.urlsafe_b64encode(cursor.model_dump_json().encode()).decode().rstrip("=")
 
 
 @asynccontextmanager
@@ -42,6 +76,7 @@ async def lifespan(app):
     app.state.demo = os.getenv("RASTRO_DEMO", "") == "1"
     app.state.token = os.environ.get("RASTRO_INGEST_TOKEN", "")
     with ConnectionPool(url, min_size=1, max_size=6, timeout=5, open=False,
+                        check=ConnectionPool.check_connection,
                         kwargs={"row_factory": dict_row, "connect_timeout": 4,
                                 "options": "-c statement_timeout=8000 -c lock_timeout=2000"}) as pool:
         pool.wait(timeout=25)
@@ -54,6 +89,13 @@ async def lifespan(app):
 
 
 app = FastAPI(title="Rastro", version="1.0.0", lifespan=lifespan, docs_url=None, redoc_url=None)
+
+
+@app.exception_handler(RequestValidationError)
+async def invalid_input(request, exc):
+    # Never echo raw inputs: JSON NaN/Infinity and exception context are not JSON-safe.
+    errors = [{key: error[key] for key in ("type", "loc", "msg")} for error in exc.errors()]
+    return JSONResponse(status_code=422, content={"detail": errors})
 
 
 @app.middleware("http")
@@ -93,11 +135,16 @@ def list_fleet(request: Request):
 
 
 @app.get("/api/vehicles/{vehicle_id}/events")
-def recent_events(request: Request, vehicle_id: str, limit: Annotated[int, Query(ge=1, le=100)] = 20):
+def recent_events(request: Request, vehicle_id: str, limit: Annotated[int, Query(ge=1, le=100)] = 20,
+                  cursor: Annotated[str | None, Query(min_length=1, max_length=512)] = None):
+    before = read_cursor(cursor, vehicle_id) if cursor is not None else None
     with request.app.state.pool.connection() as db:
         if not db.execute("SELECT 1 FROM rastro.vehicles WHERE vehicle_id = %s", (vehicle_id,)).fetchone():
             raise HTTPException(404, "Veículo não cadastrado.")
-        return {"events": repo.history(db, vehicle_id, limit)}
+        rows = repo.history(db, vehicle_id, limit + 1, before)
+        events = rows[:limit]
+        return {"events": events,
+                "next_cursor": next_cursor(vehicle_id, events[-1]) if len(rows) > limit else None}
 
 
 @app.post("/api/events")
@@ -105,7 +152,9 @@ def post_event(request: Request, event: Reading, authorization: Annotated[str, H
     token = request.app.state.token
     if not token:
         raise HTTPException(503, "Ingestão externa desativada.")
-    if not hmac.compare_digest(authorization.encode(), f"Bearer {token}".encode()):
+    scheme, _, credential = authorization.partition(" ")
+    if (len(request.headers.getlist("authorization")) != 1 or scheme.lower() != "bearer"
+            or not hmac.compare_digest(credential.lstrip(" ").encode(), token.encode())):
         raise HTTPException(401, "Credencial de ingestão inválida.", headers={"WWW-Authenticate": "Bearer"})
     if event.observed_at > datetime.now(timezone.utc) + timedelta(minutes=5):
         raise HTTPException(422, "Relógio do dispositivo adiantado em mais de cinco minutos.")

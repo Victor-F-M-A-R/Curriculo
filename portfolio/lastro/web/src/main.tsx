@@ -14,22 +14,26 @@ import "./style.css";
 import { LedgerDesk } from "./LedgerDesk";
 import { money, names, type Entry, type Status } from "./ledger";
 
-type Session = { logged: boolean; name: string | null };
+type Session = { logged: boolean; name: string | null; workspace: string | null };
 const csv = "referencia;data;recebido\nREP-1047;2026-11-16;710,00\nREP-1048;2026-11-16;1950,00";
-async function api<T>(path: string, body?: unknown): Promise<T> {
+class ApiError extends Error {
+  constructor(message: string, readonly status: number, readonly path: string, readonly code?: string) { super(message); }
+}
+async function api<T>(path: string, body?: unknown, workspace?: string | null): Promise<T> {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 12_000);
   try {
     const response = await fetch("/api/" + path, {
       method: body === undefined ? "GET" : "POST",
-      headers: { "Content-Type": "application/json", "X-Lastro-Client": "desk" },
+      headers: { "Content-Type": "application/json", "X-Lastro-Client": "desk",
+        ...(workspace ? { "X-Lastro-Workspace": workspace } : {}) },
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: controller.signal,
     });
     if (!response.ok) {
       const problem = await response.json().catch(() => ({}));
       if (controller.signal.aborted) throw new Error("timeout");
-      throw new Error(problem.detail || "A operação não pôde ser concluída.");
+      throw new ApiError(problem.detail || "A operação não pôde ser concluída.", response.status, path, problem.code);
     }
     return response.status === 204 ? (undefined as T) : await response.json();
   } catch (error) {
@@ -38,7 +42,10 @@ async function api<T>(path: string, body?: unknown): Promise<T> {
         ? "A leitura demorou além do esperado. Tente atualizar a página."
         : "Não recebemos a confirmação a tempo. O resultado pode já ter sido gravado. Atualize a página para conferir os dados antes de tentar novamente.");
     }
-    throw error;
+    if (error instanceof ApiError) throw error;
+    throw new Error(body === undefined
+      ? "Não foi possível ler os dados. Confira a conexão e tente atualizar a página."
+      : "A conexão foi interrompida antes da confirmação. O resultado pode já ter sido gravado. Atualize a página para conferir os dados antes de tentar novamente.");
   } finally {
     window.clearTimeout(timeout);
   }
@@ -75,7 +82,7 @@ function Modal({ title, close, children }: { title: string; close: () => void; c
 }
 function App() {
   const [rows, setRows] = useState<Entry[]>([]),
-    [session, setSession] = useState<Session>({ logged: false, name: null });
+    [session, setSession] = useState<Session>({ logged: false, name: null, workspace: null });
   const [modal, setModal] = useState<"import" | "account" | null>(null),
     [content, setContent] = useState("");
   const fileRead = useRef(0);
@@ -88,22 +95,27 @@ function App() {
     [feedback, setFeedback] = useState(""),
     [busy, setBusy] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  async function load() {
-    setRows(await api<Entry[]>("book"));
+  const [expired, setExpired] = useState(false);
+  const [changed, setChanged] = useState(false);
+  const working = useRef(false);
+  async function load(workspace = session.workspace) {
+    setRows(await api<Entry[]>("book", undefined, workspace));
     setLoaded(true);
   }
   async function initialize() {
     try {
       setError("");
+      setExpired(false);
+      setChanged(false);
       let s = await api<Session>("session");
       if (!s.logged) {
         await api("session/demo", {});
         s = await api<Session>("session");
       }
       setSession(s);
-      await load();
+      await load(s.workspace);
     } catch (e) {
-      setError((e as Error).message);
+      await handleError(e);
     }
   }
   useEffect(() => {
@@ -119,11 +131,12 @@ function App() {
     setContent("");
     setPass("");
     setModalError("");
-    setError("");
+    if (!expired && !changed) setError("");
     setModal(which);
   }
   async function execute(fn: () => Promise<void>, inside = false) {
-    if (busy) return;
+    if (working.current) return;
+    working.current = true;
     setError("");
     setModalError("");
     setFeedback("");
@@ -131,16 +144,35 @@ function App() {
     try {
       await fn();
     } catch (e) {
-      (inside ? setModalError : setError)((e as Error).message);
+      await handleError(e, inside);
     } finally {
+      working.current = false;
       setBusy(false);
     }
+  }
+  async function handleError(error: unknown, inside = false) {
+    if (error instanceof ApiError && error.status === 401 && error.path.startsWith("book")) {
+      clearWorkspace();
+      setExpired(true);
+      setError("Sua sessão terminou. Entre novamente para recuperar sua mesa ou abra uma nova demonstração.");
+    } else if (error instanceof ApiError && error.path.startsWith("book") &&
+        (error.code === "workspace_changed" || error.code === "workspace_required")) {
+      clearWorkspace();
+      setChanged(true);
+      setError("A conta mudou em outra aba. A operação não foi repetida. Carregue a mesa atual antes de continuar.");
+      // Refresh only the identity. Loading the new ledger requires an explicit action; never retry the write.
+      try {
+        const current = await api<Session>("session");
+        setSession(current);
+        if (!current.logged) { setChanged(false); setExpired(true); }
+      } catch { /* The reload button remains available. */ }
+    } else (inside ? setModalError : setError)((error as Error).message);
   }
   function processBatch(e: FormEvent) {
     e.preventDefault();
     if (!content.trim() || busy || readingFile) return;
     execute(async () => {
-      const r = await api<{ count: number; replay: boolean }>("book/import", { csv: content });
+      const r = await api<{ count: number; replay: boolean }>("book/import", { csv: content }, session.workspace);
       await load();
       setModal(null);
       setFeedback(r.replay ? "Este lote já havia sido importado." : r.count + " repasses importados.");
@@ -148,7 +180,7 @@ function App() {
   }
   function review(reference: string, note: string) {
     void execute(async () => {
-      await api("book/" + encodeURIComponent(reference) + "/review", { note });
+      await api("book/" + encodeURIComponent(reference) + "/review", { note }, session.workspace);
       await load();
       setFeedback("Justificativa registrada na auditoria.");
     });
@@ -159,7 +191,9 @@ function App() {
     setRows([]);
     setLoaded(false);
     setContent("");
-    setSession({ logged: false, name: null });
+    setSession({ logged: false, name: null, workspace: null });
+    setExpired(false);
+    setChanged(false);
     setModal(null);
   }
   function sign(e: FormEvent) {
@@ -182,7 +216,7 @@ function App() {
           <a href="/audit" className="audit-top">
             <BookOpenText size={16} /> Auditoria
           </a>
-          <button className="account" disabled={!loaded || busy} onClick={() => open("account")}>
+          <button className="account" disabled={(!loaded && !expired && !changed) || busy} onClick={() => open("account")}>
             {session.name || "Conta"}
           </button>
         </div>
@@ -244,7 +278,7 @@ function App() {
         </div>
         {error && (
           <p className="alert" role="alert">
-            {error} {!loaded && <button onClick={initialize}>Tentar novamente</button>}
+            {error} {!loaded && <button disabled={busy} onClick={() => void execute(initialize)}>{changed ? "Carregar mesa atual" : expired ? "Abrir nova mesa demo" : "Tentar novamente"}</button>}
           </p>
         )}
         {feedback && (
@@ -269,7 +303,7 @@ function App() {
             <label>
               Arquivo CSV
               <input
-                type="file"
+                type="file" disabled={busy}
                 accept=".csv,text/csv"
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
@@ -297,7 +331,7 @@ function App() {
             <label>
               Conteúdo do lote
               <textarea
-                required maxLength={100_000} value={content} rows={6}
+                required maxLength={100_000} value={content} rows={6} disabled={busy}
                 onChange={(e) => {
                   fileRead.current++;
                   setReadingFile(false);
@@ -306,7 +340,7 @@ function App() {
                 }}
               />
             </label>
-            <button type="button" className="example" onClick={() => {
+            <button type="button" className="example" disabled={busy} onClick={() => {
               fileRead.current++;
               setReadingFile(false);
               setModalError("");
@@ -336,7 +370,7 @@ function App() {
           <form onSubmit={sign}>
             <div className="switch">
               {(["login", "register"] as const).map((m) => (
-                <button type="button" key={m} aria-pressed={mode === m} onClick={() => setMode(m)}>
+                <button type="button" key={m} disabled={busy} aria-pressed={mode === m} onClick={() => setMode(m)}>
                   {m === "login" ? "Entrar" : "Criar conta"}
                 </button>
               ))}
@@ -345,6 +379,7 @@ function App() {
               Usuário
               <input
                 autoComplete="username"
+                disabled={busy} maxLength={32}
                 required
                 pattern="[A-Za-z0-9._-]{3,32}"
                 value={user}
@@ -356,6 +391,7 @@ function App() {
               <input
                 autoComplete={mode === "login" ? "current-password" : "new-password"}
                 type="password"
+                disabled={busy} maxLength={128}
                 required
                 minLength={mode === "register" ? 12 : 1}
                 placeholder={mode === "register" ? "Mínimo 12 caracteres" : ""}
@@ -372,9 +408,10 @@ function App() {
               {mode === "login" ? "Acessar minha mesa" : "Criar minha mesa"}
             </button>
           </form>
-          {session.name !== "Mesa demo" && (
+          {session.logged && session.name !== "Mesa demo" && (
             <button
               className="example"
+              disabled={busy}
               onClick={() =>
                 execute(async () => {
                   await api("logout", {});

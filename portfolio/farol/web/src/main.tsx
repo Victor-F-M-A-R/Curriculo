@@ -31,12 +31,28 @@ const examples = [
   "Qual é o preço mensal do contrato da WAN Cedro?",
 ];
 async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const res = await fetch("/api/" + path, {
-    ...options,
-    headers: { "X-Farol-Client": "desk", "Content-Type": "application/json" },
-  });
-  if (!res.ok) throw new Error("A consulta falhou. Tente novamente.");
-  return res.status === 204 ? (undefined as T) : res.json();
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), 50_000);
+  try {
+    const res = await fetch("/api/" + path, {
+      ...options,
+      signal: controller.signal,
+      headers: { "X-Farol-Client": "desk", "Content-Type": "application/json" },
+    });
+    if (!res.ok) {
+      const message = res.status === 404 ? "Esta consulta não está mais disponível nesta sessão."
+        : res.status === 409 ? "O histórico foi apagado durante a consulta. Envie uma nova pergunta."
+        : "O serviço não concluiu o pedido. Tente novamente.";
+      throw new Error(message);
+    }
+    return res.status === 204 ? (undefined as T) : await res.json();
+  } catch (error) {
+    if (controller.signal.aborted) throw new Error("O serviço demorou demais. Consulte o histórico antes de reenviar a pergunta.");
+    if (error instanceof TypeError) throw new Error("A conexão foi interrompida. Consulte o histórico antes de reenviar a pergunta.");
+    throw error;
+  } finally {
+    window.clearTimeout(timer);
+  }
 }
 function App() {
   const [tab, setTab] = useState<Tab>("Consulta"),
@@ -52,7 +68,22 @@ function App() {
     [scope, setScope] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
+  // The ref closes the gap before React commits disabled buttons. Session
+  // operations are serialized, including reading a visit and erasing history.
+  const active = useRef(false);
+  function start() {
+    if (active.current) return false;
+    active.current = true;
+    setBusy(true);
+    setError("");
+    return true;
+  }
+  function finish() {
+    active.current = false;
+    setBusy(false);
+  }
   async function initialize() {
+    if (!start()) return;
     try {
       setError("");
       setDocs(await api<Manual[]>("catalog"));
@@ -60,6 +91,8 @@ function App() {
       setReady(true);
     } catch {
       setError("O serviço está indisponível. Tente reconectar.");
+    } finally {
+      finish();
     }
   }
   useEffect(() => {
@@ -74,9 +107,7 @@ function App() {
   }, [tab, openDoc]);
   async function ask(value: string) {
     const q = value.trim();
-    if (busy || !ready || q.length < 4) return;
-    setBusy(true);
-    setError("");
+    if (!ready || q.length < 4 || q.length > 500 || !start()) return;
     setQuestion(q);
     setTab("Consulta");
     try {
@@ -87,23 +118,30 @@ function App() {
       });
       setRun(next);
       setScope(false);
-      setHistory(await api<Visit[]>("runs"));
+      try {
+        setHistory(await api<Visit[]>("runs"));
+      } catch {
+        setError("A resposta foi salva, mas o histórico não pôde ser atualizado. Use Atualizar histórico.");
+      }
       requestAnimationFrame(() => resultRef.current?.focus());
     } catch (e) {
       setError((e as Error).message);
     } finally {
-      setBusy(false);
+      finish();
     }
   }
   async function showVisit(id: string) {
+    if (!start()) return;
+    setTab("Consulta");
     try {
       const item = await api<Run>("runs/" + id);
       setRun(item);
       setQuestion(item.question);
-      setTab("Consulta");
       setScope(false);
     } catch (e) {
       setError((e as Error).message);
+    } finally {
+      finish();
     }
   }
   function source(id: string) {
@@ -112,26 +150,29 @@ function App() {
     setTab("Acervo");
   }
   async function review() {
-    if (!run || busy) return;
-    setBusy(true);
+    if (!run || !start()) return;
     try {
       const r = await api<{ delivery: string }>("runs/" + run.id + "/review", { method: "POST" });
       setRun({ ...run, delivery: r.delivery });
     } catch (e) {
       setError((e as Error).message);
     } finally {
-      setBusy(false);
+      finish();
     }
   }
   async function clear() {
+    if (!start()) return;
     try {
       await api("runs", { method: "DELETE" });
       setHistory([]);
       setRun(null);
       setQuestion("");
+      setScope(false);
       setConfirmClear(false);
     } catch (e) {
       setError((e as Error).message);
+    } finally {
+      finish();
     }
   }
   const citation = run?.evidence.find((item) => item.id === openDoc);
@@ -154,10 +195,10 @@ function App() {
           </nav>
         </div>
       </header>
-      <main id="content">
+      <main id="content" aria-busy={busy}>
         {error && (
           <div className="error" role="alert">
-            {error} {!ready && <button onClick={initialize}>Reconectar</button>}
+            {error} {!ready && <button disabled={busy} onClick={initialize}>Reconectar</button>}
           </div>
         )}
         {tab === "Consulta" && (
@@ -346,12 +387,13 @@ function App() {
               <Clock3 size={14} /> MEMÓRIA DA SESSÃO
             </p>
             <h1>Consultas recentes.</h1>
+            <button className="link-button" disabled={busy} onClick={initialize}>Atualizar histórico</button>
             <p>
               Até 30 consultas deste navegador. Prazo de retenção de sete dias para consultas sem entrega
               pendente.
             </p>
             {history.map((r) => (
-              <button className="question" key={r.id} onClick={() => showVisit(r.id)}>
+              <button className="question" key={r.id} disabled={busy} onClick={() => showVisit(r.id)}>
                 <span>{r.question}</span>
                 <ArrowUpRight size={17} />
               </button>
@@ -360,11 +402,11 @@ function App() {
               <p>Nenhuma consulta registrada.</p>
             ) : confirmClear ? (
               <p>
-                Apagar consultas e revisões desta sessão? <button onClick={clear}>Confirmar</button>{" "}
+                Apagar consultas e revisões desta sessão? Uma entrega já enviada não pode ser desfeita. <button disabled={busy} onClick={clear}>Confirmar</button>{" "}
                 <button onClick={() => setConfirmClear(false)}>Voltar</button>
               </p>
             ) : (
-              <button className="link-button" onClick={() => setConfirmClear(true)}>
+              <button className="link-button" disabled={busy} onClick={() => setConfirmClear(true)}>
                 Apagar histórico
               </button>
             )}

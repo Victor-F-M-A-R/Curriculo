@@ -17,6 +17,19 @@
 body {
   margin: 0;
 }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.row > span, .filters > *, .balances > div, .detail {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 button,
 input,
 textarea,
@@ -474,7 +487,17 @@ dialog .dark {
 @media (max-width: 650px) {
   .mast-in {
     gap: 10px;
-    height: 56px;
+    height: auto;
+    min-height: 56px;
+    flex-wrap: wrap;
+    padding-block: 8px;
+  }
+  .account {
+    max-width: 120px;
+    overflow-wrap: anywhere;
+  }
+  .brand {
+    font-size: 26px;
   }
   .sub,
   .divider {

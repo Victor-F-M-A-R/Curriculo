@@ -63,6 +63,10 @@ A interface de desenvolvimento abre em `http://localhost:4200`. Em outro termina
 
 O modo local demonstra a operação do pátio. Para uma equipe autenticada, configure o perfil `oidc` com `SPRING_PROFILES_ACTIVE=oidc`, `OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET` e `OIDC_OPERATOR_GROUP`. Registre `https://HOST/login/oauth2/code/yard` como retorno no provedor. O cliente Spring processa o login OIDC por authorization code e valida o ID token do emissor. O grupo no claim `groups` habilita as mudanças. O navegador guarda a sessão HTTP-only. Faça o teste com HTTPS e com usuários dos grupos de leitura e escrita antes de expor dados de operação.
 
+A autorização vence junto com o ID token ou após `OIDC_MAX_AUTH_AGE_SECONDS` (300 segundos por padrão), o que ocorrer primeiro. É necessário novo login para renovar os grupos; o cliente não conserva permissão indefinidamente após uma mudança de papel no provedor. A interface relê a sessão a cada atualização, remove controles de escrita quando necessário e oculta dados ao receber 401/403. No modo OIDC, a leitura do pátio também exige autenticação. Para a portaria, configure o mesmo `YARD_READER_TOKEN` no servidor e no leitor; esse segredo de serviço concede apenas leitura e nunca deve ser entregue ao navegador.
+
+O contrato inclui `sampledAt`, horário da leitura na origem. A portaria preserva esse horário em vez de renovar artificialmente a idade do cache. Painel e aplicativo recusam esquemas inválidos, horários no futuro e respostas antigas. Comandos HTTP têm limite de 16 KiB, tipos estritos e não aceitam campos desconhecidos/repetidos. Falhas temporárias de banco retornam 503 com `Retry-After`, sem exibir detalhes internos. O comando e a chave de idempotência devem ser preservados após uma confirmação perdida.
+
 Os logs do servidor incluem ID de requisição, doca, ação e versão. `yard_movements_total` e `yard_conflicts_total` aparecem no Prometheus após os respectivos eventos.
 
 ## Verificar

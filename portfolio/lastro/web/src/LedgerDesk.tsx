@@ -1,4 +1,4 @@
-import { useRef, useState, type RefObject } from "react";
+import { useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight, CircleDot } from "lucide-react";
 import { money, names, type Entry } from "./ledger";
 
@@ -34,7 +34,7 @@ function EntryDetails({ entry, busy, onReview, heading, returnToRow }: {
           if (!busy && note.trim().length >= 8) onReview(entry.reference, note.trim());
         }}>
           <label htmlFor="note">Justificativa de revisão</label>
-          <textarea id="note" value={note} minLength={8} maxLength={500} required
+          <textarea id="note" value={note} minLength={8} maxLength={500} required disabled={busy}
             placeholder="Descreva o motivo da diferença…"
             onChange={(event) => setNote(event.target.value)}
           />
@@ -55,12 +55,32 @@ export function LedgerDesk({ rows, busy, onReview }: { rows: Entry[]; busy: bool
   const [query, setQuery] = useState("");
   const detailHeading = useRef<HTMLHeadingElement>(null);
   const activeRow = useRef<HTMLButtonElement>(null);
+  const filterControl = useRef<HTMLSelectElement>(null);
+  const previous = useRef<string | undefined>(undefined);
+  const focusedArea = useRef<"detail" | "row" | "filter" | null>(null);
+  const restoreFocus = useRef(false);
   const term = query.trim().toLocaleLowerCase("pt-BR");
   const visible = rows.filter((row) =>
     (filter === "all" || row.status === filter) &&
     (row.reference + " " + row.merchant).toLocaleLowerCase("pt-BR").includes(term),
   );
   const active = visible.find((row) => row.reference === selected) ?? visible[0];
+
+  useLayoutEffect(() => {
+    const reference = active?.reference;
+    if (reference !== selected) setSelected(reference ?? "");
+    if (previous.current && previous.current !== reference &&
+        (focusedArea.current === "detail" || focusedArea.current === "row") &&
+        (!document.activeElement || document.activeElement === document.body)) {
+      // A review can remove the focused form from a filtered list.
+      restoreFocus.current = true;
+    }
+    previous.current = reference;
+    if (restoreFocus.current && !busy) {
+      (activeRow.current ?? filterControl.current)?.focus();
+      restoreFocus.current = false;
+    }
+  }, [active?.reference, selected, busy]);
 
   function choose(reference: string) {
     setSelected(reference);
@@ -73,14 +93,22 @@ export function LedgerDesk({ rows, busy, onReview }: { rows: Entry[]; busy: bool
   }
 
   return (
-    <div className="desk">
+    <div className="desk" onFocusCapture={(event) => {
+      const target = event.target as HTMLElement;
+      focusedArea.current = target.closest(".detail") ? "detail" : target.closest(".row") ? "row" : "filter";
+    }} onBlurCapture={(event) => {
+      if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget as Node)) focusedArea.current = null;
+    }}>
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {visible.length} de {rows.length} referências. {active ? `Repasse selecionado: ${active.reference}, ${active.merchant}.` : "Nenhum repasse selecionado."}
+      </p>
       <section className="register" aria-labelledby="ledger-heading">
         <div className="section-head">
           <h2 id="ledger-heading">Livro de repasses</h2>
-          <span className="type" aria-live="polite">{visible.length} de {rows.length} referências</span>
+          <span className="type">{visible.length} de {rows.length} referências</span>
         </div>
         <div className="filters">
-          <select aria-label="Filtrar por situação" value={filter} onChange={(event) => setFilter(event.target.value)}>
+          <select ref={filterControl} aria-label="Filtrar por situação" value={filter} onChange={(event) => setFilter(event.target.value)}>
             <option value="all">Todas as situações</option>
             {Object.entries(names).map(([status, label]) => <option key={status} value={status}>{label}</option>)}
           </select>

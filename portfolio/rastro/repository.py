@@ -43,12 +43,13 @@ def fleet(connection):
     ).fetchall()
 
 
-def history(connection, vehicle_id, limit):
+def history(connection, vehicle_id, limit, before=None):
+    boundary = " AND (observed_at, device_seq) < (%s, %s)" if before else ""
+    parameters = (vehicle_id, *before, limit) if before else (vehicle_id, limit)
     return connection.execute(
         """
         SELECT event_id, observed_at, device_seq, latitude, longitude, speed_kmh, arrived_late
         FROM rastro.telemetry_events WHERE vehicle_id = %s
-        ORDER BY observed_at DESC, device_seq DESC LIMIT %s
-        """,
-        (vehicle_id, limit),
+        """ + boundary + " ORDER BY observed_at DESC, device_seq DESC LIMIT %s",
+        parameters,
     ).fetchall()

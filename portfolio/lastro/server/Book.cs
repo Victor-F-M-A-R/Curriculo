@@ -9,6 +9,7 @@ namespace Lastro;
 
 public sealed class Book(IConfiguration configuration)
 {
+    public const int DatabaseTimeoutSeconds = 5;
     private string Engine => configuration["BOOK_ENGINE"]?.ToLowerInvariant() ?? "sqlite";
 
     public DbConnection Open()
@@ -16,24 +17,32 @@ public sealed class Book(IConfiguration configuration)
         var cs = configuration["BOOK_CONNECTION"];
         DbConnection db = Engine switch
         {
-            "postgres" => new NpgsqlConnection(
-                cs ?? throw new InvalidOperationException("BOOK_CONNECTION requerido.")
-            ),
-            "sqlserver" => new SqlConnection(
-                cs ?? throw new InvalidOperationException("BOOK_CONNECTION requerido.")
-            ),
-            "sqlite" => new SqliteConnection(cs ?? "Data Source=lastro.db;Default Timeout=15"),
+            "postgres" => new NpgsqlConnection(new NpgsqlConnectionStringBuilder(
+                cs ?? throw new InvalidOperationException("BOOK_CONNECTION requerido."))
+                { Timeout = DatabaseTimeoutSeconds, CommandTimeout = DatabaseTimeoutSeconds }.ConnectionString),
+            "sqlserver" => new SqlConnection(new SqlConnectionStringBuilder(
+                cs ?? throw new InvalidOperationException("BOOK_CONNECTION requerido."))
+                { ConnectTimeout = DatabaseTimeoutSeconds }.ConnectionString),
+            "sqlite" => new SqliteConnection(new SqliteConnectionStringBuilder(cs ?? "Data Source=lastro.db")
+                { DefaultTimeout = DatabaseTimeoutSeconds }.ConnectionString),
             _ => throw new InvalidOperationException("BOOK_ENGINE inválido."),
         };
-        db.Open();
+        try { db.Open(); }
+        catch { db.Dispose(); throw; }
         return db;
+    }
+
+    public void CheckHealth()
+    {
+        using var db = Open();
+        db.ExecuteScalar<int>("select 1", commandTimeout: DatabaseTimeoutSeconds);
     }
 
     public void Migrate()
     {
         using var db = Open();
         if (Engine == "sqlite")
-            db.Execute("pragma journal_mode=WAL");
+            db.Execute("pragma journal_mode=WAL", commandTimeout: DatabaseTimeoutSeconds);
         var tables = new Dictionary<string, string>
         {
             ["accounts"] =
@@ -56,13 +65,13 @@ public sealed class Book(IConfiguration configuration)
                 Engine == "sqlserver"
                     ? $"if object_id(N'{name}', N'U') is null create table {name} ({ddl})"
                     : $"create table if not exists {name} ({ddl})";
-            db.Execute(sql);
+            db.Execute(sql, commandTimeout: DatabaseTimeoutSeconds);
         }
         const string index = "ix_events_workspace_stamp_id";
         const string onEvents = " on events(workspace,stamp desc,id desc)";
         db.Execute(Engine == "sqlserver"
             ? $"if not exists (select 1 from sys.indexes where object_id=object_id(N'events') and name='{index}') create index {index}{onEvents}"
-            : $"create index if not exists {index}{onEvents}");
+            : $"create index if not exists {index}{onEvents}", commandTimeout: DatabaseTimeoutSeconds);
     }
 
     public static bool UniqueViolation(DbException e) =>
@@ -87,7 +96,7 @@ public sealed class Book(IConfiguration configuration)
                         hash,
                         w,
                     },
-                    tx
+                    tx, commandTimeout: DatabaseTimeoutSeconds
                 );
             }
             catch (DbException e) when (UniqueViolation(e))
@@ -117,7 +126,7 @@ public sealed class Book(IConfiguration configuration)
                     item.Expected,
                     item.Day,
                 },
-                tx
+                tx, commandTimeout: DatabaseTimeoutSeconds
             );
         foreach (var item in seed.Take(6))
         {
@@ -136,7 +145,7 @@ public sealed class Book(IConfiguration configuration)
                     received,
                     item.Day,
                 },
-                tx
+                tx, commandTimeout: DatabaseTimeoutSeconds
             );
         }
         Append(
@@ -157,7 +166,7 @@ public sealed class Book(IConfiguration configuration)
         return
             db.QuerySingleOrDefault<AccountRow>(
                 "select hash as Hash, workspace as Workspace from accounts where handle=@handle",
-                new { handle }
+                new { handle }, commandTimeout: DatabaseTimeoutSeconds
             )
                 is { } a
             ? (a.Hash, a.Workspace)
@@ -184,7 +193,7 @@ public sealed class Book(IConfiguration configuration)
                 where r.workspace=@w and i.reference is null{receiptFilter} order by Reference
                 """,
                 new { w, reference, unmapped = "Sem título correspondente" },
-                tx
+                tx, commandTimeout: DatabaseTimeoutSeconds
             )
             .ToList();
     }
@@ -197,7 +206,7 @@ public sealed class Book(IConfiguration configuration)
         // Unique keys arbitrate simultaneous uploads. A rejected batch rolls back all receipts.
         try
         {
-            db.Execute("insert into batches values(@w,@fingerprint)", new { w, fingerprint }, tx);
+            db.Execute("insert into batches values(@w,@fingerprint)", new { w, fingerprint }, tx, commandTimeout: DatabaseTimeoutSeconds);
         }
         catch (DbException e) when (UniqueViolation(e))
         {
@@ -215,7 +224,7 @@ public sealed class Book(IConfiguration configuration)
                         row.Received,
                         row.Day,
                     },
-                    tx
+                    tx, commandTimeout: DatabaseTimeoutSeconds
                 );
         }
         catch (DbException e) when (UniqueViolation(e))
@@ -251,7 +260,7 @@ public sealed class Book(IConfiguration configuration)
                     reference,
                     reason,
                 },
-                tx
+                tx, commandTimeout: DatabaseTimeoutSeconds
             );
         }
         catch (DbException e) when (UniqueViolation(e))
@@ -282,7 +291,7 @@ public sealed class Book(IConfiguration configuration)
                 detail,
                 stamp = DateTimeOffset.UtcNow.ToString("O"),
             },
-            tx
+            tx, commandTimeout: DatabaseTimeoutSeconds
         );
     }
 
@@ -290,8 +299,8 @@ public sealed class Book(IConfiguration configuration)
     {
         using var db = Open();
         return db.Query<Event>(
-                "select id,workspace,kind,ref,detail,stamp from events where workspace=@w order by stamp desc",
-                new { w }
+                "select id,workspace,kind,ref,detail,stamp from events where workspace=@w order by stamp desc,id desc",
+                new { w }, commandTimeout: DatabaseTimeoutSeconds
             )
             .ToList();
     }
@@ -317,7 +326,8 @@ public sealed class Book(IConfiguration configuration)
             where {string.Join(" and ", conditions)}
             order by stamp desc,id desc {limit}
             """,
-            new { workspace, kind, reference = reference?.Trim().ToUpperInvariant(), beforeStamp, beforeId, take = AuditPageSize + 1 }
+            new { workspace, kind, reference = reference?.Trim().ToUpperInvariant(), beforeStamp, beforeId, take = AuditPageSize + 1 },
+            commandTimeout: DatabaseTimeoutSeconds
         ).ToList();
         bool hasMore = events.Count > AuditPageSize;
         if (hasMore)

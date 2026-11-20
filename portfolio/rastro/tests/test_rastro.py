@@ -1,4 +1,5 @@
 import os
+import random
 import threading
 import unittest
 from concurrent.futures import ThreadPoolExecutor
@@ -119,3 +120,66 @@ class TelemetryTest(unittest.TestCase):
                              ["conflict", "conflict", "late"])
             self.assertEqual(self.state(db)["speed_kmh"], 17)
             self.assertEqual(self.state(db)["unique_count"], 2)
+
+    def test_shuffled_repeated_delivery_keeps_all_positions_and_newest(self):
+        events = [self.event(sequence, sequence * 60) for sequence in range(1, 31)]
+        deliveries = events * 3
+        random.Random(18112026).shuffle(deliveries)
+        outcomes = []
+        with connect() as db:
+            for position, event in enumerate(deliveries):
+                # The same instant sent in two timezones must remain idempotent.
+                event = {**event, "observed_at": event["observed_at"].astimezone(
+                    timezone(timedelta(hours=-3)) if position % 2 else timezone.utc)}
+                outcomes.append(repo.ingest(db, event))
+        with connect() as db:
+            self.assertEqual(outcomes.count("replay"), 60)
+            self.assertEqual(self.state(db)["unique_count"], 30)
+            self.assertEqual(self.state(db)["event_id"], events[-1]["event_id"])
+            self.assertEqual([row["device_seq"] for row in repo.history(db, self.asset, 100)], list(range(30, 0, -1)))
+
+    def test_racing_conflicting_identity_or_slot_has_one_winner(self):
+        for same_identity in (True, False):
+            first = self.event(10 if same_identity else 20, 10 if same_identity else 20)
+            second = {**first, "speed_kmh": 50,
+                      "event_id": first["event_id"] if same_identity else uuid4()}
+            barrier = threading.Barrier(2)
+            def send(event):
+                with connect() as db:
+                    barrier.wait(timeout=10)
+                    return repo.ingest(db, event)
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                self.assertCountEqual(list(pool.map(send, (first, second))), ["advanced", "conflict"])
+        with connect() as db:
+            self.assertEqual(self.state(db)["unique_count"], 2)
+
+    def test_sequence_reset_with_newer_time_advances_and_uuid_is_scoped_to_vehicle(self):
+        latest = self.event(2147483647, 10)
+        reset = self.event(0, 20)
+        other = "OTHER-" + uuid4().hex[:12].upper()
+        try:
+            with connect() as db:
+                db.execute("INSERT INTO rastro.vehicles VALUES (%s, 'Outro', 'Teste')", (other,))
+                self.assertEqual(repo.ingest(db, latest), "advanced")
+                self.assertEqual(repo.ingest(db, reset), "advanced")
+                self.assertEqual(repo.ingest(db, {**reset, "vehicle_id": other}), "advanced")
+            with connect() as db:
+                self.assertEqual(self.state(db)["event_id"], reset["event_id"])
+                self.assertEqual(len(repo.history(db, other, 10)), 1)
+        finally:
+            with connect() as db:
+                db.execute("DELETE FROM rastro.vehicles WHERE vehicle_id = %s", (other,))
+
+    def test_lock_on_one_vehicle_does_not_block_other_vehicle(self):
+        other = "OTHER-" + uuid4().hex[:12].upper()
+        try:
+            with connect() as db:
+                db.execute("INSERT INTO rastro.vehicles VALUES (%s, 'Outro', 'Teste')", (other,))
+            with connect() as blocker:
+                blocker.execute("SELECT 1 FROM rastro.vehicles WHERE vehicle_id = %s FOR UPDATE", (self.asset,))
+                with connect() as writer:
+                    writer.execute("SET LOCAL lock_timeout = '500ms'")
+                    self.assertEqual(repo.ingest(writer, {**self.event(1, 10), "vehicle_id": other}), "advanced")
+        finally:
+            with connect() as db:
+                db.execute("DELETE FROM rastro.vehicles WHERE vehicle_id = %s", (other,))

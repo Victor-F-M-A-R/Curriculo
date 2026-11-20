@@ -169,6 +169,7 @@ class _FieldScreenState extends State<FieldScreen> with WidgetsBindingObserver {
       if (!current()) return;
       readingPrivateNote = false;
       if (previous.length > 300) throw StateError('Nota local inválida.');
+      if (!mounted) return;
       final route = DialogRoute<bool>(
         context: context,
         builder: (_) => NoteDialog(dock: dock, initial: previous, save: (text) async {

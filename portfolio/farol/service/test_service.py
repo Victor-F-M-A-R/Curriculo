@@ -213,3 +213,63 @@ class FarolTest(unittest.TestCase):
         self.assertEqual(one["id"], two["id"])
         storage.finish(two, True)
         self.assertEqual(storage.get(sid, result["id"])["delivery"], "delivered")
+
+    def test_contract_rejects_whitespace_oversize_types_and_unknown_fields(self):
+        for body in ({'query':'    '}, {'query':'x'*501}, {'query':12345},
+                     {'query':'Como verificar toner?', 'document':99},
+                     {'query':'Como verificar toner?', 'session':'someone-else'}):
+            with self.subTest(body=body):
+                self.assertEqual(self.client.post('/api/ask', json=body).status_code, 422)
+        self.assertEqual(self.client.get('/api/runs').json(), [])
+
+    def test_reset_invalidates_an_answer_in_flight(self):
+        sid = 'simultaneous-session'
+        before = storage.version(sid)
+        storage.erase(sid)
+        self.assertIsNone(storage.save(sid, 'Resposta antiga', {}, expected_version=before))
+        self.assertEqual(storage.list_runs(sid), [])
+        after = storage.version(sid)
+        self.assertIsNotNone(storage.save(sid, 'Resposta nova', {}, expected_version=after))
+
+    def test_api_reset_during_answer_returns_conflict_without_resurrecting_history(self):
+        self.client.get('/api/catalog')
+        sid = self.client.cookies['farol-session']
+        def compute(*args):
+            storage.erase(sid)
+            return {'state':'abstained', 'evidence':[], 'answer':'sem evidência'}
+        with patch('app.answer', side_effect=compute):
+            self.assertEqual(self.client.post('/api/ask', json={'query':'Pergunta em voo'}).status_code, 409)
+        self.assertEqual(self.client.get('/api/runs').json(), [])
+
+    def test_restarted_worker_expires_final_attempt_and_ignores_stale_completion(self):
+        ident = storage.save('session', 'Revisão após reinício', {})
+        storage.review('session', ident, True)
+        first = storage.claim()
+        with storage.connection() as db:
+            db.execute('update reviews set next_at=0')
+        storage.initialize()
+        second = storage.claim()
+        self.assertEqual(second['id'], first['id'])
+        storage.finish(first, True)
+        self.assertEqual(storage.get('session', ident)['delivery'], 'sending')
+        storage.finish(second, False)
+        for _ in range(4):
+            with storage.connection() as db:
+                db.execute('update reviews set next_at=0')
+            self.assertIsNotNone(storage.claim())
+        with storage.connection() as db:
+            db.execute('update reviews set next_at=0')
+        storage.initialize()
+        self.assertIsNone(storage.claim())
+        self.assertEqual(storage.get('session', ident)['delivery'], 'failed')
+
+    def test_reset_removes_pending_review_and_late_ack_cannot_recreate_it(self):
+        ident = storage.save('session', 'Apagar fila', {})
+        storage.review('session', ident, True)
+        item = storage.claim()
+        storage.erase('session')
+        storage.finish(item, True)
+        self.assertIsNone(storage.get('session', ident))
+        self.assertIsNone(storage.claim())
+        with storage.connection() as db:
+            self.assertEqual(db.execute('select count(*) from reviews').fetchone()[0], 0)

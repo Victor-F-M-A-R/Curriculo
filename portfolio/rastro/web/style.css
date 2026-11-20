@@ -69,6 +69,9 @@ h2 { font-size: clamp(22px, 2.2vw, 32px); line-height: 1.1; letter-spacing: -.05
 #vehicle-list > p, #event-list > p { padding: 9px 18px 16px; }
 .history-row { padding: 10px 17px; display: grid; grid-template-columns: 1.2fr .75fr 1fr; align-items: center; gap: 8px; border-top: 1px solid #d6dfd6; font-size: 13px; }
 .history-row small { color: #546265; display: block; font-size: 11px; }
+.history-controls { padding: 12px 17px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; border-top: 1px solid #d6dfd6; }
+.history-controls button { min-height: 44px; padding: 8px 12px; border-radius: 4px; }
+#timeline-heading:focus { outline: 3px solid #a44d17; outline-offset: 3px; }
 .badge { border-radius: 3px; padding: 3px 7px; background: #e0eee1; color: #244d37; font-weight: 630; width: fit-content; }
 .badge.late { color: #713c13; background: #f6e6c7; }
 .result { padding: 15px 18px; border: 1px solid #a1b69f; border-radius: 5px; background: #edf4e4; }

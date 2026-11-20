@@ -26,10 +26,11 @@ public sealed class CosmosProjection(
             {
                 using var db = book.Open();
                 var query =
-                    config["BOOK_ENGINE"] == "sqlserver"
+                    string.Equals(config["BOOK_ENGINE"], "sqlserver", StringComparison.OrdinalIgnoreCase)
                         ? "select top (50) id,workspace,kind,ref,detail,stamp from events where exported=0 order by stamp"
                         : "select id,workspace,kind,ref,detail,stamp from events where exported=0 order by stamp limit 50";
-                foreach (var item in await db.QueryAsync<Event>(query))
+                foreach (var item in await db.QueryAsync<Event>(new CommandDefinition(query,
+                    commandTimeout: Book.DatabaseTimeoutSeconds, cancellationToken: stop)))
                 {
                     var doc = new
                     {
@@ -45,10 +46,10 @@ public sealed class CosmosProjection(
                         new PartitionKey(item.Workspace),
                         cancellationToken: stop
                     );
-                    await db.ExecuteAsync(
+                    await db.ExecuteAsync(new CommandDefinition(
                         "update events set exported=1 where id=@Id",
-                        new { item.Id }
-                    );
+                        new { item.Id }, commandTimeout: Book.DatabaseTimeoutSeconds, cancellationToken: stop
+                    ));
                 }
             }
             catch (Exception e) when (!stop.IsCancellationRequested)

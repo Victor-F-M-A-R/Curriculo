@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.WebUtilities
 @inject Lastro.Book Book
+@inject ILogger<Audit> Logger
 
 <header>
     <a href="/">← Voltar à mesa</a>
@@ -11,7 +12,12 @@
 <main>
     <p>CONCILIAÇÃO DE REPASSES</p>
     <h1>Trilha de eventos.</h1>
-    @if (audit is null)
+    @if (unavailable)
+    {
+        <p role="alert">A auditoria está temporariamente indisponível. Os eventos já gravados serão mantidos.</p>
+        <a href="@PageUrl(null)">Tentar consultar novamente</a>
+    }
+    else if (audit is null)
     {
         <p>Abra uma mesa para consultar sua trilha.</p>
         <a href="/">Abrir mesa</a>
@@ -66,13 +72,24 @@
     [SupplyParameterFromQuery(Name = "antes")] public string? BeforeStamp { get; set; }
     [SupplyParameterFromQuery(Name = "evento")] public string? BeforeId { get; set; }
     private Lastro.AuditSlice? audit;
+    private bool unavailable;
     private bool HasFilters => !string.IsNullOrWhiteSpace(Kind) || !string.IsNullOrWhiteSpace(Reference);
     private bool HasCursor => !string.IsNullOrEmpty(BeforeStamp) && !string.IsNullOrEmpty(BeforeId);
 
     protected override void OnParametersSet()
     {
+        audit = null;
+        unavailable = false;
         if (Http?.User.FindFirstValue("workspace") is string workspace)
-            audit = Book.BrowseEvents(workspace, Kind, Reference, BeforeStamp, BeforeId);
+        {
+            try { audit = Book.BrowseEvents(workspace, Kind, Reference, BeforeStamp, BeforeId); }
+            catch (System.Data.Common.DbException error)
+            {
+                unavailable = true;
+                Logger.LogWarning("Audit database unavailable ({Type}).", error.GetType().Name);
+                if (!Http.Response.HasStarted) { Http.Response.StatusCode = 503; Http.Response.Headers.RetryAfter = "5"; }
+            }
+        }
     }
 
     private static string KindLabel(string kind) => kind switch

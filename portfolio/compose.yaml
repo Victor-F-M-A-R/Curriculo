@@ -21,12 +21,14 @@ services:
       JDBC_URL: jdbc:postgresql://postgres:5432/portfolio
       DB_USER: portfolio
       DB_PASSWORD: ${POSTGRES_PASSWORD:-demo-local-apenas}
+      YARD_READER_TOKEN: ${YARD_READER_TOKEN:-}
   portaria:
     build: ./doca-norte/portaria
     depends_on: [doca]
     ports: ["127.0.0.1:8085:8085"]
     environment:
       YARD_ORIGIN: http://doca:8081
+      YARD_READER_TOKEN: ${YARD_READER_TOKEN:-}
   lastro:
     build: ./lastro
     depends_on:

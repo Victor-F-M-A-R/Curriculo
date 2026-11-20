@@ -75,3 +75,81 @@ test("telemetria · falha de consulta e recuperação pelo monitor", async ({ pa
   await expect(page.locator("#vehicle-list button")).toHaveCount(3);
   await expect(page.locator("#event-list .history-row").first()).toBeVisible();
 });
+
+test("telemetria · resposta atrasada não troca o veículo selecionado", async ({ page }) => {
+  let release;
+  let arrived;
+  const pending = new Promise(resolve => { release = resolve; });
+  const requested = new Promise(resolve => { arrived = resolve; });
+  await page.route("**/api/vehicles/TRK-027/events", async route => {
+    const response = await route.fetch();
+    const body = await response.json();
+    body.events[0].speed_kmh = 171;
+    arrived();
+    await pending;
+    await route.fulfill({ response, json: body });
+  });
+  await page.goto(process.env.RASTRO_URL);
+  await page.getByRole("button", { name: /Ipê.*TRK-027/ }).click();
+  await requested;
+  await page.getByRole("button", { name: /Jacarandá.*TRK-041/ }).click();
+  await expect(page.locator("#vehicle-code")).toHaveText("TRK-041");
+  await expect(page.locator("#event-list .history-row")).toHaveCount(3);
+  const lateResponse = page.waitForResponse(r => r.url().endsWith("/api/vehicles/TRK-027/events"));
+  release();
+  await lateResponse;
+  // Let the fetch completion handler settle, then inspect the rendered selection.
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  await expect(page.locator("#track-heading")).toHaveText("Jacarandá");
+  await expect(page.locator("#event-list")).not.toContainText("171 km/h");
+  await expect(page.getByRole("button", { name: /Jacarandá.*TRK-041/ })).toHaveAttribute("aria-pressed", "true");
+});
+
+test("telemetria · paginação preserva registros e foco após falha e nova tentativa", async ({ page }) => {
+  const positions = Array.from({ length: 32 }, (_, index) => ({
+    event_id: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+    observed_at: new Date(Date.UTC(2025, 2, 12, 12, 32 - index)).toISOString(),
+    device_seq: 132 - index, latitude: -23.5, longitude: -46.6, speed_kmh: 20, arrived_late: false,
+  }));
+  let nextAttempts = 0;
+  await page.route("**/api/vehicles/TRK-018/events*", async route => {
+    if (new URL(route.request().url()).searchParams.has("cursor")) {
+      if (++nextAttempts === 1) return route.fulfill({ status: 503, json: { detail: "Falha temporária" } });
+      return route.fulfill({ json: { events: positions.slice(20), next_cursor: null } });
+    }
+    return route.fulfill({ json: { events: positions.slice(0, 20), next_cursor: "controlled-test-page" } });
+  });
+  await page.setViewportSize({ width: 320, height: 740 });
+  await page.goto(process.env.RASTRO_URL);
+  await expect(page.locator("#event-list .history-row")).toHaveCount(20);
+  const more = page.getByRole("button", { name: "Carregar posições anteriores" });
+  await more.click();
+  await expect(page.locator("#history-count")).toContainText("as anteriores foram preservadas");
+  await expect(page.locator("#event-list .history-row")).toHaveCount(20);
+  await expect(more).toBeEnabled();
+  await more.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#event-list .history-row")).toHaveCount(32);
+  await expect(page.locator("#history-count")).toContainText("fim do histórico");
+  await expect(more).toBeHidden();
+  await expect(page.locator("#timeline-heading")).toBeFocused();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test("telemetria · consulta antiga fica identificada e modo sem demo não oferece escrita", async ({ page }) => {
+  await page.route("**/api/fleet", async route => {
+    const response = await route.fetch();
+    const body = await response.json();
+    body.demo = false;
+    await route.fulfill({ response, json: body });
+  });
+  await page.goto(process.env.RASTRO_URL);
+  await expect(page.locator("#event-list .history-row").first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Simular chegada" })).toBeHidden();
+  const before = await page.locator("#last-time").textContent();
+  await page.unroute("**/api/fleet");
+  await page.route("**/api/fleet", route => route.fulfill({ status: 503, json: { detail: "Indisponível" } }));
+  await page.getByRole("button", { name: "Atualizar", exact: true }).click();
+  await expect(page.locator("#notice")).toContainText("Os dados exibidos são da última consulta");
+  await expect(page.locator("#last-time")).toHaveText(before);
+});

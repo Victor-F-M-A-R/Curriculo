@@ -13,7 +13,7 @@ env:
 jobs:
   integration:
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 40
     services:
       postgres:
         image: postgres:17-alpine
@@ -43,7 +43,8 @@ jobs:
           mvn -B -ntp -f doca-norte/server/pom.xml package
           mvn -B -ntp -f doca-norte/portaria/pom.xml package
           dotnet test lastro/tests -c Release
-          dotnet build farol/inbox -c Release
+          dotnet test farol/inbox/tests -c Release
+          python farol/inbox/tests/test_http.py
       - name: Verificar busca, respostas e recusas do Farol
         run: |
           python -m pip install --only-binary=:all: -r farol/service/requirements.txt -r rastro/requirements.txt
@@ -78,7 +79,7 @@ jobs:
           cd rastro
           python -m unittest discover -s tests -v
       - name: Preparar o navegador de testes
-        timeout-minutes: 5
+        timeout-minutes: 12
         run: |
           (cd tests && npm ci --ignore-scripts)
           # Reuse the runner browser to avoid an unrelated apt mirror blocking the test suite.
@@ -89,14 +90,28 @@ jobs:
           else
             (cd tests && npx playwright install --only-shell chromium)
           fi
-      - name: Exercitar fluxos no Chromium
+          (cd tests && npx playwright install --with-deps firefox webkit)
+      - name: Exercitar fluxos e acessibilidade em três motores
         env:
-          RASTRO_DATABASE_URL: host=127.0.0.1 port=5432 dbname=portfolio_test user=portfolio
           PGPASSWORD: local-ci-only
-        run: bash tests/run-local.sh
+        run: |
+          for browser in chromium firefox webkit; do
+            database="portfolio_browser_$browser"
+            docker exec '${{ job.services.postgres.id }}' createdb -U portfolio "$database"
+            export RASTRO_DATABASE_URL="host=127.0.0.1 port=5432 dbname=$database user=portfolio"
+            export PW_BROWSER="$browser"
+            export PLAYWRIGHT_HTML_OUTPUT_DIR="playwright-report-$browser"
+            export PLAYWRIGHT_JSON_OUTPUT_NAME="../.artifacts/browser-$browser/results.json"
+            bash tests/run-local.sh
+            mkdir -p ".artifacts/browser-$browser"
+            cp -R tests/test-results/. ".artifacts/browser-$browser/"
+          done
       - uses: actions/upload-artifact@v4
         if: always()
         with: { name: farol-evaluations, path: portfolio/.artifacts/farol-*.json, if-no-files-found: ignore }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: browser-evidence, path: 'portfolio/.artifacts/browser-*', if-no-files-found: ignore }
       - uses: actions/upload-artifact@v4
         if: failure()
         with: { name: traces, path: portfolio/tests/test-results, if-no-files-found: ignore }

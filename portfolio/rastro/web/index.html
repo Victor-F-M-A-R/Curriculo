@@ -51,9 +51,13 @@
       <p id="result-summary"></p><ol id="result-items"></ol>
     </section>
     <section aria-labelledby="timeline-heading" class="panel timeline">
-      <div class="panel-title"><div><p class="eyebrow">Mais recentes primeiro</p><h2 id="timeline-heading">Histórico de posições</h2></div>
+      <div class="panel-title"><div><p class="eyebrow">Mais recentes primeiro</p><h2 id="timeline-heading" tabindex="-1">Histórico de posições</h2></div>
         <span class="muted" id="timeline-asset"></span></div>
       <div id="event-list"></div>
+      <div class="history-controls">
+        <p id="history-count" class="muted" role="status"></p>
+        <button id="history-more" class="secondary" type="button" hidden>Carregar posições anteriores</button>
+      </div>
     </section>
   </main>
 </body>

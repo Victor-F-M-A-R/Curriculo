@@ -1,6 +1,8 @@
 import asyncio
 import os
 import secrets
+import sqlite3
+import logging
 from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 
@@ -8,7 +10,7 @@ import httpx
 import storage
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from search import Index, answer
 
 INDEX = Index(path=os.getenv("FAROL_INDEX_DB", ":memory:"))
@@ -19,7 +21,12 @@ async def deliver():
     token = os.environ["REVIEW_WEBHOOK_TOKEN"]
     async with httpx.AsyncClient(timeout=6) as client:
         while True:
-            item = await asyncio.to_thread(storage.claim)
+            try:
+                item = await asyncio.to_thread(storage.claim)
+            except sqlite3.OperationalError:
+                logging.getLogger(__name__).warning('Fila indisponível; nova tentativa em dois segundos.')
+                await asyncio.sleep(2)
+                continue
             if item is None:
                 await asyncio.sleep(2)
                 continue
@@ -38,7 +45,12 @@ async def deliver():
                 ok = res.json().get("event_id") == item["id"]
             except (httpx.HTTPError, ValueError, AttributeError):
                 ok = False
-            await asyncio.to_thread(storage.finish, item, ok)
+            try:
+                await asyncio.to_thread(storage.finish, item, ok)
+            except sqlite3.OperationalError:
+                # Preserve the durable lease. It becomes claimable again after
+                # expiry; the same event ID lets the receiver deduplicate it.
+                logging.getLogger(__name__).warning('Confirmação da fila indisponível; entrega preservada para repetição.')
 
 
 @asynccontextmanager
@@ -47,17 +59,20 @@ async def lifespan(_):
     if os.getenv("REVIEW_WEBHOOK_URL") and not os.getenv("REVIEW_WEBHOOK_TOKEN"):
         raise RuntimeError("Configure REVIEW_WEBHOOK_TOKEN para habilitar a entrega.")
     worker = asyncio.create_task(deliver()) if os.getenv("REVIEW_WEBHOOK_URL") else None
-    yield
-    if worker:
-        worker.cancel()
-        with suppress(asyncio.CancelledError):
-            await worker
+    try:
+        yield
+    finally:
+        if worker:
+            worker.cancel()
+            with suppress(asyncio.CancelledError):
+                await worker
 
 
 app = FastAPI(title="Farol · Operações de campus", version="1.0.0", lifespan=lifespan)
 
 
 class Question(BaseModel):
+    model_config = ConfigDict(extra='forbid', strict=True)
     query: str = Field(min_length=4, max_length=500)
     document: str | None = Field(default=None, max_length=16)
 
@@ -102,9 +117,13 @@ def ask(body: Question, request: Request):
         raise HTTPException(422, "Escreva uma pergunta com quatro ou mais caracteres.")
     if body.document and not any(d["id"] == body.document for d in INDEX.manual):
         raise HTTPException(404, "Manual desconhecido.")
+    version = storage.version(request.state.session)
     result = answer(INDEX, query, body.document)
+    ident = storage.save(request.state.session, query, result, expected_version=version)
+    if ident is None:
+        raise HTTPException(409, 'O histórico foi apagado durante a consulta. Envie uma nova pergunta.')
     return result | {
-        "id": storage.save(request.state.session, query, result),
+        "id": ident,
         "question": query,
         "delivery": None,
     }
@@ -125,8 +144,7 @@ def run(ident: str, request: Request):
 
 @app.delete("/api/runs")
 def erase(request: Request):
-    with storage.connection() as db:
-        db.execute("delete from runs where session=?", (request.state.session,))
+    storage.erase(request.state.session)
     return Response(status_code=204)
 
 

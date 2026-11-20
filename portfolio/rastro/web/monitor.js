@@ -19,6 +19,7 @@ let selected = null;
 let points = [];
 let fleetRequest = 0;
 let historyRequest = 0;
+let historyCursor = null;
 
 function node(tag, value, className) {
   const n = document.createElement(tag);
@@ -128,6 +129,10 @@ async function selectVehicle(vehicleId) {
   renderFleet();
   const v = vehicles.find(item => item.vehicle_id === selected);
   points = [];
+  historyCursor = null;
+  el("history-more").hidden = true;
+  el("history-more").disabled = false;
+  el("history-count").textContent = "";
   drawTrack();
   el("track-heading").textContent = v?.name || "Selecione um veículo";
   el("vehicle-code").textContent = v?.vehicle_id || "";
@@ -140,14 +145,32 @@ async function selectVehicle(vehicleId) {
     ? coord.format(Number(v.latitude)) + " / " + coord.format(Number(v.longitude)) : "—";
   if (!v) { renderHistory(); return; }
   el("event-list").replaceChildren(node("p", "Carregando posições…", "muted"));
+  await loadHistory(requestId, v.vehicle_id, false);
+}
+
+async function loadHistory(requestId, vehicleId, append) {
+  const more = el("history-more");
+  const restoreFocus = document.activeElement === more;
+  more.disabled = true;
+  el("history-count").textContent = "Carregando posições…";
   try {
-    const result = await api("/api/vehicles/" + encodeURIComponent(v.vehicle_id) + "/events");
+    const cursor = append ? "?cursor=" + encodeURIComponent(historyCursor) : "";
+    const result = await api("/api/vehicles/" + encodeURIComponent(vehicleId) + "/events" + cursor);
     if (requestId !== historyRequest) return;
-    points = result.events;
+    points = append ? [...points, ...result.events] : result.events;
+    historyCursor = result.next_cursor;
+    more.hidden = !historyCursor;
     renderHistory();
+    el("history-count").textContent = number.format(points.length) + " posições carregadas" + (historyCursor ? "" : " · fim do histórico");
+    if (restoreFocus && more.hidden) el("timeline-heading").focus({ preventScroll: true });
   } catch {
     if (requestId !== historyRequest) return;
-    el("event-list").replaceChildren(node("p", "Histórico indisponível. Use Atualizar para tentar novamente.", "muted"));
+    if (!append) el("event-list").replaceChildren(node("p", "Histórico indisponível. Use Atualizar para tentar novamente.", "muted"));
+    el("history-count").textContent = append
+      ? "Não foi possível carregar mais posições. Tente novamente; as anteriores foram preservadas."
+      : "Histórico não atualizado.";
+  } finally {
+    if (requestId === historyRequest) more.disabled = false;
   }
 }
 
@@ -172,7 +195,7 @@ async function loadFleet(prefer) {
     if (requestId !== fleetRequest) return;
     document.body.dataset.ready = "false";
     el("db-status").textContent = "Sem conexão";
-    notice("Não foi possível atualizar a frota. Use Atualizar para tentar novamente.");
+    notice("Não foi possível atualizar a frota. Os dados exibidos são da última consulta. Use Atualizar para tentar novamente.");
   } finally {
     if (requestId === fleetRequest) el("reload").disabled = false;
   }
@@ -194,6 +217,9 @@ function showReceipt(receipts) {
 }
 
 el("reload").addEventListener("click", () => loadFleet());
+el("history-more").addEventListener("click", () => {
+  if (historyCursor && !el("history-more").disabled) loadHistory(++historyRequest, selected, true);
+});
 el("simulate").addEventListener("click", async () => {
   el("simulate").disabled = true;
   try {

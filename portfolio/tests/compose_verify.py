@@ -97,6 +97,9 @@ def products(browser):
     lastro = "http://lastro:8082"
     header = {"X-Lastro-Client": "desk"}
     check(request(browser, lastro + "/api/session/demo", {}, header)[0] == 204, "Mesa Lastro indisponível")
+    status, lastro_session = request(browser, lastro + "/api/session")
+    check(status == 200 and lastro_session.get("workspace"), "Contexto da mesa Lastro indisponível")
+    header["X-Lastro-Workspace"] = lastro_session["workspace"]
     csv = "referencia;data;recebido\nREP-1047;2026-11-16;710,00\nREP-1048;2026-11-16;1950,00"
     for replay in (False, True):
         status, result = request(browser, lastro + "/api/book/import", {"csv": csv}, header)

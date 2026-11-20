@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Data.Common;
 using System.Threading.RateLimiting;
 using Lastro;
 using Microsoft.AspNetCore.Authentication;
@@ -71,6 +72,15 @@ app.Use(
             ctx.Response.StatusCode = e.Status;
             await ctx.Response.WriteAsJsonAsync(new { detail = e.Message });
         }
+        catch (DbException e) when (!ctx.Response.HasStarted)
+        {
+            app.Logger.LogWarning("Book database unavailable ({Type}).", e.GetType().Name);
+            ctx.Response.StatusCode = 503;
+            ctx.Response.Headers.RetryAfter = "5";
+            await ctx.Response.WriteAsJsonAsync(new {
+                detail = "O banco está temporariamente indisponível. Atualize a página para conferir os dados antes de repetir a operação."
+            });
+        }
     }
 );
 app.UseDefaultFiles();
@@ -80,9 +90,10 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
-app.MapGet("/api/health", () => new { status = "ok" });
+app.MapGet("/api/health", (Book book) => { book.CheckHealth(); return new { status = "ok" }; });
 app.MapGet("/api/session", (HttpContext ctx) =>
-    new { logged = ctx.User.Identity?.IsAuthenticated ?? false, name = ctx.User.Identity?.Name }
+    new { logged = ctx.User.Identity?.IsAuthenticated ?? false, name = ctx.User.Identity?.Name,
+        workspace = ctx.User.FindFirstValue("workspace") }
 );
 app.MapPost("/api/session/demo", async (HttpContext ctx, Book book) =>
     {
@@ -125,6 +136,19 @@ app.MapPost("/api/logout", async (HttpContext ctx) =>
     return Results.NoContent();
 });
 var api = app.MapGroup("/api/book").RequireAuthorization();
+api.AddEndpointFilter(async (context, next) =>
+{
+    var http = context.HttpContext;
+    var expected = http.Request.Headers["X-Lastro-Workspace"];
+    // Cookies are shared across tabs. A stale page must never write into a newly selected account.
+    if (HttpMethods.IsPost(http.Request.Method) && string.IsNullOrWhiteSpace(expected.ToString()))
+        return Results.Json(new { code = "workspace_required",
+            detail = "Atualize a sessão da mesa e envie X-Lastro-Workspace antes de alterar o livro." }, statusCode: 428);
+    if (expected.Count > 0 && (expected.Count != 1 || expected[0] != Workspace(http.User)))
+        return Results.Json(new { code = "workspace_changed",
+            detail = "A conta mudou em outra aba. Carregue a mesa atual antes de realizar uma nova operação." }, statusCode: 409);
+    return await next(context);
+});
 api.MapGet("", (ClaimsPrincipal user, Book book) => book.Entries(Workspace(user)));
 api.MapGet("/events", (ClaimsPrincipal user, Book book) => book.Events(Workspace(user)));
 api.MapPost("/import", (ImportRequest batch, ClaimsPrincipal user, Book book) =>

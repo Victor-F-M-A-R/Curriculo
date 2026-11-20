@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Doca Norte · Operações de pátio",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "paths": {
     "/api/yard": {
@@ -18,8 +18,26 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Identidade ausente, expirada ou antiga; efetue novo login."
+          },
+          "503": {
+            "description": "Banco indisponível ou tempo limite excedido; repetir leitura após Retry-After."
           }
-        }
+        },
+        "description": "Em modo OIDC exige identidade ainda válida ou X-Yard-Reader configurado para a portaria. Nunca armazene esse token no navegador.",
+        "parameters": [
+          {
+            "name": "X-Yard-Reader",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token de serviço somente para leitura, quando configurado."
+          }
+        ]
       }
     },
     "/api/session": {
@@ -101,8 +119,15 @@
           },
           "409": {
             "description": "Conflito de versão, estado ou idempotência"
+          },
+          "413": {
+            "description": "Corpo maior que 16 KiB, inclusive transferência sem Content-Length."
+          },
+          "503": {
+            "description": "Falha transitória de persistência; atualizar leitura e repetir com a mesma chave quando necessário."
           }
-        }
+        },
+        "description": "JSON até 16 KiB, sem propriedades repetidas/desconhecidas e sem coerção de tipos. Em confirmação perdida, mantenha Idempotency-Key, ator e comando originais ao repetir. Atualize a leitura após conflito. Identidade OIDC expirada ou antiga não autoriza escrita."
       }
     }
   },
@@ -120,7 +145,8 @@
         ],
         "properties": {
           "id": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^D[1-6]$"
           },
           "name": {
             "type": "string"
@@ -139,7 +165,8 @@
             ]
           },
           "version": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           }
         }
       },
@@ -181,7 +208,6 @@
         "type": "object",
         "required": [
           "action",
-          "carrier",
           "expectedVersion"
         ],
         "properties": {
@@ -194,32 +220,47 @@
             ]
           },
           "carrier": {
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 50,
+            "description": "Obrigatória e não vazia para book; vazia ou ausente nas demais ações. Caracteres de controle são recusados."
           },
           "expectedVersion": {
             "type": "integer",
             "minimum": 0
           }
-        }
+        },
+        "additionalProperties": false
       },
       "Snapshot": {
         "type": "object",
         "required": [
           "docks",
-          "moves"
+          "moves",
+          "sampledAt"
         ],
         "properties": {
           "docks": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Dock"
-            }
+            },
+            "minItems": 6,
+            "maxItems": 6
           },
           "moves": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Movement"
-            }
+            },
+            "maxItems": 40
+          },
+          "sampledAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Instante UTC da leitura transacional na origem, preservado pela portaria."
           }
         }
       },
@@ -230,7 +271,8 @@
           "canWrite",
           "federated",
           "csrfHeader",
-          "csrf"
+          "csrf",
+          "authenticated"
         ],
         "properties": {
           "actor": {
@@ -247,6 +289,10 @@
           },
           "csrf": {
             "type": "string"
+          },
+          "authenticated": {
+            "type": "boolean",
+            "description": "Identidade OIDC ainda válida; no modo local permanece false mesmo com canWrite true."
           }
         }
       }
