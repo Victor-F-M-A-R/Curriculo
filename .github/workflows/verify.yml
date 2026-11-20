@@ -85,15 +85,11 @@ jobs:
         timeout-minutes: 12
         run: |
           (cd tests && npm ci --ignore-scripts)
-          # Reuse the runner browser to avoid an unrelated apt mirror blocking the test suite.
-          browser=$(command -v google-chrome || command -v google-chrome-stable || true)
-          if [ -n "$browser" ]; then
-            "$browser" --version
-            echo "CHROMIUM_PATH=$browser" >> "$GITHUB_ENV"
-          else
-            (cd tests && npx playwright install --only-shell chromium)
-          fi
-          (cd tests && npx playwright install --with-deps firefox webkit)
+          # Match the locked Playwright package; the official image includes all three engines and OS libraries.
+          portfolio_browser_image=mcr.microsoft.com/playwright:v1.58.2-noble@sha256:6446946a1d9fd62d9ae501312a2d76a43ee688542b21622056a372959b65d63d
+          docker pull "$portfolio_browser_image"
+          docker image inspect "$portfolio_browser_image" --format '{{index .RepoDigests 0}}'
+          echo "PLAYWRIGHT_DOCKER_IMAGE=$portfolio_browser_image" >> "$GITHUB_ENV"
       - name: Exercitar fluxos e acessibilidade em três motores
         env:
           PGPASSWORD: local-ci-only
@@ -145,11 +141,23 @@ jobs:
         run: |
           set -euo pipefail
           for service in doca portaria lastro farol rastro inbox; do
+            fallback=0
+            logfile="/tmp/portfolio-build-$service.log"
             for attempt in 1 2 3; do
-              if docker compose -f compose.yaml -f compose.automation.yaml --profile automation build "$service" 2>&1 | tee "/tmp/portfolio-build-$service.log"; then break; fi
-              # Retry throttling/transient artifact resolution only; Maven -U rechecks cached misses.
-              # Compilation/test failures still fail immediately, and attempt three always fails closed.
-              if [ "$attempt" = 3 ] || ! grep -Eq '429|Too Many Requests|Could not (find|transfer) artifact' "/tmp/portfolio-build-$service.log"; then exit 1; fi
+              build_options=()
+              if [[ "$service" == doca || "$service" == portaria ]]; then
+                build_options=(--build-arg "MAVEN_CENTRAL_FALLBACK=$fallback")
+              fi
+              if docker compose -f compose.yaml -f compose.automation.yaml --profile automation build "${build_options[@]}" "$service" 2>&1 | tee "$logfile"; then break; fi
+              # Never retry compilation, test or integrity failures, even if another line mentions transport.
+              if [ "$attempt" = 3 ] || grep -Eiq 'COMPILATION (ERROR|FAILURE)|There are test failures|There was an error in the forked process|Tests run:.*(Failures|Errors): [1-9]|checksum.*(fail|mismatch)' "$logfile"; then exit 1; fi
+              if [[ "$service" == doca || "$service" == portaria ]] && grep -Eq '\[(ERROR|FATAL)\].*(Could not (find|transfer) artifact|Non-resolvable parent POM|Could not resolve dependencies|Plugin.*could not be resolved)' "$logfile"; then
+                # Same Central coordinates and strict checksums, via its other official HTTPS endpoint.
+                fallback=1
+                echo "$service: artifact resolution failed; attempt $((attempt + 1)) uses https://repo1.maven.org/maven2"
+              elif ! grep -Eq '429|Too Many Requests' "$logfile"; then
+                exit 1
+              fi
               sleep "$((30 * attempt))"
             done
           done

@@ -49,5 +49,35 @@ if [[ -n $capture_dir ]]; then
   node "$root/showcase/capture.mjs" --out "$capture_dir"
 else
   cd "$root/tests"
-  npm test
+  if [[ -n ${PLAYWRIGHT_DOCKER_IMAGE:-} ]]; then
+    # Opt-in for ephemeral Linux CI: the versioned official image already has
+    # browsers/system libraries. Keep SDK applications and synthetic DBs on host.
+    playwright_version="$(node -p "require('./node_modules/@playwright/test/package.json').version")"
+    expected_image="mcr.microsoft.com/playwright:v${playwright_version}-noble"
+    case "$PLAYWRIGHT_DOCKER_IMAGE" in
+      "$expected_image"|"$expected_image"@sha256:*) ;;
+      *) echo "Use a imagem oficial Noble da mesma versão do pacote Playwright ($playwright_version)." >&2; exit 2 ;;
+    esac
+    if [[ $(uname -s) != Linux || $(id -u) == 0 ]]; then
+      echo "O modo Docker requer host Linux e usuário sem privilégios de root." >&2
+      exit 2
+    fi
+    mkdir -p "$root/.artifacts"
+    # Identical absolute paths preserve JSON report locations. Only the tests
+    # and generated project artifacts are mounted; no repo root, socket or secrets.
+    docker run --rm --init --pull=never --network host --shm-size=1g \
+      --cpus 2 --memory 2g --pids-limit 512 \
+      --cap-drop ALL --security-opt no-new-privileges \
+      --user "$(id -u):$(id -g)" \
+      --mount "type=bind,source=$root/tests,target=$root/tests" \
+      --mount "type=bind,source=$root/.artifacts,target=$root/.artifacts" \
+      --workdir "$root/tests" \
+      --env HOME=/tmp --env XDG_CACHE_HOME=/tmp/.cache --env CI=1 \
+      --env DOCA_URL --env LASTRO_URL --env FAROL_URL --env GATE_URL --env RASTRO_URL \
+      --env "PW_BROWSER=${PW_BROWSER:-chromium}" \
+      --env "PLAYWRIGHT_JSON_OUTPUT_NAME=${PLAYWRIGHT_JSON_OUTPUT_NAME:-$root/tests/test-results/results.json}" \
+      "$PLAYWRIGHT_DOCKER_IMAGE" node node_modules/@playwright/test/cli.js test
+  else
+    npm test
+  fi
 fi
