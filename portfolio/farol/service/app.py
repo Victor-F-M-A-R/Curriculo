@@ -10,8 +10,10 @@ import httpx
 import storage
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, ConfigDict
 from search import Index, answer
+from http_limits import BodyLimitMiddleware
 
 INDEX = Index(path=os.getenv("FAROL_INDEX_DB", ":memory:"))
 
@@ -69,6 +71,14 @@ async def lifespan(_):
 
 
 app = FastAPI(title="Farol · Operações de campus", version="1.0.0", lifespan=lifespan)
+app.add_middleware(BodyLimitMiddleware)
+
+
+@app.exception_handler(sqlite3.OperationalError)
+async def unavailable(request, error):
+    logging.getLogger(__name__).warning('Histórico temporariamente indisponível (%s).', type(error).__name__)
+    return JSONResponse(status_code=503, headers={'Retry-After': '2'}, content={
+        'detail': 'O histórico está temporariamente indisponível. Consulte-o antes de reenviar a pergunta.'})
 
 
 class Question(BaseModel):
@@ -160,6 +170,8 @@ def review(ident: str, request: Request):
 
 @app.get("/api/health")
 def health():
+    with storage.connection() as db:
+        db.execute('select id from runs limit 1').fetchone()
     return {"status": "ok", "passages": len(INDEX.passages)}
 
 

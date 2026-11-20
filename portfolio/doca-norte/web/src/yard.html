@@ -53,7 +53,7 @@
         @for(d of data().docks;track d.id){<button
           [class.active]="d.id===selected()"
           [attr.aria-pressed]="d.id===selected()"
-          [attr.aria-label]="d.name + ' · ' + labels[d.status]"
+          [attr.aria-label]="d.id + ' · ' + d.name + ' · ' + labels[d.status]"
           (click)="select(d.id)"
         >
           {{d.id}}<i [class]="d.status" aria-hidden="true"></i></button

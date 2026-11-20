@@ -1,5 +1,8 @@
 name: Verificar produtos
 on: [push, pull_request, workflow_dispatch]
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 defaults:
@@ -101,7 +104,7 @@ jobs:
             export RASTRO_DATABASE_URL="host=127.0.0.1 port=5432 dbname=$database user=portfolio"
             export PW_BROWSER="$browser"
             export PLAYWRIGHT_HTML_OUTPUT_DIR="playwright-report-$browser"
-            export PLAYWRIGHT_JSON_OUTPUT_NAME="../.artifacts/browser-$browser/results.json"
+            export PLAYWRIGHT_JSON_OUTPUT_NAME="$PWD/.artifacts/browser-$browser/results.json"
             bash tests/run-local.sh
             mkdir -p ".artifacts/browser-$browser"
             cp -R tests/test-results/. ".artifacts/browser-$browser/"
@@ -140,13 +143,22 @@ jobs:
         with: { python-version: '3.12' }
       - name: Compilar as imagens em sequência
         run: |
+          set -euo pipefail
           for service in doca portaria lastro farol rastro inbox; do
-            docker compose -f compose.yaml -f compose.automation.yaml --profile automation build "$service"
+            for attempt in 1 2 3; do
+              if docker compose -f compose.yaml -f compose.automation.yaml --profile automation build "$service" 2>&1 | tee "/tmp/portfolio-build-$service.log"; then break; fi
+              # Respect registry throttling; do not retry compilation or test failures.
+              if [ "$attempt" = 3 ] || ! grep -q '429\|Too Many Requests' "/tmp/portfolio-build-$service.log"; then exit 1; fi
+              sleep "$((30 * attempt))"
+            done
           done
       - name: Iniciar os quatro produtos e o workflow local
         run: docker compose -f compose.yaml -f compose.automation.yaml --profile automation up -d --no-build
       - name: Verificar operações, entrega real, autenticação e reenvio
         run: python tests/compose_verify.py
+      - name: Interromper serviços, reiniciar e conferir recuperação e persistência
+        timeout-minutes: 9
+        run: python tests/resilience_verify.py
       - name: Mostrar diagnóstico em caso de falha
         if: failure()
         run: |

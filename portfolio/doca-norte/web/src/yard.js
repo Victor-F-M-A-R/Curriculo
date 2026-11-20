@@ -619,7 +619,7 @@ export function mountYard(container, { docks = [], onSelect, selectedId = null }
         id = BAY_IDS[i],
         state = states[i];
       const title = item?.name || `Doca ${i + 1}`;
-      const label = `${title} (${id}) · ${STATUS[state].label}`;
+      const label = `${id} · ${title} · ${STATUS[state].label}`;
       button.setAttribute("aria-label", label);
       button.setAttribute("aria-pressed", String(id === selection));
       button.disabled = !item;

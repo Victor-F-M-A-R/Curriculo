@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:doca_field/api.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,7 +10,7 @@ import 'package:http/testing.dart';
 final instant = DateTime.utc(2026, 11, 20, 12);
 Map<String, dynamic> board({DateTime? at}) => {
   'sampledAt': (at ?? instant).toIso8601String(), 'stale': false,
-  'docks': List.generate(6, (i) => {
+  'docks': List.generate(6, (i) => <String, dynamic>{
     'id': 'D${i + 1}', 'name': 'Doca ${i + 1}', 'cargo': 'Seca', 'status': 'free', 'carrier': '',
   }),
 };
@@ -41,6 +42,66 @@ class BodyClient extends http.BaseClient {
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async =>
       http.StreamedResponse(Stream.fromIterable(chunks), 200, headers: headers);
+}
+
+// Instrumentation only: requests and cancellation still run through http.Client's real socket transport.
+class ObservedHttpClient extends http.BaseClient {
+  final inner = http.Client();
+  final firstBodyChunk = Completer<void>();
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    final response = await inner.send(request);
+    return http.StreamedResponse(response.stream.map((chunk) {
+      if (!firstBodyChunk.isCompleted) firstBodyChunk.complete();
+      return chunk;
+    }), response.statusCode, headers: response.headers, contentLength: response.contentLength,
+      request: response.request, isRedirect: response.isRedirect, persistentConnection: response.persistentConnection);
+  }
+  @override
+  void close() => inner.close();
+}
+
+// Real loopback HTTP with a body that starts but never finishes. Detaching the
+// socket lets the test observe the peer closing it, rather than only an abort flag.
+class StalledLoopback {
+  StalledLoopback._(this.server) {
+    server.listen((request) { unawaited(_respond(request)); });
+  }
+  final HttpServer server;
+  final sent = Completer<void>();
+  final peerClosed = Completer<void>();
+  final sockets = <Socket>[];
+  Uri get base => Uri.parse('http://127.0.0.1:${server.port}');
+
+  static Future<StalledLoopback> start() async =>
+      StalledLoopback._(await HttpServer.bind(InternetAddress.loopbackIPv4, 0));
+
+  Future<void> _respond(HttpRequest request) async {
+    try {
+      if (request.method != 'GET' || request.uri.path != '/api/field') {
+        throw StateError('Unexpected request to the isolated fixture.');
+      }
+      final socket = await request.response.detachSocket(writeHeaders: false);
+      sockets.add(socket);
+      void closed() { if (!peerClosed.isCompleted) peerClosed.complete(); }
+      socket.listen((_) {}, onDone: closed, onError: (Object _) { closed(); });
+      final prefix = utf8.encode('{"sampledAt":');
+      socket.add(ascii.encode('HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n'
+          'Transfer-Encoding: chunked\r\n\r\n${prefix.length.toRadixString(16)}\r\n'));
+      socket.add(prefix);
+      socket.add(ascii.encode('\r\n'));
+      await socket.flush();
+      sent.complete();
+      // No terminating chunk and no server close: completion must come from the client.
+    } catch (error, stack) {
+      if (!sent.isCompleted) sent.completeError(error, stack);
+    }
+  }
+
+  Future<void> close() async {
+    for (final socket in sockets) { socket.destroy(); }
+    await server.close(force: true);
+  }
 }
 
 void main() {
@@ -105,7 +166,7 @@ void main() {
     }
   });
 
-  test('prazo total dispara o cancelamento do pedido HTTP real', () async {
+  test('prazo total sinaliza abortTrigger ao cliente simulado', () async {
     final client = WaitingClient();
     final api = YardApi(Uri.parse('https://yard.example'), client, timeout: const Duration(milliseconds: 20));
     await expectLater(api.load(), throwsA(isA<YardUnavailableFailure>()));
@@ -135,5 +196,69 @@ void main() {
       await expectLater(YardApi(Uri.parse('https://yard.example'), BodyClient([bytes])).load(),
         throwsA(isA<YardProtocolFailure>()));
     }
+  });
+
+  test('HTTP loopback: prazo total interrompe corpo lento e fecha socket antes do cleanup', () async {
+    final server = await StalledLoopback.start();
+    final client = ObservedHttpClient();
+    addTearDown(() async { client.close(); await server.close(); });
+    final api = YardApi(server.base, client, timeout: const Duration(seconds: 2));
+    final result = expectLater(api.load(), throwsA(isA<YardUnavailableFailure>()));
+    await server.sent.future.timeout(const Duration(seconds: 3));
+    await client.firstBodyChunk.future.timeout(const Duration(seconds: 3));
+    await result;
+    await server.peerClosed.future.timeout(const Duration(seconds: 3));
+  });
+
+  test('HTTP loopback: cancelamento explícito encerra corpo em streaming antes do cleanup', () async {
+    final server = await StalledLoopback.start();
+    final client = ObservedHttpClient();
+    addTearDown(() async { client.close(); await server.close(); });
+    final api = YardApi(server.base, client);
+    final result = expectLater(api.load(), throwsA(isA<YardCancelledFailure>()));
+    await server.sent.future.timeout(const Duration(seconds: 3));
+    await client.firstBodyChunk.future.timeout(const Duration(seconds: 3));
+    api.cancel();
+    await result;
+    await server.peerClosed.future.timeout(const Duration(seconds: 3));
+  });
+
+  test('HTTP loopback: JSON válido acima de 64 KiB é recusado mesmo em chunks', () async {
+    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    final client = http.Client();
+    addTearDown(() async { client.close(); await server.close(force: true); });
+    final bytes = [...List<int>.filled(66000, 32), ...utf8.encode(jsonEncode(board()))];
+    server.listen((request) async {
+      final response = request.response;
+      response.headers.contentType = ContentType.json;
+      response.bufferOutput = false;
+      unawaited(response.done.then<void>((_) {}, onError: (Object _, StackTrace __) {}));
+      try {
+        response.add(bytes.sublist(0, 33000));
+        await response.flush();
+        response.add(bytes.sublist(33000));
+        await response.close();
+      } on IOException {
+        // The bounded client may close the connection as soon as it crosses its limit.
+      }
+    });
+    final base = Uri.parse('http://127.0.0.1:${server.port}');
+    // Positive control: the oversized response really is otherwise valid input.
+    final unrestricted = await client.get(base.resolve('/api/field'));
+    expect(unrestricted.statusCode, 200);
+    expect(unrestricted.headers['transfer-encoding'], 'chunked');
+    expect(unrestricted.bodyBytes.length, greaterThan(YardApi.maxBodyBytes));
+    expect(YardSnapshot.fromJson(jsonDecode(unrestricted.body), instant).docks.length, 6);
+    await expectLater(YardApi(base, client, now: () => instant).load(), throwsA(isA<YardProtocolFailure>()));
+  });
+
+  test('HTTP loopback: servidor encerrado produz falha recuperável de transporte', () async {
+    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    final base = Uri.parse('http://127.0.0.1:${server.port}');
+    await server.close(force: true);
+    final client = http.Client();
+    addTearDown(client.close);
+    await expectLater(YardApi(base, client, timeout: const Duration(seconds: 2)).load(),
+      throwsA(isA<YardUnavailableFailure>()));
   });
 }

@@ -7,7 +7,7 @@ import uuid
 
 
 def connect():
-    db = sqlite3.connect(os.environ.get("FAROL_DB", "farol.db"), timeout=8)
+    db = sqlite3.connect(os.environ.get("FAROL_DB", "farol.db"), timeout=5)
     db.row_factory = sqlite3.Row
     db.execute("pragma foreign_keys=on")
     return db

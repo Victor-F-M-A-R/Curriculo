@@ -23,11 +23,21 @@ jobs:
       - name: Preparar emulador Android descartável
         timeout-minutes: 12
         run: |
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'system-images;android-35;google_apis;x86_64'
-          printf 'no\n' | "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n portfolio_qa -k 'system-images;android-35;google_apis;x86_64' --device pixel_6
+          set -euo pipefail
+          export ANDROID_AVD_HOME="$RUNNER_TEMP/portfolio-avd"
+          mkdir -p "$ANDROID_AVD_HOME"
+          echo "ANDROID_AVD_HOME=$ANDROID_AVD_HOME" >> "$GITHUB_ENV"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          export PATH="$ANDROID_HOME/platform-tools:$PATH"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platform-tools' 'system-images;android-35;google_apis;x86_64'
+          printf 'no\n' | "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n portfolio_qa -p "$ANDROID_AVD_HOME/portfolio_qa.avd" -k 'system-images;android-35;google_apis;x86_64' --device pixel_6
+          "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" list avd
+          "$ANDROID_HOME/emulator/emulator" -list-avds | grep -x portfolio_qa
           sudo setfacl -m "u:$(id -un):rw" /dev/kvm
           "$ANDROID_HOME/emulator/emulator" -avd portfolio_qa -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -cores 2 -memory 2048 > emulator.log 2>&1 &
+          emulator_pid=$!
           for attempt in {1..120}; do
+            if ! kill -0 "$emulator_pid" 2>/dev/null; then tail -60 emulator.log; exit 1; fi
             if [ "$(adb -s emulator-5554 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ]; then break; fi
             sleep 3
           done

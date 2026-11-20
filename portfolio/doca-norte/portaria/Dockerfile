@@ -1,7 +1,7 @@
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /src
 COPY . .
-RUN mvn -B -ntp package
+RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp package
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /src/target/gate-reader-1.0.0.jar app.jar
