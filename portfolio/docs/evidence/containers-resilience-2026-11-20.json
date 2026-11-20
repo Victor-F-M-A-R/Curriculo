@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-20",
+  "commit": "f316b9ab2bb291528b97b329134b737bd4585a24",
+  "run_id": 44689736563,
+  "job_id": 136132524719,
+  "conclusion": "success",
+  "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44689736563/job/136132524719",
+  "started_at": "2026-11-20T06:43:10Z",
+  "completed_at": "2026-11-20T06:46:33Z",
+  "duration_seconds": 203,
+  "steps": [
+    {
+      "name": "Compilar as imagens em sequência",
+      "conclusion": "success",
+      "started_at": "2026-11-20T06:43:19Z",
+      "completed_at": "2026-11-20T06:44:39Z",
+      "duration_seconds": 80
+    },
+    {
+      "name": "Iniciar os quatro produtos e o workflow local",
+      "conclusion": "success",
+      "started_at": "2026-11-20T06:44:39Z",
+      "completed_at": "2026-11-20T06:45:25Z",
+      "duration_seconds": 46
+    },
+    {
+      "name": "Verificar operações, entrega real, autenticação e reenvio",
+      "conclusion": "success",
+      "started_at": "2026-11-20T06:45:25Z",
+      "completed_at": "2026-11-20T06:45:32Z",
+      "duration_seconds": 7
+    },
+    {
+      "name": "Interromper serviços, reiniciar e conferir recuperação e persistência",
+      "conclusion": "success",
+      "started_at": "2026-11-20T06:45:32Z",
+      "completed_at": "2026-11-20T06:46:30Z",
+      "duration_seconds": 58
+    },
+    {
+      "name": "Mostrar diagnóstico em caso de falha",
+      "conclusion": "skipped",
+      "started_at": "2026-11-20T06:46:30Z",
+      "completed_at": "2026-11-20T06:46:30Z",
+      "duration_seconds": 0
+    },
+    {
+      "name": "Encerrar o projeto descartável do runner",
+      "conclusion": "success",
+      "started_at": "2026-11-20T06:46:30Z",
+      "completed_at": "2026-11-20T06:46:30Z",
+      "duration_seconds": 0
+    }
+  ],
+  "build": {
+    "images": 6,
+    "java_versions_unchanged": true,
+    "maven_primary_succeeded": true,
+    "alternate_endpoint_exercised": false,
+    "strict_checksums_enabled": true
+  },
+  "operations": {
+    "four_products": true,
+    "postgresql": true,
+    "blazor_audit": true,
+    "delivery_path": [
+      "FastAPI",
+      "n8n",
+      "Inbox"
+    ],
+    "session_isolation": true,
+    "workflow_and_inbox_authentication": true,
+    "initial_inbox_events": 1,
+    "idempotent_replays": true
+  },
+  "restarts": {
+    "doca_command_and_replay": true,
+    "lastro_cookie_workspace_review": true,
+    "farol_session_and_query": true,
+    "rastro_persisted_readings": true
+  },
+  "concurrent_reads": {
+    "clients": 8,
+    "rounds_per_client": 10,
+    "products": 4,
+    "total": 320,
+    "expected_http_status": 200,
+    "server_errors": 0,
+    "timings": {
+      "doca": {
+        "count": 80,
+        "p50_ms": 19.06,
+        "p95_ms": 31.94,
+        "max_ms": 41.88
+      },
+      "lastro": {
+        "count": 80,
+        "p50_ms": 5.13,
+        "p95_ms": 15.93,
+        "max_ms": 20.64
+      },
+      "farol": {
+        "count": 80,
+        "p50_ms": 8.43,
+        "p95_ms": 20,
+        "max_ms": 23.55
+      },
+      "rastro": {
+        "count": 80,
+        "p50_ms": 8.04,
+        "p95_ms": 15.44,
+        "max_ms": 19.12
+      }
+    },
+    "scope": "One CI sample, no production SLA or capacity claim."
+  },
+  "postgresql_outage": {
+    "probes": 6,
+    "reads": 3,
+    "writes": 3,
+    "services": [
+      "doca",
+      "lastro",
+      "rastro"
+    ],
+    "all_http_status": 503,
+    "per_request_timeout_seconds": 12,
+    "elapsed_assertion_upper_seconds": 12.5,
+    "individual_elapsed_times_in_log": false,
+    "portaria_retained_snapshot_and_marked_stale": true,
+    "services_and_fresh_portaria_recovered": true
+  },
+  "automation_outage": {
+    "n8n_stopped": true,
+    "farol_and_inbox_restarted": true,
+    "delivery_and_uniqueness_seconds": 17.04,
+    "budget_seconds": 180,
+    "additional_inbox_events": 1,
+    "replays": 2,
+    "idempotence": true,
+    "previous_inbox_data_preserved": true
+  },
+  "service_restoration_verified": true,
+  "ci_cleanup_success": true,
+  "limitations": [
+    "Individual PostgreSQL outage elapsed values were held in worker state but were not printed in this run; only bounded assertions and PASS are available.",
+    "The official alternate Maven endpoint was configured conditionally but was not activated in this successful run.",
+    "This validates a disposable Compose deployment and synthetic data, not production capacity, a corporate identity provider or persistent infrastructure failover."
+  ],
+  "sql_server": {
+    "run_id": 44689736630,
+    "job_id": 136132408880,
+    "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44689736630/job/136132408880",
+    "conclusion": "success",
+    "version": "15.0.4382.1",
+    "lastro": {
+      "passed": 34,
+      "total": 34
+    },
+    "inbox": {
+      "passed": 10,
+      "total": 10
+    }
+  }
+}

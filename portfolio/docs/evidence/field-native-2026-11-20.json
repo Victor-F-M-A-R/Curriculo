@@ -2,30 +2,43 @@
   "schema_version": 1,
   "date": "2026-11-20",
   "scope": "Doca Norte Campo: Flutter checks and native integration with synthetic notes",
-  "code_commit": "df01e9e069cf562cd44b2eb3e775e687673c9a18",
+  "code_commit": "98f5048fe8a459650c1c0b771f19e5e3b2eb42d1",
   "flutter_version": "3.50.0",
   "execution": "GitHub Actions; no physical devices",
+  "ios_runner_backport": {
+    "upstream_commit": "c3ed85ef987759ee54a6bce275490cde2a238dc1",
+    "scope": "flutter_tools CLI only, in the disposable iOS runner SDK",
+    "patch_file": ".github/patches/flutter/ios-log-ready-c3ed85e.patch",
+    "patch_sha256": "d63955f376ee528b06293f29e6b9a5fcc5b4c0c96b141bf93cf408dc2ccfb67b",
+    "original_source_sha256": "8fd87b3480cd84dbed924eb1e067b04466e53282cea5959dc7e17895ab3a4a55",
+    "checksums_verified_on_runner": true,
+    "cli_rebuilt": true,
+    "engine_modified_by_backport": false,
+    "app_or_app_tests_modified_by_backport": false,
+    "log_stream_started_at": "2026-11-20T06:46:44.706451Z",
+    "app_launch_started_at": "2026-11-20T06:46:51.077546Z"
+  },
   "native": {
-    "run_id": 44683163868,
+    "run_id": 44688960475,
     "conclusion": "success",
     "platforms": [
       {
         "platform": "Android emulator",
-        "job_id": 136111124553,
-        "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44683163868/job/136111124553",
+        "job_id": 136129904510,
+        "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44688960475/job/136129904510",
         "conclusion": "success",
         "passed": 2,
         "failed": 0,
-        "artifact_id": 14605289022
+        "artifact_id": 14608625410
       },
       {
         "platform": "iOS simulator",
-        "job_id": 136111124218,
-        "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44683163868/job/136111124218",
+        "job_id": 136129904031,
+        "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44688960475/job/136129904031",
         "conclusion": "success",
         "passed": 2,
         "failed": 0,
-        "artifact_id": 14605642040
+        "artifact_id": 14608191932
       }
     ],
     "test_modes": {
@@ -33,13 +46,14 @@
       "note_persistence": "Real flutter_secure_storage writes and reads; biometric authorization is simulated",
       "lifecycle": "Injected Flutter lifecycle notifications; note closes and does not reopen automatically",
       "navigation": "Real dialog Close button exercised",
+      "yard_reading": "Synthetic in-memory snapshot; native scenarios do not call the backend",
       "data": "Unique synthetic storage key removed in test cleanup"
     }
   },
   "flutter_checks": {
-    "run_id": 44683163828,
-    "job_id": 136111220288,
-    "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44683163828/job/136111220288",
+    "run_id": 44688960412,
+    "job_id": 136129904246,
+    "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44688960412/job/136129904246",
     "conclusion": "success",
     "analyze": { "conclusion": "success", "issues": 0 },
     "tests": { "passed": 26, "failed": 0, "api": 14, "widgets": 12, "real_http_subset": 4 },
@@ -52,11 +66,40 @@
   },
   "dependency_lock": {
     "file": "portfolio/doca-norte/field/pubspec.lock",
+    "verified_reference_commit": "df01e9e069cf562cd44b2eb3e775e687673c9a18",
+    "verified_reference_artifacts": { "android": 14605289022, "ios": 14605642040 },
     "android_artifact_matches_repository": true,
     "ios_artifact_matches_repository": true,
+    "additional_verified_ios_timeout_artifact": 14607103376,
+    "repository_lock_unchanged_at_commit": "98f5048fe8a459650c1c0b771f19e5e3b2eb42d1",
     "normalization": "CRLF to LF only",
     "sha256_normalized_lf": "150993434b0e6e0214c484f643c26f5969b57bf6654f8e66c164fbacfc63ab51"
   },
+  "previous_verified_native_run": {
+    "code_commit": "df01e9e069cf562cd44b2eb3e775e687673c9a18",
+    "run_id": 44683163868,
+    "android_passed": 2,
+    "ios_passed": 2,
+    "ios_runner_backport_applied": false
+  },
+  "infrastructure_history": [
+    {
+      "code_commit": "ed694ab96e2acb46cde4ba5f00bc16585140f96c",
+      "run_id": 44685758680,
+      "job_id": 136119576877,
+      "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44685758680/job/136119576877",
+      "platform": "iOS simulator",
+      "conclusion": "failure",
+      "failure_phase": "VM Service discovery timed out before application test scenarios started",
+      "application_test_scenarios_started": 0,
+      "xcode_build": "success",
+      "diagnostic_artifact_id": 14607103376,
+      "simulator_reported_vm_service_at": "2026-11-20T06:20:07.600Z",
+      "final_screenshot": "Blank app view without a visible permission dialog",
+      "runner_crash_reports_in_artifact": 0,
+      "resolution": "Upstream flutter_tools log-readiness backport; same application tests subsequently passed"
+    }
+  ],
   "not_proven": [
     "Real fingerprint or Face ID recognition",
     "Physical operating-system background/foreground transitions",

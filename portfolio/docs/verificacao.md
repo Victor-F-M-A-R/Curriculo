@@ -1,63 +1,69 @@
 # Evidências de execução
 
-Revisão de **18 de novembro de 2026**, com dados sintéticos e bases dedicadas. A execução local usou serviços Java 21, .NET 10 e Python 3.12 em contêineres Linux, PostgreSQL real e navegador Chromium, com recursos limitados e um trabalhador de navegador. A seção de validação remota identifica separadamente o commit e as execuções do GitHub Actions.
+Revisão de **20 de novembro de 2026**, após reproduzir os problemas de funcionalidade apontados na avaliação externa. A bateria combina testes unitários e de contrato com fluxos em servidores HTTP e bancos reais, usando dados sintéticos e bases exclusivas. A [matriz de QA](qa-cenarios-reais.md) relaciona falhas prováveis, comportamento esperado e testes executáveis. A [verificação de 18/11](verificacao-2026-11-18.md) permanece como registro histórico.
 
-## Resultados locais desta revisão
+## Resultado da revisão
 
-| Verificação | Resultado medido | Reprodução e escopo |
+A revisão `f316b9ab2bb291528b97b329134b737bd4585a24` passou na [verificação dos produtos](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44689736563) e no [SQL Server](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44689736630). O [Android/iOS](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44688960475) passou em `98f5048`; o código, as dependências e o workflow nativos não mudaram entre essas revisões. Nenhum cenário da bateria final foi ignorado ou exigiu repetição automática para passar. O [manifesto de validação](evidence/validation-2026-11-20.json) reúne contagens, revisões, artefatos e limites.
+
+| Camada | Resultado | Escopo e execução |
 | --- | --- | --- |
-| Spring · pátio e políticas de acesso | **7 testes aprovados em H2 e 7 em PostgreSQL** | `mvn -f doca-norte/server/pom.xml test`. Disputa de reserva, repetição, versão obrigatória, CSRF e papéis de leitura/escrita com identidades OIDC de teste. |
-| Spring · projeção da portaria | **1 teste aprovado** | `mvn -f doca-norte/portaria/pom.xml test`. Leituras atual, defasada, vencida e ausente. |
-| .NET · conciliação | **10 testes aprovados em SQLite e 10 em PostgreSQL** | `dotnet test lastro/tests -c Release`. Replay, rollback de lote, valores em centavos, isolamento por mesa, paginação com empate de horário e limite de bytes UTF-8. |
-| Lastro · contraste dos estados | **1 teste aprovado, cobrindo os cinco estados com contraste mínimo de 4,5:1** | `npm test` em `lastro/web`. Mede os pares de cores do CSS; não equivale a uma avaliação completa de acessibilidade. |
-| FastAPI · Farol | **14 testes aprovados** | `python -m unittest -v` em `farol/service`. Evidência literal e completa, recusas, isolamento de sessão, expiração, revisão concorrente e reenvio da fila. |
-| PostgreSQL · Rastro | **13 testes aprovados** | `python -m unittest discover -s tests -v` em `rastro`. Banco real, HTTP real, concorrência entre conexões, eventos fora de ordem, replay, conflito, rollback, autenticação e recuperação após bloqueio. |
-| Chromium · quatro produtos | **14 testes aprovados, sem cenários ignorados** | `bash tests/run-local.sh` com PostgreSQL configurado. Reserva, atualização após conflito, resposta de leitura atrasada, importação e replay, confirmação perdida, login, auditoria Blazor, citação, revisão, telemetria e recuperação de erro. |
-| RAG · recuperação no modo extrativo | **18/18 fontes corretas, 18/18 acertos top-3 e 4/4 recusas corretas** | `python evaluate.py --output data/evaluation.json` em `farol/service`. [Resultado por pergunta](../farol/service/data/evaluation.json). |
-| RAG · conteúdo no modo extrativo | **12/12 casos aprovados: 8 respostas completas e fundamentadas, 4 recusas corretas** | `python evaluate.py --suite content --output data/content-evaluation.json`. [Resultado por pergunta](../farol/service/data/content-evaluation.json). |
-| Demonstrações em MP4 | **4 arquivos de 27 s, 1440 × 810, H.264/yuv420p**, com legendas em português; Lastro também em inglês | Captura de operações nas aplicações em execução, seguida de composição e conferência dos fluxos com FFprobe. [Vídeos e reprodução das capturas](demonstracoes.md). |
+| Doca · configuração H2 e repetição com PostgreSQL | **24/24 em cada execução** | Os 11 testes de pátio/resiliência usam o banco configurado. Os 13 testes de acesso/OIDC mantêm fixtures próprias/H2, inclusive na repetição. Concorrência, replay, rollback, JSON estrito, limite de corpo, sessão e protocolo OIDC por HTTP. |
+| Portaria | **6/6** | Contrato, instante de origem, limites de idade, perda de autorização e recuperação. |
+| Lastro · SQLite, PostgreSQL e SQL Server | **34/34 em cada banco** | Lotes, centavos, cultura, conflitos, transações, isolamento, paginação, cancelamento e recuperação. |
+| Inbox · SQLite e SQL Server | **10/10 em cada banco, mais 8/8 HTTP** | Chave canônica, concorrência, legado, conflitos e persistência. Os oito cenários adicionais atravessam o servidor HTTP real. |
+| Farol · serviço | **44/44** | Contrato, evidência, limites HTTP, isolamento, concorrência, persistência e fila. As perguntas internas aos métodos são identificadas separadamente abaixo. |
+| Rastro · PostgreSQL e HTTP | **26/26** | Transações, concorrência, ingestão, ordenação, cursores, limites e entradas inválidas. |
+| Lastro · contraste dos cinco estados | **1/1** | Teste dos pares de cores do CSS, complementado pelo axe nas interfaces renderizadas. |
+| Chromium, Firefox e WebKit | **51/51 em cada motor** | Fluxos dos quatro produtos, falhas de rede, sessão entre abas, teclado, 320 px, valores monetários completos, alvos clicáveis e axe. |
+| Flutter | **26/26; análise e build web aprovados** | 14 testes de API e 12 de widgets, incluindo quatro cenários HTTP por sockets reais. |
+| Android e iOS | **2/2 em cada plataforma** | Plugins reais sem biometria cadastrada, armazenamento seguro, formulário e notificações de ciclo de vida injetadas. [Modos de teste e execução nativa](evidence/field-native-2026-11-20.json). |
+| Compose e integração entre serviços | **Aprovados** | Seis imagens, operações dos quatro produtos e FastAPI → n8n → Inbox. |
+| Reinício, queda e recuperação | **Aprovados** | Quatro serviços reiniciados, banco interrompido, workflow indisponível e reenvio sem duplicar o evento. |
 
-As repetições em dois bancos verificam os mesmos casos em cada mecanismo; não representam testes únicos adicionais. O [resumo estruturado](evidence/validation-2026-11-18.json) registra as contagens e os hashes SHA-256 dos quatro filmes, sem credenciais ou caminhos particulares do ambiente.
+Repetir a mesma suíte em outro banco ou navegador não aumenta a quantidade de cenários únicos. Os logs e artefatos identificam o ambiente realmente executado.
 
-## Interface, teclado e enquadramento
+No [ensaio de resiliência](evidence/containers-resilience-2026-11-20.json), oito clientes concluíram **320/320 leituras válidas**. Os p95 medidos nessa execução foram 31,94 ms (Doca), 15,93 ms (Lastro), 20,00 ms (Farol) e 15,44 ms (Rastro). A queda controlada do PostgreSQL produziu seis respostas 503, seguida de recuperação; cada requisição tinha timeout de 12 s e asserção de duração inferior a 12,5 s, mas os tempos individuais não ficaram no log. Com n8n indisponível e Farol/Inbox reiniciados, a entrega e a confirmação de unicidade concluíram em **17,04 s**, com um único evento novo após dois reenvios.
 
-A suíte usa **1280 × 840** como tamanho padrão e exercita os quatro aplicativos também em **390 px**. Doca e Rastro têm cenários adicionais em **320 px**. Os cenários correspondentes conferem que o documento cabe na largura disponível. Lastro verifica a seleção no celular, o retorno do foco ao repasse e a auditoria filtrada; Rastro verifica seleção por Tab/Enter e recuperação depois de falha na consulta.
+## Farol: resultado conhecido e avaliação independente
 
-A apresentação dos projetos foi inspecionada no navegador em desktop e 320 px. Os links dos dois currículos, a seleção do projeto pelo teclado e a transcrição expansível foram conferidos. Essa amostra não cobre todas as combinações de navegador, dispositivo ou tecnologia assistiva.
+Oito perguntas da avaliação externa foram reproduzidas antes das correções: **3/8** estavam corretas. O conjunto inicial ampliado passou em **9/24**. Esses casos agora são regressões conhecidas; não representam uma amostra independente após a correção.
 
-## Validação remota do código
-
-Os resultados abaixo foram confirmados no commit [`68390a6079c67f27cb42f8c38f62f049801d4db9`](https://github.com/Victor-F-M-A-R/Curriculo/commit/68390a6079c67f27cb42f8c38f62f049801d4db9), na branch `portfolio-dados-e-curriculo`.
-
-| Verificação | Resultado medido | Execução |
+| Rodada independente | Primeira execução, preservada | Situação posterior |
 | --- | --- | --- |
-| Integração geral · serviços, bancos e Chromium | **Job aprovado: 14 cenários de navegador em 28,0 s**, além das suítes de serviços e avaliações Farol | [Job de integração](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690456/job/135174196801). Repetiu Doca com 7 casos por banco, Lastro com 10 por banco, Farol com 14 e Rastro com 13; recuperação e conteúdo mantiveram os resultados da tabela local. |
-| Flutter 3.50.0 · aplicativo de campo | **Análise sem problemas, 4 testes aprovados e build web concluído** | [Job do aplicativo de campo](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690456/job/135174196327). Executado remotamente; não houve nova execução local de Flutter. |
-| Lastro · SQL Server 15.0.4382.1 | **10 testes aprovados** contra SQL Server Express LocalDB real | [Job de persistência](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690985/job/135174195055). Transações, rollback, replay, valores e auditoria exercitados no provedor SQL Server. |
-| Imagens finais e Docker Compose | **6 imagens compiladas e operações dos quatro produtos confirmadas** | [Job de contêineres](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690456/job/135174196928). Imagens Doca, Portaria, Lastro, Farol, Rastro e Inbox; conjunto Compose iniciado com PostgreSQL e perfil de automação. |
-| FastAPI → n8n → Inbox .NET | **Entrega real confirmada, 1 evento persistido após dois reenvios, autenticação e isolamento aprovados** | Mesmo [job de contêineres](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690456/job/135174196928), via `python tests/compose_verify.py`. Workflow e Inbox rejeitaram credenciais ausentes ou inválidas; outra sessão não acessou a consulta. |
+| Primeira · 41 perguntas | 33/41: 11/17 respostas, 22/24 recusas | 41/41 após revelar as falhas e corrigir o mecanismo |
+| Segunda · 30 perguntas | 19/30: 6/17 respostas, 13/13 recusas | 30/30 após a correção |
+| Terceira · 30 perguntas | 25/30: 13/18 respostas, 12/12 recusas | 30/30 após a correção |
+| Quarta · 20 perguntas | **20/20: 12/12 respostas, 8/8 recusas** | Primeira execução pela API real, após congelar o mecanismo; nenhuma alteração para essas perguntas |
 
-O [workflow dos produtos](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690456) e o [workflow SQL Server](https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44409690985) concluíram com sucesso para esse commit. Os tempos registrados descrevem essas execuções, sem estimar o desempenho em produção.
+Os resultados e hashes estão no [registro detalhado do Farol](../farol/README.md#regressões-de-2011). A última amostra cobre o acervo fixo de oito manuais fictícios; não mede compreensão universal. Os 125 cenários já revelados e as 38 consultas em acervos sintéticos novos verificam regressões e regras de cobertura. As suítes anteriores também passaram: 18/18 fontes, 4/4 recusas e 12/12 casos de conteúdo. O modelo Qwen não foi executado novamente.
 
-## Evidências históricas preservadas
+## Interfaces e recuperação
 
-| Item | Situação nesta revisão |
-| --- | --- |
-| Qwen local e adaptadores HTTPX/LangChain | **Ensaio histórico preservado, sem nova execução do modelo.** [Configuração, respostas e limitações](modelo.md). As métricas atuais acima pertencem exclusivamente ao modo extrativo. |
-| Plano de consulta Rastro | A [captura em PostgreSQL 16.2](../rastro/evidence/explain-pg16.txt) é anterior a esta revisão e usa 60.000 eventos sintéticos. Os tempos não foram medidos novamente nesta sessão. |
+As 36 capturas finais foram inspecionadas: seis estados em 1280 e 320 px, nos três motores. As [12 capturas originais do Chromium](evidence/ui-2026-11-20/README.md) ficam preservadas no repositório; os relatórios completos dos três motores estão no artefato vinculado ao [registro dos navegadores](evidence/browser-validation-2026-11-20.json).
 
-[Consultar outras revisões no GitHub Actions](https://github.com/Victor-F-M-A-R/Curriculo/actions/workflows/verify.yml). Os links da seção anterior apontam as execuções específicas que sustentam este registro.
+A inspeção anterior encontrou controles de giro cortados no Doca e quebras de centavos no Lastro. O valor máximo aceito no CSV também revelou um resumo financeiro cortado. A correção agora é exercitada por cliques reais, verificação do centro e dos cantos dos alvos e medidas dos retângulos do texto após importar o limite por HTTP. Os 51 cenários passaram em cada motor, e as capturas corrigidas não mostraram esses defeitos.
 
-## Limites da demonstração
+O axe não detectou violações nos 36 estados. Permaneceram 14 ocorrências inconclusivas por motor, relacionadas aos símbolos de giro e ao contraste sobre a decoração do Lastro. Elas foram revistas separadamente: correspondência entre símbolos e nomes acessíveis, geometria e contraste calculado no Doca; cores e composição da faixa decorativa no Lastro. Os inconclusivos continuam registrados como tal, acompanhados da análise manual, sem serem convertidos em aprovação automática ou certificação de acessibilidade.
 
-Os testes utilizam bibliotecas reais, processos HTTP, persistência e navegador. OIDC foi exercitado com identidades de teste, sem a troca completa com um provedor corporativo. Flutter Web não demonstra biometria nem desempenho em um aparelho físico.
+Os testes distinguem falha de conexão de perda de autorização. Falhas temporárias conservam informação anterior com indicação de idade quando isso faz parte do produto; perda de identidade oculta os dados protegidos. Nas interfaces, escritas sem confirmação não são repetidas automaticamente. O usuário pode conferir o estado e reenviar com a identidade/idempotência adequada. A fila persistente do Farol faz retentativas automáticas limitadas e idempotentes.
 
-SQL Server foi verificado no ambiente remoto descrito acima. O adaptador Azure Cosmos DB foi compilado, mas sua integração com uma instância real não foi executada. Deploy AWS, carga sustentada, recuperação de backup e operação em produção também não foram verificados nesta sessão. Os dados de todos os projetos são fictícios; os resultados do Farol se restringem ao acervo e às perguntas publicados.
+## Limites verificados
 
-## Repetir os testes ponta a ponta
+O emissor OIDC é uma fixture de protocolo com discovery, JWKS, redirecionamentos e tokens assinados. A configuração com um provedor corporativo, seus grupos e HTTPS precisa ser conferida na implantação.
 
-1. Disponibilize Node 24, Java 21 com Maven, .NET 10, Python 3.12 e uma base PostgreSQL **descartável e exclusiva dos testes**. Instale as dependências de `farol/service/requirements.txt` e `rastro/requirements.txt` em um ambiente Python isolado.
-2. Em `doca-norte/web`, `lastro/web` e `farol/web`, execute `npm ci` e `npm run build`. Compile `mvn -f doca-norte/server/pom.xml package`, `mvn -f doca-norte/portaria/pom.xml package` e `dotnet build lastro/server -c Release`, a partir de `portfolio/`.
-3. Em `portfolio/tests/`, execute `npm ci` e `npx playwright install chromium`. No Linux, se faltarem dependências, use a opção oficial `--with-deps`.
-4. Configure `RASTRO_DATABASE_URL` e a autenticação para a base dedicada, conforme o [README do Rastro](../rastro/README.md). Execute `bash tests/run-local.sh` a partir de `portfolio/`. O script exige PostgreSQL e inicia o Rastro para evitar que seus cenários sejam ignorados.
-5. O script encerra apenas os processos que iniciou. As portas podem ser alteradas com `PORT_DOCA`, `PORT_LASTRO`, `PORT_FAROL`, `PORT_GATE` e `PORT_RASTRO`. Para repetir Doca e Lastro em PostgreSQL, use também as variáveis de teste descritas nos READMEs de cada projeto.
+Os testes móveis utilizam emulador Android e simulador iOS. O cenário de notas usa armazenamento nativo real com autorização biométrica simulada; as notificações de ciclo de vida são injetadas. Reconhecimento biométrico físico, captura pelo seletor de aplicativos, assinatura de distribuição e desempenho em aparelho não foram comprovados.
+
+O runner iOS utiliza Flutter 3.50.0 com um [backport local de uma correção upstream do Flutter](../../.github/patches/flutter/README.md) somente na ferramenta de testes. Uma tentativa anterior perdeu o anúncio do VM Service e terminou por timeout antes de iniciar os cenários. Depois do ajuste, os logs confirmaram a captura iniciada antes do lançamento e os dois testes concluíram. O engine e os testes do aplicativo não foram alterados para contornar a falha.
+
+SQL Server foi executado em LocalDB real no runner Windows. Azure Cosmos DB e deploy AWS não foram exercitados contra recursos de nuvem. A rajada de leituras mede somente a execução registrada, sem estimar capacidade sustentada ou SLA. A avaliação automatizada de acessibilidade e os testes de teclado não equivalem a uma sessão com leitor de tela.
+
+As quatro demonstrações MP4 e os dois currículos destacados foram preservados. As gravações mostram operações reais registradas em 18/11; não são novas gravações desta rodada de QA.
+
+## Reproduzir
+
+Os workflows [produtos](../../.github/workflows/verify.yml), [SQL Server](../../.github/workflows/sql-server.yml) e [Android/iOS](../../.github/workflows/field-native.yml) registram os comandos e versões. Use bancos descartáveis e exclusivos. Os READMEs de cada projeto descrevem a execução com SDKs e Docker.
+
+Para o caminho nativo dos navegadores, em `portfolio/tests`, execute `npm ci --ignore-scripts` e `npx playwright install --with-deps chromium firefox webkit`. Configure PostgreSQL como descrito no [Rastro](../rastro/README.md) e execute `bash tests/run-local.sh` em `portfolio`, uma vez por `PW_BROWSER=chromium`, `firefox` e `webkit`, usando uma base exclusiva em cada execução. As interfaces e serviços devem ser compilados antes; o workflow contém a sequência completa. O CI usa a imagem oficial Playwright 1.58.2 Noble fixada por digest, com os navegadores e bibliotecas já instalados, e mantém as aplicações e bases sintéticas no runner.
+
+O ensaio de interrupção controlada opera apenas no projeto Compose descartável cujo nome segue `portfolio-ci-<run>-<attempt>`, confirma os rótulos de propriedade e restabelece os serviços ao terminar. A limpeza dos volumes pertence ao workflow do runner. Não deve ser apontado para dados pessoais ou uma implantação compartilhada.

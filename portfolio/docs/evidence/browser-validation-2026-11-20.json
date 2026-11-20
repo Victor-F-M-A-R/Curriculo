@@ -1,0 +1,2206 @@
+{
+  "archive_sha256": "055d7cd4e2f0452318b6a0a700058922bdca8f73fb63182b0127b9d0584d4d05",
+  "engines": {
+    "chromium": {
+      "stats": {
+        "startTime": "2026-11-20T06:46:46.964Z",
+        "duration": 108376.232,
+        "expected": 51,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "cases": [
+        {
+          "title": "Doca · acessibilidade e reflow a 1280px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · acessibilidade e reflow a 320px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · acessibilidade e reflow a 1280px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · acessibilidade e reflow a 320px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Farol · acessibilidade e reflow a 1280px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Farol · acessibilidade e reflow a 320px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Rastro · acessibilidade e reflow a 1280px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Rastro · acessibilidade e reflow a 320px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · conflito e falha preservam a hora confirmada e bloqueiam movimentos no celular",
+          "file": "doca-freshness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · um poll iniciado antes da reserva não desfaz a nova leitura confirmada",
+          "file": "doca-freshness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · giros e seleção têm alvos inteiros sem sobreposição em desktop e celular",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · contrato inválido e data antiga não substituem a última leitura",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · sessão expirada impede novas leituras até autenticar novamente",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · renovação de sessão retira escrita e perda de identidade limpa dados",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · negação HTTP 401 da sessão oculta os dados até uma sessão válida",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · negação HTTP 403 da sessão oculta os dados até uma sessão válida",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · sessão antiga em trânsito não restaura escrita após um comando negado",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · quadro autorizado antes da negação não repopula os dados ao chegar tarde",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · falha de conexão conserva a chave do comando no reenvio",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "farol · missing attribute refuses while directory paraphrase preserves both facts",
+          "file": "farol-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "farol · interrupted request unlocks form and preserves a usable session",
+          "file": "farol-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "farol · deadline releases form without silently retrying a mutation",
+          "file": "farol-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "farol · pending question blocks reset and repeated shortcut; history reload works",
+          "file": "farol-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "farol · failed history refresh does not report a saved answer as lost",
+          "file": "farol-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "farol · another browser cannot read or review a private run",
+          "file": "farol-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "conciliação no celular · seleção e retorno pelo teclado, auditoria filtrada",
+          "file": "lastro-mobile.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · confirmação perdida libera a tela e conserva o lote já gravado",
+          "file": "lastro-network.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · conexão encerrada após gravar também informa confirmação incerta",
+          "file": "lastro-network.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · filtro mantém seleção e foco previsíveis (390px)",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · filtro mantém seleção e foco previsíveis (1280px)",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · revisão retira item do filtro e devolve foco à próxima linha ou ao filtro vazio",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · reflow em 320 CSS pixels preserva filtros e ficha sem rolagem horizontal",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · sessão expirada remove dados antigos e permite recuperar a conta",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · contas, autenticação, logout e repetição preservam mesas separadas",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · auditoria pagina sem repetir registros quando um evento novo chega",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · troca em outra aba impede review na mesa inesperada",
+          "file": "lastro-session-context.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · troca em outra aba impede import na mesa inesperada",
+          "file": "lastro-session-context.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · contexto obrigatório rejeita clientes antigos e mesa divergente antes de gravar",
+          "file": "lastro-session-context.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "pátio · reservar, iniciar e liberar mantêm um único histórico",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "conciliação · importar e repetir preserva valores, revisar deixa trilha Blazor",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "conta · novo usuário pode sair, entrar e recuperar a mesma mesa",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "consulta · citação navegável, abstenção e fila de revisão",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · navegação mobile sem extravasamento",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · navegação mobile sem extravasamento",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Farol · navegação mobile sem extravasamento",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "telemetria · chegada fora de ordem e reenvio no celular",
+          "file": "rastro.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "telemetria · navegação por teclado e leitura em 320 px",
+          "file": "rastro.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "telemetria · falha de consulta e recuperação pelo monitor",
+          "file": "rastro.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "telemetria · resposta atrasada não troca o veículo selecionado",
+          "file": "rastro.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "telemetria · paginação preserva registros e foco após falha e nova tentativa",
+          "file": "rastro.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "telemetria · consulta antiga fica identificada e modo sem demo não oferece escrita",
+          "file": "rastro.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        }
+      ],
+      "accessibility": [
+        {
+          "state": "Doca-1280-accessibility",
+          "violations": 0,
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "nodes": 2,
+              "targets": [
+                [
+                  "button[aria-label=\"Girar maquete à esquerda\"] > span[aria-hidden=\"true\"]"
+                ],
+                [
+                  "button[aria-label=\"Girar maquete à direita\"] > span[aria-hidden=\"true\"]"
+                ]
+              ]
+            },
+            {
+              "id": "label-content-name-mismatch",
+              "nodes": 2,
+              "targets": [
+                [
+                  "button[aria-label=\"Girar maquete à esquerda\"]"
+                ],
+                [
+                  "button[aria-label=\"Girar maquete à direita\"]"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "state": "Doca-320-accessibility",
+          "violations": 0,
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "nodes": 2,
+              "targets": [
+                [
+                  "button[aria-label=\"Girar maquete à esquerda\"] > span[aria-hidden=\"true\"]"
+                ],
+                [
+                  "button[aria-label=\"Girar maquete à direita\"] > span[aria-hidden=\"true\"]"
+                ]
+              ]
+            },
+            {
+              "id": "label-content-name-mismatch",
+              "nodes": 2,
+              "targets": [
+                [
+                  "button[aria-label=\"Girar maquete à esquerda\"]"
+                ],
+                [
+                  "button[aria-label=\"Girar maquete à direita\"]"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "state": "Lastro-1280-accessibility",
+          "violations": 0,
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "nodes": 3,
+              "targets": [
+                [
+                  ".tag"
+                ],
+                [
+                  "strong"
+                ],
+                [
+                  ".exposure > p"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "state": "Lastro-dialog-1280-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Lastro-320-accessibility",
+          "violations": 0,
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "nodes": 3,
+              "targets": [
+                [
+                  ".tag"
+                ],
+                [
+                  "strong"
+                ],
+                [
+                  ".exposure > p"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "state": "Lastro-dialog-320-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Farol-1280-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Farol-answer-1280-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Farol-320-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Farol-answer-320-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Rastro-1280-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Rastro-320-accessibility",
+          "violations": 0,
+          "incomplete": []
+        }
+      ],
+      "screens": [
+        {
+          "file": "Doca-1280-screen.png",
+          "sha256": "dced88582fce669b6d6fc37bb0f447a5642856c6ee915048b7de88a3e8cce29a"
+        },
+        {
+          "file": "Doca-320-screen.png",
+          "sha256": "287576eb64cf4854cf4646294253401b026276024c693c0e5e0050330df470b2"
+        },
+        {
+          "file": "Lastro-1280-screen.png",
+          "sha256": "df8c634131c3671f2986cdd03e74a21e0981fc1cb88fa6d56b73d6e4a1707344"
+        },
+        {
+          "file": "Lastro-dialog-1280-screen.png",
+          "sha256": "9a0c8a4afa37134e50ed1c62780a61a1847e47f8bb26dcd672f2d96bd4669efc"
+        },
+        {
+          "file": "Lastro-320-screen.png",
+          "sha256": "3c142b00d058b9104ed6628219410f65eda849a00122c2773aff75d03f2ebed0"
+        },
+        {
+          "file": "Lastro-dialog-320-screen.png",
+          "sha256": "7660d30e55f18ae9b90a1ff7aee4381cb7b4bd08fd73b76f291da1f2f75bc4f6"
+        },
+        {
+          "file": "Farol-1280-screen.png",
+          "sha256": "2f7b39ad5461315cfad5298005792b3b7768e6470789c682baaf74000d71d241"
+        },
+        {
+          "file": "Farol-answer-1280-screen.png",
+          "sha256": "7ce0b90f78c605aef43fad8c2a3ee62b01c76a8486604a9d2a6b25e9d0f846d1"
+        },
+        {
+          "file": "Farol-320-screen.png",
+          "sha256": "7bcfeabd06685e539fe0b323a963dde2eac7ea7b16f5ee5bd5810f5b38389664"
+        },
+        {
+          "file": "Farol-answer-320-screen.png",
+          "sha256": "5d1a7daf0501f9c3deb04ed9f6ae6f20dd562c939d1b3aa1b4691f677181f9c1"
+        },
+        {
+          "file": "Rastro-1280-screen.png",
+          "sha256": "1060b9ce47e403f4c3afa2f0ed7dd5ed0221d4dce7e6597d9fee0d4f9dca9657"
+        },
+        {
+          "file": "Rastro-320-screen.png",
+          "sha256": "1ce5a8872d6aa5c5d8ac6b629f304900bd9dc8cd138b06423aa97b9fc3c3c813"
+        }
+      ]
+    },
+    "firefox": {
+      "stats": {
+        "startTime": "2026-11-20T06:48:46.225Z",
+        "duration": 116577.598,
+        "expected": 51,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "cases": [
+        {
+          "title": "Doca · acessibilidade e reflow a 1280px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · acessibilidade e reflow a 320px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · acessibilidade e reflow a 1280px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · acessibilidade e reflow a 320px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Farol · acessibilidade e reflow a 1280px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Farol · acessibilidade e reflow a 320px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Rastro · acessibilidade e reflow a 1280px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Rastro · acessibilidade e reflow a 320px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · conflito e falha preservam a hora confirmada e bloqueiam movimentos no celular",
+          "file": "doca-freshness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · um poll iniciado antes da reserva não desfaz a nova leitura confirmada",
+          "file": "doca-freshness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · giros e seleção têm alvos inteiros sem sobreposição em desktop e celular",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · contrato inválido e data antiga não substituem a última leitura",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · sessão expirada impede novas leituras até autenticar novamente",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · renovação de sessão retira escrita e perda de identidade limpa dados",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · negação HTTP 401 da sessão oculta os dados até uma sessão válida",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · negação HTTP 403 da sessão oculta os dados até uma sessão válida",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · sessão antiga em trânsito não restaura escrita após um comando negado",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · quadro autorizado antes da negação não repopula os dados ao chegar tarde",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · falha de conexão conserva a chave do comando no reenvio",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "farol · missing attribute refuses while directory paraphrase preserves both facts",
+          "file": "farol-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "farol · interrupted request unlocks form and preserves a usable session",
+          "file": "farol-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "farol · deadline releases form without silently retrying a mutation",
+          "file": "farol-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "farol · pending question blocks reset and repeated shortcut; history reload works",
+          "file": "farol-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "farol · failed history refresh does not report a saved answer as lost",
+          "file": "farol-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "farol · another browser cannot read or review a private run",
+          "file": "farol-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "conciliação no celular · seleção e retorno pelo teclado, auditoria filtrada",
+          "file": "lastro-mobile.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · confirmação perdida libera a tela e conserva o lote já gravado",
+          "file": "lastro-network.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · conexão encerrada após gravar também informa confirmação incerta",
+          "file": "lastro-network.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · filtro mantém seleção e foco previsíveis (390px)",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · filtro mantém seleção e foco previsíveis (1280px)",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · revisão retira item do filtro e devolve foco à próxima linha ou ao filtro vazio",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · reflow em 320 CSS pixels preserva filtros e ficha sem rolagem horizontal",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · sessão expirada remove dados antigos e permite recuperar a conta",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · contas, autenticação, logout e repetição preservam mesas separadas",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · auditoria pagina sem repetir registros quando um evento novo chega",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · troca em outra aba impede review na mesa inesperada",
+          "file": "lastro-session-context.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · troca em outra aba impede import na mesa inesperada",
+          "file": "lastro-session-context.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · contexto obrigatório rejeita clientes antigos e mesa divergente antes de gravar",
+          "file": "lastro-session-context.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "pátio · reservar, iniciar e liberar mantêm um único histórico",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "conciliação · importar e repetir preserva valores, revisar deixa trilha Blazor",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "conta · novo usuário pode sair, entrar e recuperar a mesma mesa",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "consulta · citação navegável, abstenção e fila de revisão",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · navegação mobile sem extravasamento",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · navegação mobile sem extravasamento",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Farol · navegação mobile sem extravasamento",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "telemetria · chegada fora de ordem e reenvio no celular",
+          "file": "rastro.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "telemetria · navegação por teclado e leitura em 320 px",
+          "file": "rastro.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "telemetria · falha de consulta e recuperação pelo monitor",
+          "file": "rastro.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "telemetria · resposta atrasada não troca o veículo selecionado",
+          "file": "rastro.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "telemetria · paginação preserva registros e foco após falha e nova tentativa",
+          "file": "rastro.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "telemetria · consulta antiga fica identificada e modo sem demo não oferece escrita",
+          "file": "rastro.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        }
+      ],
+      "accessibility": [
+        {
+          "state": "Doca-1280-accessibility",
+          "violations": 0,
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "nodes": 2,
+              "targets": [
+                [
+                  "button[aria-label=\"Girar maquete à esquerda\"] > span[aria-hidden=\"true\"]"
+                ],
+                [
+                  "button[aria-label=\"Girar maquete à direita\"] > span[aria-hidden=\"true\"]"
+                ]
+              ]
+            },
+            {
+              "id": "label-content-name-mismatch",
+              "nodes": 2,
+              "targets": [
+                [
+                  "button[aria-label=\"Girar maquete à esquerda\"]"
+                ],
+                [
+                  "button[aria-label=\"Girar maquete à direita\"]"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "state": "Doca-320-accessibility",
+          "violations": 0,
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "nodes": 2,
+              "targets": [
+                [
+                  "button[aria-label=\"Girar maquete à esquerda\"] > span[aria-hidden=\"true\"]"
+                ],
+                [
+                  "button[aria-label=\"Girar maquete à direita\"] > span[aria-hidden=\"true\"]"
+                ]
+              ]
+            },
+            {
+              "id": "label-content-name-mismatch",
+              "nodes": 2,
+              "targets": [
+                [
+                  "button[aria-label=\"Girar maquete à esquerda\"]"
+                ],
+                [
+                  "button[aria-label=\"Girar maquete à direita\"]"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "state": "Lastro-1280-accessibility",
+          "violations": 0,
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "nodes": 3,
+              "targets": [
+                [
+                  ".tag"
+                ],
+                [
+                  "strong"
+                ],
+                [
+                  ".exposure > p"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "state": "Lastro-dialog-1280-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Lastro-320-accessibility",
+          "violations": 0,
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "nodes": 3,
+              "targets": [
+                [
+                  ".tag"
+                ],
+                [
+                  "strong"
+                ],
+                [
+                  ".exposure > p"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "state": "Lastro-dialog-320-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Farol-1280-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Farol-answer-1280-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Farol-320-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Farol-answer-320-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Rastro-1280-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Rastro-320-accessibility",
+          "violations": 0,
+          "incomplete": []
+        }
+      ],
+      "screens": [
+        {
+          "file": "Doca-1280-screen.png",
+          "sha256": "e9284dbf4cb6f5fc3264c64a0b06d139ae33e701ae15e763c1370a056048d36c"
+        },
+        {
+          "file": "Doca-320-screen.png",
+          "sha256": "f5a186d0468323c13eca53ea36c52c422509d956ee69653ca56fa5189bdc9c1d"
+        },
+        {
+          "file": "Lastro-1280-screen.png",
+          "sha256": "6d5f0e6a6a5142d300c541470b30d096d39ad7a20e280112adcfc554cc509043"
+        },
+        {
+          "file": "Lastro-dialog-1280-screen.png",
+          "sha256": "d4a3932fc62010573498aa82a79e99c99d2c876ea7af692852e113b9db7d191c"
+        },
+        {
+          "file": "Lastro-320-screen.png",
+          "sha256": "ab2107fa4e9a787a57d84b9995d4f59a78caac8accf65b8141d8bdeb0ec35bc2"
+        },
+        {
+          "file": "Lastro-dialog-320-screen.png",
+          "sha256": "5b6ff62e44635fb4785123922d1a909e8f9181e9f2738d729e3b242c5eab2bc8"
+        },
+        {
+          "file": "Farol-1280-screen.png",
+          "sha256": "1b6ad4a1f38a4af759682170c3f63cb48c648457005e341cd9487ecbe9440975"
+        },
+        {
+          "file": "Farol-answer-1280-screen.png",
+          "sha256": "7a9350fa13c950804a0c6ad54481983c50d7eb3848ecc934d8d97e45ec760b9a"
+        },
+        {
+          "file": "Farol-320-screen.png",
+          "sha256": "94c4bb013cfa51e54110fdc49708983ca28fed2d8652be94a40291ab61f2dd72"
+        },
+        {
+          "file": "Farol-answer-320-screen.png",
+          "sha256": "0954d9fabeb507e7b44c9ffbed1ee4ecce5378c57a6d3bdc94edb6a64b6feb8d"
+        },
+        {
+          "file": "Rastro-1280-screen.png",
+          "sha256": "688e5928266e82b6c6e48e181c2f248807a6a6e5c7ca650fd043905ae1a8120d"
+        },
+        {
+          "file": "Rastro-320-screen.png",
+          "sha256": "b93b14cbe5318e61462d29bee7e89fbca2e1af9016aafdb29319e484dd951798"
+        }
+      ]
+    },
+    "webkit": {
+      "stats": {
+        "startTime": "2026-11-20T06:50:53.648Z",
+        "duration": 122099.53600000001,
+        "expected": 51,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "cases": [
+        {
+          "title": "Doca · acessibilidade e reflow a 1280px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · acessibilidade e reflow a 320px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · acessibilidade e reflow a 1280px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · acessibilidade e reflow a 320px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Farol · acessibilidade e reflow a 1280px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Farol · acessibilidade e reflow a 320px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Rastro · acessibilidade e reflow a 1280px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Rastro · acessibilidade e reflow a 320px",
+          "file": "accessibility.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · conflito e falha preservam a hora confirmada e bloqueiam movimentos no celular",
+          "file": "doca-freshness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · um poll iniciado antes da reserva não desfaz a nova leitura confirmada",
+          "file": "doca-freshness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · giros e seleção têm alvos inteiros sem sobreposição em desktop e celular",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · contrato inválido e data antiga não substituem a última leitura",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · sessão expirada impede novas leituras até autenticar novamente",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · renovação de sessão retira escrita e perda de identidade limpa dados",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · negação HTTP 401 da sessão oculta os dados até uma sessão válida",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · negação HTTP 403 da sessão oculta os dados até uma sessão válida",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · sessão antiga em trânsito não restaura escrita após um comando negado",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · quadro autorizado antes da negação não repopula os dados ao chegar tarde",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · falha de conexão conserva a chave do comando no reenvio",
+          "file": "doca-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "farol · missing attribute refuses while directory paraphrase preserves both facts",
+          "file": "farol-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "farol · interrupted request unlocks form and preserves a usable session",
+          "file": "farol-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "farol · deadline releases form without silently retrying a mutation",
+          "file": "farol-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "farol · pending question blocks reset and repeated shortcut; history reload works",
+          "file": "farol-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "farol · failed history refresh does not report a saved answer as lost",
+          "file": "farol-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "farol · another browser cannot read or review a private run",
+          "file": "farol-resilience.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "conciliação no celular · seleção e retorno pelo teclado, auditoria filtrada",
+          "file": "lastro-mobile.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · confirmação perdida libera a tela e conserva o lote já gravado",
+          "file": "lastro-network.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · conexão encerrada após gravar também informa confirmação incerta",
+          "file": "lastro-network.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · filtro mantém seleção e foco previsíveis (390px)",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · filtro mantém seleção e foco previsíveis (1280px)",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · revisão retira item do filtro e devolve foco à próxima linha ou ao filtro vazio",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · reflow em 320 CSS pixels preserva filtros e ficha sem rolagem horizontal",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · sessão expirada remove dados antigos e permite recuperar a conta",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · contas, autenticação, logout e repetição preservam mesas separadas",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · auditoria pagina sem repetir registros quando um evento novo chega",
+          "file": "lastro-robustness.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · troca em outra aba impede review na mesa inesperada",
+          "file": "lastro-session-context.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · troca em outra aba impede import na mesa inesperada",
+          "file": "lastro-session-context.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · contexto obrigatório rejeita clientes antigos e mesa divergente antes de gravar",
+          "file": "lastro-session-context.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "pátio · reservar, iniciar e liberar mantêm um único histórico",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "conciliação · importar e repetir preserva valores, revisar deixa trilha Blazor",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "conta · novo usuário pode sair, entrar e recuperar a mesma mesa",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "consulta · citação navegável, abstenção e fila de revisão",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Doca · navegação mobile sem extravasamento",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Lastro · navegação mobile sem extravasamento",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "Farol · navegação mobile sem extravasamento",
+          "file": "products.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "telemetria · chegada fora de ordem e reenvio no celular",
+          "file": "rastro.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "telemetria · navegação por teclado e leitura em 320 px",
+          "file": "rastro.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "telemetria · falha de consulta e recuperação pelo monitor",
+          "file": "rastro.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "telemetria · resposta atrasada não troca o veículo selecionado",
+          "file": "rastro.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "telemetria · paginação preserva registros e foco após falha e nova tentativa",
+          "file": "rastro.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        },
+        {
+          "title": "telemetria · consulta antiga fica identificada e modo sem demo não oferece escrita",
+          "file": "rastro.spec.mjs",
+          "expected_status": "passed",
+          "statuses": [
+            "passed"
+          ],
+          "attempts": 1,
+          "ok": true
+        }
+      ],
+      "accessibility": [
+        {
+          "state": "Doca-1280-accessibility",
+          "violations": 0,
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "nodes": 2,
+              "targets": [
+                [
+                  "button[aria-label=\"Girar maquete à esquerda\"] > span[aria-hidden=\"true\"]"
+                ],
+                [
+                  "button[aria-label=\"Girar maquete à direita\"] > span[aria-hidden=\"true\"]"
+                ]
+              ]
+            },
+            {
+              "id": "label-content-name-mismatch",
+              "nodes": 2,
+              "targets": [
+                [
+                  "button[aria-label=\"Girar maquete à esquerda\"]"
+                ],
+                [
+                  "button[aria-label=\"Girar maquete à direita\"]"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "state": "Doca-320-accessibility",
+          "violations": 0,
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "nodes": 2,
+              "targets": [
+                [
+                  "button[aria-label=\"Girar maquete à esquerda\"] > span[aria-hidden=\"true\"]"
+                ],
+                [
+                  "button[aria-label=\"Girar maquete à direita\"] > span[aria-hidden=\"true\"]"
+                ]
+              ]
+            },
+            {
+              "id": "label-content-name-mismatch",
+              "nodes": 2,
+              "targets": [
+                [
+                  "button[aria-label=\"Girar maquete à esquerda\"]"
+                ],
+                [
+                  "button[aria-label=\"Girar maquete à direita\"]"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "state": "Lastro-1280-accessibility",
+          "violations": 0,
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "nodes": 3,
+              "targets": [
+                [
+                  ".tag"
+                ],
+                [
+                  "strong"
+                ],
+                [
+                  ".exposure > p"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "state": "Lastro-dialog-1280-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Lastro-320-accessibility",
+          "violations": 0,
+          "incomplete": [
+            {
+              "id": "color-contrast",
+              "nodes": 3,
+              "targets": [
+                [
+                  ".tag"
+                ],
+                [
+                  "strong"
+                ],
+                [
+                  ".exposure > p"
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "state": "Lastro-dialog-320-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Farol-1280-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Farol-answer-1280-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Farol-320-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Farol-answer-320-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Rastro-1280-accessibility",
+          "violations": 0,
+          "incomplete": []
+        },
+        {
+          "state": "Rastro-320-accessibility",
+          "violations": 0,
+          "incomplete": []
+        }
+      ],
+      "screens": [
+        {
+          "file": "Doca-1280-screen.png",
+          "sha256": "73f73deb662115d9670829a514c7ef7e2ca9c65b4ff8b99ab4f3fc12d05580d2"
+        },
+        {
+          "file": "Doca-320-screen.png",
+          "sha256": "46b6d1ab691a49b9eb9677c9ce1b931842d9e7850e70acc52fe130910a30a367"
+        },
+        {
+          "file": "Lastro-1280-screen.png",
+          "sha256": "d3cee621e17aaf4042a49946e2f48ac65db424dfc683cac8026cccdfdd8510a0"
+        },
+        {
+          "file": "Lastro-dialog-1280-screen.png",
+          "sha256": "fa0258d8c0a5add8db8a837d2b4afb854cf337af6cf7a5d0ce1a8c33fd6f248a"
+        },
+        {
+          "file": "Lastro-320-screen.png",
+          "sha256": "8999b1a53af1d95139c95428665ec8d756fe364b399a996200b1a91b78329b25"
+        },
+        {
+          "file": "Lastro-dialog-320-screen.png",
+          "sha256": "6c7d29e4b5a0b06c5747044b978aad063ec4e531f8555c47e39485159a6603f4"
+        },
+        {
+          "file": "Farol-1280-screen.png",
+          "sha256": "0d553b1f1963c43743a80b286148c818e2d84a7fc77c7c02f7ae485e59688508"
+        },
+        {
+          "file": "Farol-answer-1280-screen.png",
+          "sha256": "3893be966a8cc25b53c1eaf16e3393fd46ac735344384e3c7944a0bd66136bba"
+        },
+        {
+          "file": "Farol-320-screen.png",
+          "sha256": "22930025defb69f68f456f898da207d8538ed9985f63ebcf5faaeb3a3b61ceca"
+        },
+        {
+          "file": "Farol-answer-320-screen.png",
+          "sha256": "435b9dc52b7a1732b106be25744fbce817dbf5201d860fd08d01ba026e4098db"
+        },
+        {
+          "file": "Rastro-1280-screen.png",
+          "sha256": "041fe6295afa8a32a08bd05a19ca93b8e2069bc33af9f67aa69f3f3689c4a6e1"
+        },
+        {
+          "file": "Rastro-320-screen.png",
+          "sha256": "f42c80cdd1d0eb9f2d7e31852f24997031634f689e4095b81d520b5ec6a37848"
+        }
+      ]
+    }
+  },
+  "schema_version": 1,
+  "date": "2026-11-20",
+  "code_commit": "f316b9ab2bb291528b97b329134b737bd4585a24",
+  "run_id": 44689736563,
+  "job_id": 136132524759,
+  "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44689736563/job/136132524759",
+  "artifact_id": 14608761726,
+  "artifact_url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44689736563/artifacts/14608761726",
+  "visual_review": {
+    "screens_inspected": 36,
+    "viewports_css_px": [
+      1280,
+      320
+    ],
+    "states": [
+      "Doca initial",
+      "Lastro ledger",
+      "Lastro import dialog",
+      "Farol initial",
+      "Farol answer",
+      "Rastro initial"
+    ],
+    "new_clipping_or_overlap_found_in_final_captures": false,
+    "original_image_bytes_preserved": true,
+    "previous_defects_corrected": [
+      "Doca rotation controls clipped by host dimensions",
+      "Lastro cent digits wrapping at 320px",
+      "Lastro accepted CSV maximum clipped in financial summary"
+    ]
+  },
+  "manual_incomplete_review": {
+    "interpretation": "Incomplete checks remain inconclusive in the original axe output, accompanied by this separate manual review; they are not rewritten as automated passes.",
+    "doca": {
+      "occurrences_per_engine": 8,
+      "symbol_names": "Visible rotation symbols match the Portuguese accessible functional names.",
+      "opaque_control_background": "#212b24",
+      "control_foreground": "#e3e8dc",
+      "contrast_ratio_measured": 11.73,
+      "rendered_regression": "Actual computed contrast >=4.5; centre and four corner hit-tests; actual left/right rotations; all three engines."
+    },
+    "lastro": {
+      "occurrences_per_engine": 6,
+      "background": "#133b2e",
+      "decoration": "#cbe0bc at opacity 0.13",
+      "minimum_source_color_ratios": {
+        "tag": 5.983946900107505,
+        "amount": 8.328065619863136,
+        "paragraph": 7.148340566190388
+      },
+      "method": "sRGB alpha composition including the decorative stripe, channel linearization, relative luminance and (Llighter+0.05)/(Ldarker+0.05). Loaded data confirmed before axe."
+    },
+    "limits": "Source-color calculations and screenshot review do not establish blanket WCAG conformance; no manual screen-reader or voice-control session."
+  }
+}

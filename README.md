@@ -19,6 +19,8 @@ Na recepção de uma escola, investiguei travamentos testando atualizações, re
 
 Os projetos usam **dados fictícios** e têm implementação assistida por IA. Cada caso apresenta o problema, as decisões de engenharia, o código, a demonstração e os limites da validação.
 
+Revisão de 20/11/2026: cenários de falha, recuperação e limites documentados nas [evidências de execução](portfolio/docs/verificacao.md).
+
 | Projeto | Problema de engenharia | Explore |
 | --- | --- | --- |
 | **Doca Norte** · Java, Angular e Flutter | Dois operadores reservam a mesma doca. A API aceita uma única reserva e atualiza o pátio e a portaria. | [Ver demonstração](portfolio/docs/demonstracoes.md#doca-norte) · [Código e arquitetura](portfolio/doca-norte/) |

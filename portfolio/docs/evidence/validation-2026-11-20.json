@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-20",
+  "scope": "Four portfolio applications with synthetic data; probable failures, recovery and rendered interfaces",
+  "code_commit": "f316b9ab2bb291528b97b329134b737bd4585a24",
+  "conclusion": "All listed final gates passed; no universal defect-free or production-capacity claim",
+  "checks": [
+    {
+      "name": "Products",
+      "run_id": 44689736563,
+      "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44689736563",
+      "conclusion": "success",
+      "jobs": {
+        "integration": 136132524759,
+        "containers": 136132524719,
+        "field": 136132524361
+      }
+    },
+    {
+      "name": "SQL Server",
+      "run_id": 44689736630,
+      "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44689736630",
+      "conclusion": "success",
+      "job_id": 136132408880
+    },
+    {
+      "name": "Android and iOS",
+      "code_commit": "98f5048fe8a459650c1c0b771f19e5e3b2eb42d1",
+      "run_id": 44688960475,
+      "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44688960475",
+      "conclusion": "success",
+      "application_and_native_workflow_inputs_unchanged_to_code_commit": true
+    }
+  ],
+  "test_runs": [
+    {
+      "suite": "Doca H2 configuration",
+      "passed": 24,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "Doca PostgreSQL environment",
+      "passed": 24,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "Portaria",
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "Lastro SQLite",
+      "passed": 34,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "Lastro PostgreSQL",
+      "passed": 34,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "Lastro SQL Server",
+      "passed": 34,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "Inbox SQLite",
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "Inbox SQL Server",
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "Inbox HTTP",
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "Farol service methods",
+      "passed": 44,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "Rastro PostgreSQL and HTTP",
+      "passed": 26,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "Lastro CSS status contrast",
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "Flutter API and widgets",
+      "passed": 26,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "chromium browser flows",
+      "passed": 51,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0
+    },
+    {
+      "suite": "firefox browser flows",
+      "passed": 51,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0
+    },
+    {
+      "suite": "webkit browser flows",
+      "passed": 51,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0
+    },
+    {
+      "suite": "Android emulator native scenarios",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "suite": "iOS simulator native scenarios",
+      "passed": 2,
+      "failed": 0
+    }
+  ],
+  "counting_notes": [
+    "Database/browser repetitions are not additional unique scenarios.",
+    "Doca second run: 11 Yard tests use configured PostgreSQL; 13 access/OIDC tests retain their own fixtures/H2.",
+    "Farol 44 is a method count; nested queries are separate evidence.",
+    "Four real-socket HTTP checks are a subset of the 26 Flutter tests."
+  ],
+  "farol": {
+    "mode": "extractive",
+    "retrieval_correct_sources": 18,
+    "retrieval_correct_abstentions": 4,
+    "content_passed": 12,
+    "revealed_regression_queries": 125,
+    "additional_synthetic_queries": 38,
+    "independent_first_attempts": [
+      {
+        "cases": 41,
+        "passed": 33
+      },
+      {
+        "cases": 30,
+        "passed": 19
+      },
+      {
+        "cases": 30,
+        "passed": 25
+      },
+      {
+        "cases": 20,
+        "passed": 20
+      }
+    ],
+    "last_independent_round": {
+      "answerable_passed": 12,
+      "abstentions_passed": 8,
+      "question_sha256": "af2b50b1ea370e1c62ab96713c0144b05f690fa8ff00d90487e6922b3b9fa842",
+      "executed_against_real_http": true,
+      "no_engine_change_after_questions_revealed": true
+    },
+    "source_sha256": {
+      "coverage.py": "b6f0ea9072db7df26ca15c0acf96a677e2ce5ff471a6f2332249fadd0956115b",
+      "search.py": "fc06e0d6f8e518bdcfdcbc4ecf089a79fc7045078fa5bad63856d3ce387a2095"
+    },
+    "qwen_rerun": false
+  },
+  "evidence": {
+    "browsers": "browser-validation-2026-11-20.json",
+    "screenshots": "ui-2026-11-20/README.md",
+    "resilience": "containers-resilience-2026-11-20.json",
+    "native": "field-native-2026-11-20.json",
+    "retrieval": "farol-retrieval-2026-11-20.json",
+    "content": "farol-content-2026-11-20.json"
+  },
+  "media_and_resumes": {
+    "original_recording_date": "2026-11-18",
+    "four_mp4_preserved": true,
+    "pdf_and_ats_resume_preserved": true
+  },
+  "limits": [
+    "Synthetic data and disposable test databases",
+    "OIDC HTTP protocol fixture; corporate issuer/groups/HTTPS need deployment verification",
+    "Native biometrics without enrollment; note authorization simulated and lifecycle injected; no physical-device claims",
+    "Azure Cosmos DB and AWS deployment not exercised",
+    "Concurrent read measurements describe one CI sample, not sustained capacity or SLA",
+    "No manual screen-reader or voice-control session",
+    "Farol uses a conservative lexical coverage policy on a small fixed corpus; no universal semantic guarantee"
+  ]
+}
