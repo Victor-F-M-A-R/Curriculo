@@ -1,0 +1,162 @@
+[
+  {
+    "id": "audit-1",
+    "query": "Onde pego um cabo reserva se o teste com o notebook de referência do projetor falhar?",
+    "expected": "RB-03#s1",
+    "facts": [
+      "armário A2",
+      "HDMI"
+    ]
+  },
+  {
+    "id": "audit-2",
+    "query": "Qual equipamento e qual percentual entram no pedido de suprimento de toner?",
+    "expected": "RB-02#s2",
+    "facts": [
+      "patrimônio",
+      "modelo",
+      "percentual"
+    ]
+  },
+  {
+    "id": "audit-3",
+    "query": "Em qual diretório e com qual identificador devo testar a cópia recuperada antes de devolvê-la?",
+    "expected": "RB-07#s2",
+    "facts": [
+      "pasta temporária",
+      "número do chamado"
+    ]
+  },
+  {
+    "id": "audit-4",
+    "query": "Quem assume a responsabilidade pelo incidente e em que momento da troca de turno?",
+    "expected": "RB-08#s1",
+    "facts": [
+      "assume o turno",
+      "aceite"
+    ]
+  },
+  {
+    "id": "audit-5",
+    "query": "Quantos Chromebooks existem no balcão de equipamentos?",
+    "expected": null
+  },
+  {
+    "id": "audit-6",
+    "query": "Qual é a marca do projetor que usa o cabo HDMI da mesa?",
+    "expected": null
+  },
+  {
+    "id": "audit-7",
+    "query": "Quanto tempo dura a garantia da impressora da secretaria?",
+    "expected": null
+  },
+  {
+    "id": "audit-8",
+    "query": "Qual é a velocidade contratada do link principal WAN Ipê?",
+    "expected": null
+  },
+  {
+    "id": "missing-serial",
+    "query": "Qual é o número de série da impressora da secretaria?",
+    "expected": null
+  },
+  {
+    "id": "missing-stock",
+    "query": "Quantos cabos HDMI estão disponíveis no armário A2?",
+    "expected": null
+  },
+  {
+    "id": "missing-width",
+    "query": "Qual a largura da mesa que tem o cabo HDMI?",
+    "expected": null
+  },
+  {
+    "id": "missing-battery",
+    "query": "Qual a capacidade da bateria dos Chromebooks?",
+    "expected": null
+  },
+  {
+    "id": "compound",
+    "query": "Em qual entrada fica o cabo HDMI e qual é a marca do projetor?",
+    "expected": null
+  },
+  {
+    "id": "compound-punctuation",
+    "query": "Qual o percentual de toner para pedir suprimento? Quanto custa o cartucho?",
+    "expected": null
+  },
+  {
+    "id": "false-premise",
+    "query": "Por que a WAN Ipê retorna automaticamente após cinco minutos?",
+    "expected": null
+  },
+  {
+    "id": "unknown-entity",
+    "query": "Quantas falhas na WAN Jacarandá fazem a Cedro assumir?",
+    "expected": null
+  },
+  {
+    "id": "typo-known",
+    "query": "Quantas falhas na WAN Ipe fazem a Cedro assumir?",
+    "expected": "RB-01#s1",
+    "facts": [
+      "três falhas"
+    ]
+  },
+  {
+    "id": "typo-field",
+    "query": "Qual é a velocidae contratada da WAN Ipê?",
+    "expected": null
+  },
+  {
+    "id": "known-count",
+    "query": "Quantas falhas consecutivas fazem a WAN Cedro assumir?",
+    "expected": "RB-01#s1",
+    "facts": [
+      "três falhas"
+    ]
+  },
+  {
+    "id": "known-window",
+    "query": "Qual é a janela de execução de uma mudança planejada?",
+    "expected": "RB-06#s1",
+    "facts": [
+      "19h às 20h"
+    ]
+  },
+  {
+    "id": "known-location",
+    "query": "Onde fica o cabo HDMI reserva?",
+    "expected": "RB-03#s1",
+    "facts": [
+      "armário A2"
+    ]
+  },
+  {
+    "id": "known-restoration",
+    "query": "Onde testar a cópia restaurada e quem precisa dar o aceite?",
+    "expected": "RB-07#s2",
+    "facts": [
+      "pasta temporária",
+      "dono da pasta"
+    ]
+  },
+  {
+    "id": "known-priority",
+    "query": "Qual a prioridade e o prazo para reconhecer um incidente em uma sala com alternativa de trabalho?",
+    "expected": "RB-05#s2",
+    "facts": [
+      "P2",
+      "30 minutos"
+    ]
+  },
+  {
+    "id": "known-interval",
+    "query": "Qual é o intervalo entre os informes de um incidente P1?",
+    "expected": "RB-05#s1",
+    "facts": [
+      "15 minutos"
+    ]
+  }
+]

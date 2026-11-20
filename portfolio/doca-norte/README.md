@@ -14,7 +14,7 @@ Um operador precisa saber onde receber o próximo caminhão. A tela Angular perm
 | Portaria | Ver a última situação recebida e reconhecer quando a comunicação com o pátio envelheceu. |
 | Responsável pelo turno | Consultar movimentos recentes e, no aplicativo de campo, guardar uma nota privada por doca. |
 
-A demonstração usa seis docas e transportadoras fictícias. O horário no painel corresponde à chegada de uma leitura bem-sucedida da API. A portaria possui seu próprio horário de amostragem. Uma integração com rastreadores de veículos exigiria receber também o horário de origem de cada posição.
+A demonstração usa seis docas e transportadoras fictícias. O campo `sampledAt` registra a leitura na API central. A portaria preserva esse instante ao servir seu cache, e os clientes calculam a idade desde a origem. Uma integração com rastreadores de veículos exigiria receber também o horário de origem de cada posição.
 
 ## Demonstrar
 

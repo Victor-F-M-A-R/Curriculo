@@ -18,7 +18,7 @@
         "RB-01#s2",
         "RB-01#s3"
       ],
-      "score": 0.317
+      "score": 0.3172
     },
     {
       "query": "A internet principal voltou. Quanto tempo de estabilidade espero antes de voltar o tráfego?",
@@ -32,7 +32,7 @@
         "RB-01#s1",
         "RB-01#s3"
       ],
-      "score": 0.3047
+      "score": 0.3817
     },
     {
       "query": "Os dois circuitos caíram juntos. Quem avisamos dentro do campus?",
@@ -44,9 +44,9 @@
       "top3": [
         "RB-01#s3",
         "RB-01#s1",
-        "RB-03#s2"
+        "RB-03#s1"
       ],
-      "score": 0.3355
+      "score": 0.3634
     },
     {
       "query": "O documento da secretaria travou na fila de impressão. Posso cancelar os trabalhos dos outros?",
@@ -60,7 +60,7 @@
         "RB-02#s2",
         "RB-01#s3"
       ],
-      "score": 0.4939
+      "score": 0.5222
     },
     {
       "query": "Em qual percentual do toner o almoxarifado deve ser acionado?",
@@ -74,7 +74,7 @@
         "RB-04#s1",
         "RB-01#s3"
       ],
-      "score": 0.2959
+      "score": 0.2966
     },
     {
       "query": "O projetor diz sem sinal. Em que entrada fica o cabo da mesa?",
@@ -88,7 +88,7 @@
         "RB-03#s2",
         "RB-05#s2"
       ],
-      "score": 0.4182
+      "score": 0.4198
     },
     {
       "query": "O professor não encontra a tela para transmitir sem fio. Em qual rede o receptor deve estar?",
@@ -102,7 +102,7 @@
         "RB-01#s1",
         "RB-02#s1"
       ],
-      "score": 0.5389
+      "score": 0.5368
     },
     {
       "query": "O professor pode renovar o empréstimo do Chromebook no fim do turno?",
@@ -116,7 +116,7 @@
         "RB-04#s2",
         "RB-03#s2"
       ],
-      "score": 0.353
+      "score": 0.3945
     },
     {
       "query": "Um aluno devolveu o Chromebook com a dobradiça quebrada. O equipamento volta para a prateleira?",
@@ -130,7 +130,7 @@
         "RB-04#s1",
         "RB-02#s1"
       ],
-      "score": 0.2324
+      "score": 0.3627
     },
     {
       "query": "A falha P1 atingiu dois blocos. De quanto em quanto tempo sai um informe?",
@@ -144,7 +144,7 @@
         "RB-01#s3",
         "RB-01#s1"
       ],
-      "score": 0.281
+      "score": 0.2881
     },
     {
       "query": "Só uma sala teve problema e há um contorno. Qual a prioridade e o prazo inicial?",
@@ -155,10 +155,10 @@
       "accepted": true,
       "top3": [
         "RB-05#s2",
-        "RB-03#s2",
-        "RB-05#s1"
+        "RB-05#s1",
+        "RB-03#s2"
       ],
-      "score": 0.2921
+      "score": 0.2701
     },
     {
       "query": "Quem dá o aceite de uma mudança programada e quando podemos executá-la?",
@@ -172,7 +172,7 @@
         "RB-06#s2",
         "RB-07#s2"
       ],
-      "score": 0.2278
+      "score": 0.2565
     },
     {
       "query": "Depois da mudança, o teste de aceitação falhou de novo. Quando começa a reversão?",
@@ -186,7 +186,7 @@
         "RB-06#s1",
         "RB-07#s2"
       ],
-      "score": 0.3648
+      "score": 0.3968
     },
     {
       "query": "Por quantos dias fica guardada a cópia de segurança de um arquivo apagado?",
@@ -200,7 +200,7 @@
         "RB-07#s2",
         "RB-01#s1"
       ],
-      "score": 0.4447
+      "score": 0.4528
     },
     {
       "query": "A restauração do arquivo sobrescreve diretamente o caminho original?",
@@ -214,7 +214,7 @@
         "RB-07#s1",
         "RB-06#s2"
       ],
-      "score": 0.3227
+      "score": 0.3678
     },
     {
       "query": "Quais dados preciso deixar no quadro de passagem para o próximo plantonista?",
@@ -228,7 +228,7 @@
         "RB-08#s2",
         "RB-05#s1"
       ],
-      "score": 0.2978
+      "score": 0.3244
     },
     {
       "query": "Quem precisa confirmar a normalização antes de encerrar um incidente?",
@@ -242,7 +242,7 @@
         "RB-08#s1",
         "RB-05#s2"
       ],
-      "score": 0.3167
+      "score": 0.3371
     },
     {
       "query": "Onde encontro orientação sobre usar o cabo HDMI para continuar uma aula?",
@@ -257,7 +257,7 @@
         "RB-03#s1",
         "RB-05#s2"
       ],
-      "score": 0.2515
+      "score": 0.2521
     },
     {
       "query": "Qual é o preço mensal do contrato da operadora da WAN Cedro?",
@@ -269,7 +269,7 @@
         "RB-01#s1",
         "RB-01#s3"
       ],
-      "score": 0.2368
+      "score": 0.2293
     },
     {
       "query": "Quem ganhou o campeonato de xadrez deste semestre?",
@@ -301,11 +301,11 @@
       "kind": "abstain",
       "accepted": false,
       "top3": [
-        "RB-07#s1",
-        "RB-03#s2",
-        "RB-04#s2"
+        "RB-06#s1",
+        "RB-06#s2",
+        "RB-07#s1"
       ],
-      "score": 0.091
+      "score": 0.0846
     }
   ]
 }

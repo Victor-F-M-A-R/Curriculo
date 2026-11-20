@@ -1,0 +1,419 @@
+{
+  "suite": "independent-root-holdout",
+  "cases": 30,
+  "passed": 25,
+  "case_sha256": "e6057a77ed553ebd4fef65d5d3d1ed02a9015e6359af9da8e31a8778da964e47",
+  "rows": [
+    {
+      "number": 1,
+      "expected": {
+        "q": "Qual é o intervalo entre os testes da conexão principal de internet?",
+        "doc": "RB-01",
+        "section": "s1",
+        "contains": [
+          "20 segundos"
+        ]
+      },
+      "state": "answered",
+      "selected": "RB-01#s1",
+      "answer": "A WAN Ipê é o link principal de internet do campus. A WAN Cedro fica em reserva. O monitor testa a saída a cada 20 segundos. Depois de três falhas consecutivas na Ipê, o roteador transfere o tráfego para a Cedro automaticamente. O plantonista registra o horário da troca e verifica o portal acadêmico a partir da rede de alunos.",
+      "passed": true
+    },
+    {
+      "number": 2,
+      "expected": {
+        "q": "Se a Ipê falhar novamente durante os dez minutos de estabilidade, a contagem continua ou recomeça?",
+        "doc": "RB-01",
+        "section": "s2",
+        "contains": [
+          "reinicie essa contagem"
+        ]
+      },
+      "state": "answered",
+      "selected": "RB-01#s2",
+      "answer": "Depois que a WAN Ipê volta a responder, mantenha o tráfego na Cedro por dez minutos consecutivos de estabilidade. Se houver nova falha, reinicie essa contagem. Ao fim do período, o plantonista autoriza o retorno à Ipê e anota o horário no chamado.",
+      "passed": true
+    },
+    {
+      "number": 3,
+      "expected": {
+        "q": "Quem autoriza voltar para a WAN Ipê depois de estabilizar?",
+        "doc": "RB-01",
+        "section": "s2",
+        "contains": [
+          "plantonista",
+          "autoriza"
+        ]
+      },
+      "state": "answered",
+      "selected": "RB-01#s2",
+      "answer": "Depois que a WAN Ipê volta a responder, mantenha o tráfego na Cedro por dez minutos consecutivos de estabilidade. Se houver nova falha, reinicie essa contagem. Ao fim do período, o plantonista autoriza o retorno à Ipê e anota o horário no chamado.",
+      "passed": true
+    },
+    {
+      "number": 4,
+      "expected": {
+        "q": "O incidente de queda simultânea dos links deve incluir quais horários?",
+        "doc": "RB-01",
+        "section": "s3",
+        "contains": [
+          "dois últimos testes"
+        ]
+      },
+      "state": "answered",
+      "selected": "RB-01#s3",
+      "answer": "Quando Ipê e Cedro falham ao mesmo tempo, o responsável de rede abre um único incidente para o campus e aciona as duas operadoras pelos canais corporativos cadastrados. A secretaria recebe um aviso pelo ramal interno. O chamado deve relacionar os horários dos dois últimos testes bem-sucedidos.",
+      "passed": true
+    },
+    {
+      "number": 5,
+      "expected": {
+        "q": "Que cuidado devo tomar com dados de alunos na página de teste da impressora?",
+        "doc": "RB-02",
+        "section": "s1",
+        "contains": [
+          "sem dados de alunos"
+        ]
+      },
+      "state": "abstained",
+      "selected": "",
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "passed": false
+    },
+    {
+      "number": 6,
+      "expected": {
+        "q": "O toner atingiu o limite de reposição. O pedido ao almoxarifado precisa de quais dados?",
+        "doc": "RB-02",
+        "section": "s2",
+        "contains": [
+          "patrimônio da impressora",
+          "modelo do cartucho",
+          "percentual"
+        ]
+      },
+      "state": "answered",
+      "selected": "RB-02#s2",
+      "answer": "Quando o painel indicar toner em 15% ou menos, abra uma solicitação de suprimento ao almoxarifado. Informe o patrimônio da impressora, o modelo do cartucho e o percentual exibido. Após a troca, registre o lote novo e encaminhe o cartucho usado ao ponto de coleta da secretaria.",
+      "passed": true
+    },
+    {
+      "number": 7,
+      "expected": {
+        "q": "Para diagnosticar o projetor sem sinal, qual notebook uso no teste do cabo?",
+        "doc": "RB-03",
+        "section": "s1",
+        "contains": [
+          "notebook de referência"
+        ]
+      },
+      "state": "answered",
+      "selected": "RB-03#s1",
+      "answer": "Se o projetor está ligado e exibe “sem sinal”, confira a entrada selecionada. O cabo fixo da mesa entra em HDMI 1. Conecte o notebook de referência ao mesmo cabo e anote se houve imagem. Se o teste falhar, o kit do armário A2 contém um cabo HDMI de reposição para manter a aula.",
+      "passed": true
+    },
+    {
+      "number": 8,
+      "expected": {
+        "q": "Como identificar o receptor correto antes de transmitir a tela sem fio?",
+        "doc": "RB-03",
+        "section": "s2",
+        "contains": [
+          "SALA-",
+          "número da sala"
+        ]
+      },
+      "state": "answered",
+      "selected": "RB-03#s2",
+      "answer": "Para projetar sem fio, o professor e o receptor da sala precisam estar na rede Campus-Docente. Confira na tela inicial do receptor o nome no formato SALA- seguido do número da sala. Se a tela continuar ausente na lista de transmissão, use o cabo HDMI da mesa para a aula e informe o nome do receptor ao suporte audiovisual.",
+      "passed": true
+    },
+    {
+      "number": 9,
+      "expected": {
+        "q": "Que documento o professor apresenta para retirar um Chromebook?",
+        "doc": "RB-04",
+        "section": "s1",
+        "contains": [
+          "crachá"
+        ]
+      },
+      "state": "answered",
+      "selected": "RB-04#s1",
+      "answer": "Para retirar um Chromebook, o docente apresenta o crachá no balcão de equipamentos. O atendente registra o patrimônio, a turma e o horário previsto de devolução. Cada empréstimo vale por um turno. A renovação depende de disponibilidade e deve ser pedida antes do fim do turno.",
+      "passed": true
+    },
+    {
+      "number": 10,
+      "expected": {
+        "q": "Qual é o estado que devo marcar no Chromebook devolvido com defeito?",
+        "doc": "RB-04",
+        "section": "s2",
+        "contains": [
+          "em inspeção"
+        ]
+      },
+      "state": "abstained",
+      "selected": "",
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "passed": false
+    },
+    {
+      "number": 11,
+      "expected": {
+        "q": "Por quanto tempo deve continuar o informe periódico de um P1?",
+        "doc": "RB-05",
+        "section": "s1",
+        "contains": [
+          "enquanto o impacto continuar"
+        ]
+      },
+      "state": "abstained",
+      "selected": "",
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "passed": false
+    },
+    {
+      "number": 12,
+      "expected": {
+        "q": "Se uma única sala perdeu um recurso e existe contorno, qual prioridade aplicar?",
+        "doc": "RB-05",
+        "section": "s2",
+        "contains": [
+          "P2",
+          "30 minutos"
+        ]
+      },
+      "state": "abstained",
+      "selected": "",
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "passed": false
+    },
+    {
+      "number": 13,
+      "expected": {
+        "q": "A janela ordinária de manutenção é em qual dia e horário?",
+        "doc": "RB-06",
+        "section": "s1",
+        "contains": [
+          "quarta-feira",
+          "19h às 20h",
+          "Brasília"
+        ]
+      },
+      "state": "abstained",
+      "selected": "",
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "passed": false
+    },
+    {
+      "number": 14,
+      "expected": {
+        "q": "Quando reverter uma mudança após falha no teste de aceitação?",
+        "doc": "RB-06",
+        "section": "s2",
+        "contains": [
+          "Duas falhas seguidas"
+        ]
+      },
+      "state": "answered",
+      "selected": "RB-06#s2",
+      "answer": "Depois de aplicar a mudança, execute o teste de aceitação descrito no registro. Duas falhas seguidas nesse teste acionam a reversão. O executor restaura a configuração anterior aprovada, repete o teste e registra o resultado e o horário. O gestor do serviço recebe o informe no mesmo chamado.",
+      "passed": true
+    },
+    {
+      "number": 15,
+      "expected": {
+        "q": "Antes de recuperar o arquivo apagado, a autorização deve vir de quem?",
+        "doc": "RB-07",
+        "section": "s1",
+        "contains": [
+          "autorização do dono"
+        ]
+      },
+      "state": "answered",
+      "selected": "RB-07#s1",
+      "answer": "Para recuperar um arquivo apagado da pasta compartilhada, o dono da pasta informa o caminho e a última data em que o arquivo estava correto. Há uma cópia por noite, conservada por 14 dias corridos. O suporte confirma a autorização do dono antes de recuperar o material.",
+      "passed": true
+    },
+    {
+      "number": 16,
+      "expected": {
+        "q": "Que informações da recuperação devo registrar depois de escolher a cópia?",
+        "doc": "RB-07",
+        "section": "s2",
+        "contains": [
+          "versão escolhida",
+          "destino final"
+        ]
+      },
+      "state": "answered",
+      "selected": "RB-07#s2",
+      "answer": "Restaure primeiro numa pasta temporária identificada pelo número do chamado. O dono da pasta abre a cópia e verifica o conteúdo. Somente depois do aceite registrado o suporte pode recolocar o arquivo no caminho original. Registre a versão escolhida e o destino final.",
+      "passed": true
+    },
+    {
+      "number": 17,
+      "expected": {
+        "q": "Como o colega que assume o turno confirma que recebeu os incidentes?",
+        "doc": "RB-08",
+        "section": "s1",
+        "contains": [
+          "recebimento no quadro",
+          "aceite"
+        ]
+      },
+      "state": "answered",
+      "selected": "RB-08#s1",
+      "answer": "Na troca de plantão, cada incidente aberto precisa de quatro informações no quadro de passagem: número do chamado, impacto atual, próxima ação e horário da próxima atualização. Quem assume o turno confirma o recebimento no quadro. A responsabilidade muda no momento desse aceite.",
+      "passed": true
+    },
+    {
+      "number": 18,
+      "expected": {
+        "q": "Para encerrar o incidente, preciso obter a confirmação de quem?",
+        "doc": "RB-08",
+        "section": "s2",
+        "contains": [
+          "quem utiliza o serviço"
+        ]
+      },
+      "state": "answered",
+      "selected": "RB-08#s2",
+      "answer": "Para encerrar um incidente, obtenha a confirmação de quem utiliza o serviço e registre o horário de normalização. Resuma a causa conhecida, a ação realizada e uma pendência que precise de acompanhamento. Quando a causa permanece em investigação, vincule essa investigação ao chamado antes do fechamento.",
+      "passed": true
+    },
+    {
+      "number": 19,
+      "expected": {
+        "q": "Qual o serial do notebook de referência usado no teste do HDMI?",
+        "abstain": true
+      },
+      "state": "abstained",
+      "selected": "",
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "passed": true
+    },
+    {
+      "number": 20,
+      "expected": {
+        "q": "Qual é a quantidade de cartuchos no estoque do almoxarifado?",
+        "abstain": true
+      },
+      "state": "abstained",
+      "selected": "",
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "passed": true
+    },
+    {
+      "number": 21,
+      "expected": {
+        "q": "Qual o fabricante do roteador que transfere tráfego entre as WANs?",
+        "abstain": true
+      },
+      "state": "abstained",
+      "selected": "",
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "passed": true
+    },
+    {
+      "number": 22,
+      "expected": {
+        "q": "Qual é o total de blocos existentes no campus?",
+        "abstain": true
+      },
+      "state": "abstained",
+      "selected": "",
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "passed": true
+    },
+    {
+      "number": 23,
+      "expected": {
+        "q": "Quantos professores podem acessar a rede Campus-Docente simultaneamente?",
+        "abstain": true
+      },
+      "state": "abstained",
+      "selected": "",
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "passed": true
+    },
+    {
+      "number": 24,
+      "expected": {
+        "q": "Qual é a versão do firmware do receptor da sala?",
+        "abstain": true
+      },
+      "state": "abstained",
+      "selected": "",
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "passed": true
+    },
+    {
+      "number": 25,
+      "expected": {
+        "q": "Qual o nome da empresa responsável pelo suporte de impressão?",
+        "abstain": true
+      },
+      "state": "abstained",
+      "selected": "",
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "passed": true
+    },
+    {
+      "number": 26,
+      "expected": {
+        "q": "Qual o endereço do servidor em que as cópias noturnas são guardadas?",
+        "abstain": true
+      },
+      "state": "abstained",
+      "selected": "",
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "passed": true
+    },
+    {
+      "number": 27,
+      "expected": {
+        "q": "Qual o limite de renovações de um mesmo Chromebook?",
+        "abstain": true
+      },
+      "state": "abstained",
+      "selected": "",
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "passed": true
+    },
+    {
+      "number": 28,
+      "expected": {
+        "q": "Qual é o salário do plantonista que confirma os incidentes?",
+        "abstain": true
+      },
+      "state": "abstained",
+      "selected": "",
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "passed": true
+    },
+    {
+      "number": 29,
+      "expected": {
+        "q": "Qual é o dia da janela de manutenção e qual o custo por hora da equipe?",
+        "abstain": true
+      },
+      "state": "abstained",
+      "selected": "",
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "passed": true
+    },
+    {
+      "number": 30,
+      "expected": {
+        "q": "Quais dados registro ao devolver um Chromebook e qual o valor da multa por atraso?",
+        "abstain": true
+      },
+      "state": "abstained",
+      "selected": "",
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,140 @@
+[
+  {
+    "q": "Depois da terceira falha da Ipê, para qual WAN o roteador transfere o tráfego?",
+    "doc": "RB-01",
+    "section": "s1",
+    "contains": [
+      "Cedro",
+      "automaticamente"
+    ]
+  },
+  {
+    "q": "Quando devo reiniciar a contagem de estabilidade da Ipê?",
+    "doc": "RB-01",
+    "section": "s2",
+    "contains": [
+      "nova falha",
+      "reinicie"
+    ]
+  },
+  {
+    "q": "Que informações mando ao suporte se a página de teste não sair em dois minutos?",
+    "doc": "RB-02",
+    "section": "s1",
+    "contains": [
+      "horário",
+      "nome da fila"
+    ]
+  },
+  {
+    "q": "Depois da troca do toner, é necessário registrar o lote novo?",
+    "doc": "RB-02",
+    "section": "s2",
+    "contains": [
+      "registre o lote novo"
+    ]
+  },
+  {
+    "q": "O projetor indica sem sinal: o cabo fixo da mesa entra em qual entrada?",
+    "doc": "RB-03",
+    "section": "s1",
+    "contains": [
+      "HDMI 1"
+    ]
+  },
+  {
+    "q": "Em qual rede precisam estar professor e receptor para projetar sem fio?",
+    "doc": "RB-03",
+    "section": "s2",
+    "contains": [
+      "Campus-Docente"
+    ]
+  },
+  {
+    "q": "Ao retirar um Chromebook, quais informações o atendente registra?",
+    "doc": "RB-04",
+    "section": "s1",
+    "contains": [
+      "patrimônio",
+      "turma",
+      "horário previsto"
+    ]
+  },
+  {
+    "q": "O Chromebook chegou com avaria. Como devo fotografar o dano?",
+    "doc": "RB-04",
+    "section": "s2",
+    "contains": [
+      "somente a parte danificada",
+      "tela apagada"
+    ]
+  },
+  {
+    "q": "Qual o prazo de confirmação do recebimento de um P1?",
+    "doc": "RB-05",
+    "section": "s1",
+    "contains": [
+      "cinco minutos"
+    ]
+  },
+  {
+    "q": "Quais informações da sala e do contorno precisam constar em um P2?",
+    "doc": "RB-05",
+    "section": "s2",
+    "contains": [
+      "identificador da sala",
+      "contorno oferecido",
+      "confirmação do docente"
+    ]
+  },
+  {
+    "q": "Antes da mudança planejada, quem deve dar o aceite no registro?",
+    "doc": "RB-06",
+    "section": "s1",
+    "contains": [
+      "responsável técnico",
+      "gestor do serviço"
+    ]
+  },
+  {
+    "q": "O arquivo recuperado já foi validado pelo dono. Posso recolocá-lo no caminho original?",
+    "doc": "RB-07",
+    "section": "s2",
+    "contains": [
+      "aceite registrado",
+      "caminho original"
+    ]
+  },
+  {
+    "q": "O custo mensal do contrato da Cedro subiu quanto neste ano?",
+    "abstain": true
+  },
+  {
+    "q": "Qual é a data de compra da impressora da secretaria?",
+    "abstain": true
+  },
+  {
+    "q": "Qual o número de telefone pessoal do gestor do serviço?",
+    "abstain": true
+  },
+  {
+    "q": "Qual a marca do cabo HDMI guardado no armário A2?",
+    "abstain": true
+  },
+  {
+    "q": "Quantos empréstimos de Chromebook aconteceram ontem?",
+    "abstain": true
+  },
+  {
+    "q": "Qual serviço de nuvem recebe a cópia noturna dos arquivos?",
+    "abstain": true
+  },
+  {
+    "q": "Qual é o fabricante do cartucho e em que percentual peço outro?",
+    "abstain": true
+  },
+  {
+    "q": "Qual o limite diário de incidentes que um plantonista pode atender?",
+    "abstain": true
+  }
+]

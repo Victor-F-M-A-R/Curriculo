@@ -1,0 +1,227 @@
+[
+  {
+    "id": "root-third-1",
+    "query": "Qual é o intervalo entre os testes da conexão principal de internet?",
+    "expected": "RB-01#s1",
+    "facts": [
+      "20 segundos"
+    ]
+  },
+  {
+    "id": "root-third-2",
+    "query": "Se a Ipê falhar novamente durante os dez minutos de estabilidade, a contagem continua ou recomeça?",
+    "expected": "RB-01#s2",
+    "facts": [
+      "reinicie essa contagem"
+    ]
+  },
+  {
+    "id": "root-third-3",
+    "query": "Quem autoriza voltar para a WAN Ipê depois de estabilizar?",
+    "expected": "RB-01#s2",
+    "facts": [
+      "plantonista",
+      "autoriza"
+    ]
+  },
+  {
+    "id": "root-third-4",
+    "query": "O incidente de queda simultânea dos links deve incluir quais horários?",
+    "expected": "RB-01#s3",
+    "facts": [
+      "dois últimos testes"
+    ]
+  },
+  {
+    "id": "root-third-5",
+    "query": "Que cuidado devo tomar com dados de alunos na página de teste da impressora?",
+    "expected": "RB-02#s1",
+    "facts": [
+      "sem dados de alunos"
+    ]
+  },
+  {
+    "id": "root-third-6",
+    "query": "O toner atingiu o limite de reposição. O pedido ao almoxarifado precisa de quais dados?",
+    "expected": "RB-02#s2",
+    "facts": [
+      "patrimônio da impressora",
+      "modelo do cartucho",
+      "percentual"
+    ]
+  },
+  {
+    "id": "root-third-7",
+    "query": "Para diagnosticar o projetor sem sinal, qual notebook uso no teste do cabo?",
+    "expected": "RB-03#s1",
+    "facts": [
+      "notebook de referência"
+    ]
+  },
+  {
+    "id": "root-third-8",
+    "query": "Como identificar o receptor correto antes de transmitir a tela sem fio?",
+    "expected": "RB-03#s2",
+    "facts": [
+      "SALA-",
+      "número da sala"
+    ]
+  },
+  {
+    "id": "root-third-9",
+    "query": "Que documento o professor apresenta para retirar um Chromebook?",
+    "expected": "RB-04#s1",
+    "facts": [
+      "crachá"
+    ]
+  },
+  {
+    "id": "root-third-10",
+    "query": "Qual é o estado que devo marcar no Chromebook devolvido com defeito?",
+    "expected": "RB-04#s2",
+    "facts": [
+      "em inspeção"
+    ]
+  },
+  {
+    "id": "root-third-11",
+    "query": "Por quanto tempo deve continuar o informe periódico de um P1?",
+    "expected": "RB-05#s1",
+    "facts": [
+      "enquanto o impacto continuar"
+    ]
+  },
+  {
+    "id": "root-third-12",
+    "query": "Se uma única sala perdeu um recurso e existe contorno, qual prioridade aplicar?",
+    "expected": "RB-05#s2",
+    "facts": [
+      "P2",
+      "30 minutos"
+    ]
+  },
+  {
+    "id": "root-third-13",
+    "query": "A janela ordinária de manutenção é em qual dia e horário?",
+    "expected": "RB-06#s1",
+    "facts": [
+      "quarta-feira",
+      "19h às 20h",
+      "Brasília"
+    ]
+  },
+  {
+    "id": "root-third-14",
+    "query": "Quando reverter uma mudança após falha no teste de aceitação?",
+    "expected": "RB-06#s2",
+    "facts": [
+      "Duas falhas seguidas"
+    ]
+  },
+  {
+    "id": "root-third-15",
+    "query": "Antes de recuperar o arquivo apagado, a autorização deve vir de quem?",
+    "expected": "RB-07#s1",
+    "facts": [
+      "autorização do dono"
+    ]
+  },
+  {
+    "id": "root-third-16",
+    "query": "Que informações da recuperação devo registrar depois de escolher a cópia?",
+    "expected": "RB-07#s2",
+    "facts": [
+      "versão escolhida",
+      "destino final"
+    ]
+  },
+  {
+    "id": "root-third-17",
+    "query": "Como o colega que assume o turno confirma que recebeu os incidentes?",
+    "expected": "RB-08#s1",
+    "facts": [
+      "recebimento no quadro",
+      "aceite"
+    ]
+  },
+  {
+    "id": "root-third-18",
+    "query": "Para encerrar o incidente, preciso obter a confirmação de quem?",
+    "expected": "RB-08#s2",
+    "facts": [
+      "quem utiliza o serviço"
+    ]
+  },
+  {
+    "id": "root-third-19",
+    "query": "Qual o serial do notebook de referência usado no teste do HDMI?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-third-20",
+    "query": "Qual é a quantidade de cartuchos no estoque do almoxarifado?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-third-21",
+    "query": "Qual o fabricante do roteador que transfere tráfego entre as WANs?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-third-22",
+    "query": "Qual é o total de blocos existentes no campus?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-third-23",
+    "query": "Quantos professores podem acessar a rede Campus-Docente simultaneamente?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-third-24",
+    "query": "Qual é a versão do firmware do receptor da sala?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-third-25",
+    "query": "Qual o nome da empresa responsável pelo suporte de impressão?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-third-26",
+    "query": "Qual o endereço do servidor em que as cópias noturnas são guardadas?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-third-27",
+    "query": "Qual o limite de renovações de um mesmo Chromebook?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-third-28",
+    "query": "Qual é o salário do plantonista que confirma os incidentes?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-third-29",
+    "query": "Qual é o dia da janela de manutenção e qual o custo por hora da equipe?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-third-30",
+    "query": "Quais dados registro ao devolver um Chromebook e qual o valor da multa por atraso?",
+    "expected": null,
+    "facts": []
+  }
+]

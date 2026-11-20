@@ -1,0 +1,231 @@
+[
+  {
+    "id": "root-second-1",
+    "query": "A conexão Ipê estabilizou. Por quanto tempo devo observá-la antes do retorno?",
+    "expected": "RB-01#s2",
+    "facts": [
+      "dez minutos",
+      "estabilidade"
+    ]
+  },
+  {
+    "id": "root-second-2",
+    "query": "A Ipê e a Cedro estão indisponíveis. Quem precisa ser avisado?",
+    "expected": "RB-01#s3",
+    "facts": [
+      "secretaria",
+      "ramal",
+      "duas operadoras"
+    ]
+  },
+  {
+    "id": "root-second-3",
+    "query": "A impressora da secretaria não terminou o teste em dois minutos. O que faço?",
+    "expected": "RB-02#s1",
+    "facts": [
+      "dois minutos",
+      "suporte"
+    ]
+  },
+  {
+    "id": "root-second-4",
+    "query": "Toner em 10%: o que registro quando trocar o cartucho?",
+    "expected": "RB-02#s2",
+    "facts": [
+      "lote",
+      "ponto de coleta"
+    ]
+  },
+  {
+    "id": "root-second-5",
+    "query": "O cabo da mesa está conectado e continua sem sinal. Onde encontro o HDMI sobressalente?",
+    "expected": "RB-03#s1",
+    "facts": [
+      "A2"
+    ]
+  },
+  {
+    "id": "root-second-6",
+    "query": "O espelhamento sem fio falhou. Qual alternativa permite continuar a aula?",
+    "expected": "RB-03#s2",
+    "facts": [
+      "HDMI",
+      "receptor"
+    ]
+  },
+  {
+    "id": "root-second-7",
+    "query": "Qual o período permitido para empréstimo de um Chromebook?",
+    "expected": "RB-04#s1",
+    "facts": [
+      "um turno"
+    ]
+  },
+  {
+    "id": "root-second-8",
+    "query": "Um Chromebook voltou avariado. Posso emprestar outro sem registrar a devolução?",
+    "expected": "RB-04#s2",
+    "facts": [
+      "devolução",
+      "retire"
+    ]
+  },
+  {
+    "id": "root-second-9",
+    "query": "Em um P1, de quanto em quanto tempo a comunicação deve ser atualizada?",
+    "expected": "RB-05#s1",
+    "facts": [
+      "15 minutos"
+    ]
+  },
+  {
+    "id": "root-second-10",
+    "query": "Quais informações preciso registrar ao abrir um P2 para uma sala com solução de contorno?",
+    "expected": "RB-05#s2",
+    "facts": [
+      "sala",
+      "contorno",
+      "docente"
+    ]
+  },
+  {
+    "id": "root-second-11",
+    "query": "Na manutenção planejada, quais são os dois papéis que aprovam a mudança?",
+    "expected": "RB-06#s1",
+    "facts": [
+      "responsável técnico",
+      "gestor do serviço"
+    ]
+  },
+  {
+    "id": "root-second-12",
+    "query": "Depois de reverter uma mudança que falhou no teste, quem deve ser informado?",
+    "expected": "RB-06#s2",
+    "facts": [
+      "gestor do serviço",
+      "horário"
+    ]
+  },
+  {
+    "id": "root-second-13",
+    "query": "Para procurar uma cópia de segurança, quais informações peço ao dono do arquivo?",
+    "expected": "RB-07#s1",
+    "facts": [
+      "caminho",
+      "última data"
+    ]
+  },
+  {
+    "id": "root-second-14",
+    "query": "Qual identificação vai na pasta temporária da restauração?",
+    "expected": "RB-07#s2",
+    "facts": [
+      "número do chamado"
+    ]
+  },
+  {
+    "id": "root-second-15",
+    "query": "Ao restaurar o arquivo, quem confere o conteúdo antes de liberar o original?",
+    "expected": "RB-07#s2",
+    "facts": [
+      "dono",
+      "aceite"
+    ]
+  },
+  {
+    "id": "root-second-16",
+    "query": "Estou saindo do plantão; o colega ainda não aceitou. De quem continua a responsabilidade?",
+    "expected": "RB-08#s1",
+    "facts": [
+      "aceite"
+    ]
+  },
+  {
+    "id": "root-second-17",
+    "query": "O usuário confirmou que voltou a funcionar. O que anoto no encerramento do chamado?",
+    "expected": "RB-08#s2",
+    "facts": [
+      "horário",
+      "causa",
+      "ação"
+    ]
+  },
+  {
+    "id": "root-second-18",
+    "query": "Qual é o modelo exato do projetor instalado na SALA-12?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-second-19",
+    "query": "Em quantas páginas mensais a impressora atingiu 15% de toner?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-second-20",
+    "query": "Qual é a operadora mais barata, Ipê ou Cedro?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-second-21",
+    "query": "Qual taxa de disponibilidade mensal é garantida para a internet do campus?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-second-22",
+    "query": "Qual ferramenta faz o monitoramento de vinte em vinte segundos?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-second-23",
+    "query": "Qual é o tamanho máximo de arquivo que posso recuperar do backup?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-second-24",
+    "query": "Por quantos anos a empresa guarda o histórico dos chamados encerrados?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-second-25",
+    "query": "Qual o endereço físico do almoxarifado e seu horário de funcionamento?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-second-26",
+    "query": "Quem é o professor responsável pela sala 12 neste momento?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-second-27",
+    "query": "A retenção do backup é de 14 dias. Qual algoritmo criptografa essas cópias?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-second-28",
+    "query": "Qual o nome do sistema que registra empréstimos e devoluções?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-second-29",
+    "query": "O prazo para confirmar o P2 é 30 minutos; qual é o prazo contratual para solucionar?",
+    "expected": null,
+    "facts": []
+  },
+  {
+    "id": "root-second-30",
+    "query": "Em qual armário está o cabo HDMI e quanto custou a compra dele?",
+    "expected": null,
+    "facts": []
+  }
+]

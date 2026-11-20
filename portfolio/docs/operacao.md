@@ -23,6 +23,6 @@ A demonstração entregue rodou nos SDKs locais. Os recursos de AWS não foram p
 
 ## Exposição e dados
 
-O pátio de demonstração é compartilhado. No perfil OIDC, a escrita e as métricas operacionais exigem o grupo configurado, e o pátio continua legível. Revise essa política antes de introduzir nomes, horários ou volumes reais. O Lastro cria uma mesa por conta ou sessão. O Farol envia ao provedor LLM configurado apenas a pergunta e os documentos candidatos usados no respectivo papel.
+O pátio de demonstração é compartilhado. No perfil OIDC, a leitura exige autenticação; a escrita e as métricas operacionais exigem também o grupo configurado. A autorização expira junto com o ID token ou com o limite de idade configurado, exigindo novo login. A portaria pode usar um `YARD_READER_TOKEN` exclusivo de leitura, mantido apenas nos serviços. O Lastro cria uma mesa por conta ou sessão e vincula cada alteração à mesa que a interface carregou, recusando uma troca de conta feita em outra aba. O Farol envia ao provedor LLM configurado apenas a pergunta e os documentos candidatos usados no respectivo papel.
 
 A fila externa do Farol recebe identificadores opacos. O pedido de remoção no navegador cobre o armazenamento local do Farol. Se uma revisão já foi entregue, a caixa de entrada .NET mantém seu registro próprio. Logs, backups, permissões e prazos dos serviços externos pertencem à implantação que os opera.

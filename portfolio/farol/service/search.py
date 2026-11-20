@@ -4,9 +4,7 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import time
-import unicodedata
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -14,36 +12,9 @@ import httpx
 from scipy.sparse import hstack
 from sklearn.feature_extraction.text import TfidfVectorizer
 from vector_store import VectorStore
+from coverage import normalize, words, supported as passage_supported
 
 DATA = Path(__file__).parent / "data"
-STOP = set(
-    "a o os as que do da das dos de um uma em e na no nos nas para por pelo pela ao aos com qual quais quanto quantas quando quem como se ou me eu posso podemos deve sao e mais meu minha fica sobre la lo las los".split()
-)
-# Operational terms share the same search feature across inflection and wording.
-# This vocabulary contains neither section identifiers nor expected answers.
-TERM_GROUPS = (
-    ("aprovacao", "aprovacoes", "aprova", "aprovar", "aceite", "aceites"),
-    ("planejada", "planejadas", "planejado", "planejados", "programada", "programadas", "programado", "programados"),
-    ("custo", "custos", "custa", "custam", "preco", "precos", "mensalidade", "tarifa", "orcamento"),
-)
-SEARCH_TERM = {variant: group[0] for group in TERM_GROUPS for variant in group}
-CONTACT_FIELD = re.compile(r"\b(nome|contato|telefone|ramal|endereco|e-?mail)\s+d(?:e|os?|as?)\s+([a-z0-9-]+)")
-
-
-def normalize(text: str) -> str:
-    return "".join(
-        c
-        for c in unicodedata.normalize("NFKD", text.lower())
-        if not unicodedata.combining(c)
-    )
-
-
-def words(text: str) -> list[str]:
-    return [
-        SEARCH_TERM.get(w, w)
-        for w in re.findall(r"[a-z0-9]+", normalize(text))
-        if w not in STOP and len(w) > 1
-    ]
 
 
 @dataclass(frozen=True)
@@ -96,15 +67,8 @@ class Index:
             format="csr",
         )
         self.store = VectorStore(vectors, path)
-        self.lexicon = {w for p in text for w in words(p)}
 
     def query(self, query: str, document: str | None = None):
-        # A manual about a device is not itself evidence for a named supplier
-        # or a contact detail. Require both the requested field and its subject.
-        fields = {
-            token for field, subject in CONTACT_FIELD.findall(normalize(query))
-            for token in words(f"{field} {subject}")
-        }
         vector = hstack(
             [
                 self.terms.transform([query]) * (0.48**0.5),
@@ -112,28 +76,19 @@ class Index:
             ],
             format="csr",
         )
-        ranked = self.store.rank(vector, len(self.passages) if document or fields else 3)
-        return [
+        ranked = self.store.rank(vector, len(self.passages))
+        candidates = [
             (score, self.passages[i])
             for i, score in ranked
             if (document is None or self.passages[i].id.split("#")[0] == document)
-            and (not fields or fields.issubset(words(self.passages[i].text)))
-        ][:3]
+        ]
+        # A lower-ranked complete passage beats a highly similar passage lacking
+        # the requested field. Retain unsupported candidates for retrieval traces.
+        candidates.sort(key=lambda hit: passage_supported(query, hit[1], hit[0]), reverse=True)
+        return candidates[:3]
 
     def supported(self, query, hits):
-        tokens = set(words(query))
-        if not hits or not tokens:
-            return False
-        # Proper nouns alone often match the wrong subject. Require lexical support for the remaining question.
-        coverage = len(tokens & self.lexicon) / len(tokens)
-        commercial = {"custo", "valor"}
-        if tokens & commercial and not any(
-            set(words(p.text)) & commercial for _, p in hits[:1]
-        ):
-            return False
-        return hits[0][0] >= 0.112 and (
-            coverage >= 0.48 or hits[0][0] >= 0.30 and len(tokens & self.lexicon) >= 2
-        )
+        return bool(hits and passage_supported(query, hits[0][1], hits[0][0]))
 
 
 def stage(name, start, detail):
@@ -214,6 +169,7 @@ def answer(index: Index, query: str, document=None, *, use_model=True):
     )
     mode = "extrativo"
     if accepted:
+        hits = [(score, passage) for score, passage in hits if passage_supported(query, passage, score)]
         _, p = hits[0]
         quote = p.text
         start = time.perf_counter()
@@ -221,7 +177,7 @@ def answer(index: Index, query: str, document=None, *, use_model=True):
             try:
                 p, quote = select_with_model(query, hits)
                 mode = "seleção por LLM"
-            except (httpx.HTTPError, ValueError, KeyError, IndexError, TypeError):
+            except (httpx.HTTPError, ValueError, KeyError, IndexError, TypeError, AttributeError):
                 mode = "extrativo de contingência"
         evidence = [asdict(p) | {"quote": quote}]
         trace.append(
@@ -258,24 +214,10 @@ def select_with_model(query, hits):
     quote = item["quote"].strip()
     if len(quote) < 20 or quote not in p.text:
         raise ValueError("A citação não corresponde ao documento.")
-    query_text = normalize(query)
-    asks_measure = re.search(
-        r"\b(quant[oa]s?|percentual|intervalo|frequencia|limite|prazo)\b",
-        query_text,
-    )
-    multiple_questions = re.search(
-        r"\be\s+(?:quando|quem|qual|quais|quanto|como|onde|em que|em qual|por quanto)\b",
-        query_text,
-    )
-    # A short answer can retain the wrong number from a section (e.g. the
-    # acknowledgement deadline instead of the update interval). Preserve context.
-    magnitude = r"\b(?:\d+|um|uma|dois|duas|tres|quatro|cinco|seis|sete|oito|nove|dez|quinze|trinta)\s*(?:%|minutos?\b|horas?\b|dias?\b|segundos?\b|falhas?\b|vez(?:es)?\b)"
-    if multiple_questions or (
-        asks_measure and
-        set(re.findall(magnitude, normalize(p.text))) - set(re.findall(magnitude, normalize(quote)))
-    ):
-        quote = p.text
-    return p, quote
+    # The coverage decision applies to the complete passage. A literal fragment
+    # can still omit an essential qualification, a second field, or a negation.
+    # Keep that verified unit intact even when the model proposes a shorter quote.
+    return p, p.text
 
 
 def model_json(instruction, data):
