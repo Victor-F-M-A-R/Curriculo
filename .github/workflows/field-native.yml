@@ -71,16 +71,33 @@ jobs:
       - uses: subosito/flutter-action@v2
         with: { flutter-version: '3.50.0', channel: stable, cache: true }
       - name: Preparar simulador iOS descartável
+        timeout-minutes: 5
         run: |
+          set -euo pipefail
           device=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["udid"] for k,v in d["devices"].items() if "iOS" in k for x in v if "iPhone" in x["name"] and x["isAvailable"]))')
           echo "IOS_QA_DEVICE=$device" >> "$GITHUB_ENV"
           xcrun simctl boot "$device"
           xcrun simctl bootstatus "$device" -b
       - name: Executar Keychain real e cenários de navegação
+        timeout-minutes: 20
         run: |
+          set -euo pipefail
           flutter pub get
-          flutter test integration_test/native_notes_test.dart -d "$IOS_QA_DEVICE" --reporter expanded
-          xcrun simctl io "$IOS_QA_DEVICE" screenshot ios-final.png
+          flutter test integration_test/native_notes_test.dart -d "$IOS_QA_DEVICE" --reporter expanded --verbose 2>&1 | tee ios-integration.log
+      - name: Coletar diagnóstico iOS
+        if: always()
+        timeout-minutes: 2
+        run: |
+          xcrun simctl list devices available > ios-devices.txt
+          if [ -n "${IOS_QA_DEVICE:-}" ]; then
+            xcrun simctl io "$IOS_QA_DEVICE" screenshot ios-final.png || true
+            xcrun simctl spawn "$IOS_QA_DEVICE" log show --last 20m --style compact --predicate 'process == "Runner" OR eventMessage CONTAINS[c] "dev.docanorte.docaField"' > ios-simulator.log 2>&1 || true
+          fi
+          mkdir -p ios-crashes
+          shopt -s nullglob
+          for report in "$HOME"/Library/Logs/DiagnosticReports/Runner*.ips "$HOME"/Library/Logs/DiagnosticReports/Runner*.crash; do
+            cp "$report" ios-crashes/
+          done
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -89,6 +106,10 @@ jobs:
             portfolio/doca-norte/field/pubspec.lock
             portfolio/doca-norte/field/ios/Podfile.lock
             portfolio/doca-norte/field/ios-final.png
+            portfolio/doca-norte/field/ios-integration.log
+            portfolio/doca-norte/field/ios-simulator.log
+            portfolio/doca-norte/field/ios-devices.txt
+            portfolio/doca-norte/field/ios-crashes/
       - name: Encerrar simulador
         if: always()
         run: xcrun simctl shutdown "$IOS_QA_DEVICE" || true

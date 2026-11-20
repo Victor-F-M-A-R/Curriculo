@@ -83,7 +83,7 @@ class StalledLoopback {
       }
       final socket = await request.response.detachSocket(writeHeaders: false);
       sockets.add(socket);
-      unawaited(socket.done.then<void>((_) {}, onError: (Object _, StackTrace __) {}));
+      unawaited(socket.done.then<void>((_) {}, onError: (Object _, StackTrace _) {}));
       void closed() { if (!peerClosed.isCompleted) peerClosed.complete(); }
       socket.listen((_) {}, onDone: closed, onError: (Object _) { closed(); });
       final prefix = utf8.encode('{"sampledAt":');
@@ -233,7 +233,7 @@ void main() {
       final response = request.response;
       response.headers.contentType = ContentType.json;
       response.bufferOutput = false;
-      unawaited(response.done.then<void>((_) {}, onError: (Object _, StackTrace __) {}));
+      unawaited(response.done.then<void>((_) {}, onError: (Object _, StackTrace _) {}));
       try {
         response.add(bytes.sublist(0, 33000));
         await response.flush();

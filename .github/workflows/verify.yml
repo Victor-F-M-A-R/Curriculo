@@ -147,8 +147,9 @@ jobs:
           for service in doca portaria lastro farol rastro inbox; do
             for attempt in 1 2 3; do
               if docker compose -f compose.yaml -f compose.automation.yaml --profile automation build "$service" 2>&1 | tee "/tmp/portfolio-build-$service.log"; then break; fi
-              # Respect registry throttling; do not retry compilation or test failures.
-              if [ "$attempt" = 3 ] || ! grep -q '429\|Too Many Requests' "/tmp/portfolio-build-$service.log"; then exit 1; fi
+              # Retry throttling/transient artifact resolution only; Maven -U rechecks cached misses.
+              # Compilation/test failures still fail immediately, and attempt three always fails closed.
+              if [ "$attempt" = 3 ] || ! grep -Eq '429|Too Many Requests|Could not (find|transfer) artifact' "/tmp/portfolio-build-$service.log"; then exit 1; fi
               sleep "$((30 * attempt))"
             done
           done

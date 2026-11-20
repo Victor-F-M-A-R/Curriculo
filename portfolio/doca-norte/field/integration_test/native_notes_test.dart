@@ -66,14 +66,17 @@ void main() {
       await visible(tester, find.text('Nota sintética persistida no plugin nativo.'));
       // Lifecycle notifications are injected here; physical OS transitions remain a device check.
       binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
       binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
       binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.pumpAndSettle();
       expect(find.text('Nota local · D1'), findsNothing);
       expect(find.text('Nota sintética persistida no plugin nativo.'), findsNothing);
       await tester.tap(find.byTooltip('Nota privada de D1'));
       await visible(tester, find.text('Nota local · D1'));
-      await tester.pageBack();
+      await tester.tap(find.text('Fechar'));
       await tester.pumpAndSettle();
       expect(find.text('Nota local · D1'), findsNothing);
       await tester.pump(const Duration(milliseconds: 300));
