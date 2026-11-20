@@ -107,10 +107,10 @@ jobs:
           done
       - uses: actions/upload-artifact@v4
         if: always()
-        with: { name: farol-evaluations, path: portfolio/.artifacts/farol-*.json, if-no-files-found: ignore }
+        with: { name: farol-evaluations, path: portfolio/.artifacts/farol-*.json, include-hidden-files: true, if-no-files-found: error }
       - uses: actions/upload-artifact@v4
         if: always()
-        with: { name: browser-evidence, path: 'portfolio/.artifacts/browser-*', if-no-files-found: ignore }
+        with: { name: browser-evidence, path: 'portfolio/.artifacts/browser-*', include-hidden-files: true, if-no-files-found: error }
       - uses: actions/upload-artifact@v4
         if: failure()
         with: { name: traces, path: portfolio/tests/test-results, if-no-files-found: ignore }
