@@ -29,6 +29,10 @@ for (const [name, url] of Object.entries(apps)) {
       await expect(page.locator("h1")).toBeVisible();
       if (name === "Rastro") await expect(page.locator("#vehicle-list button").first()).toBeVisible();
       if (name === "Doca") await expect(page.getByLabel("Reservar para")).toBeVisible();
+      if (name === "Lastro") {
+        await expect(page.getByRole("button", { name: /Casa Botânica.*REP-1043/ })).toBeVisible();
+        await expect(page.locator(".summary")).toHaveAttribute("aria-busy", "false");
+      }
       if (name === "Farol") {
         await page.getByLabel("Pergunte aos manuais do campus").fill("Onde fica o cabo HDMI de reserva?");
         await expect(page.getByRole("button", { name: "Consultar", exact: true })).toBeEnabled();

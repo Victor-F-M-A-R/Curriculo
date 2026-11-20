@@ -125,6 +125,9 @@ function App() {
     received = rows.reduce((s, r) => s + (r.received || 0), 0);
   const exception = rows.filter((r) => r.status === "disputed" || r.status === "orphan"),
     amount = exception.reduce((s, r) => s + Math.abs(r.delta), 0);
+  const amountLabel = loaded ? money(amount) : "—";
+  const expectedLabel = loaded ? money(expected) : "—";
+  const receivedLabel = loaded ? money(received) : "—";
   function open(which: "import" | "account") {
     fileRead.current++;
     setReadingFile(false);
@@ -240,7 +243,7 @@ function App() {
             <span className="tag">
               <Scale size={15} /> EM DIVERGÊNCIA ABERTA
             </span>
-            <strong>{loaded ? money(amount) : "—"}</strong>
+            <strong className={amountLabel.length > 12 ? "wide-amount" : undefined}>{amountLabel}</strong>
             <p>
               {loaded
                 ? exception.length + (exception.length === 1 ? " referência para revisar" : " referências para revisar")
@@ -250,11 +253,11 @@ function App() {
           <section className="balances">
             <div>
               <span>Valor previsto</span>
-              <b>{loaded ? money(expected) : "—"}</b>
+              <b className={expectedLabel.length > 12 ? "wide-amount" : undefined}>{expectedLabel}</b>
             </div>
             <div>
               <span>Valor recebido</span>
-              <b>{loaded ? money(received) : "—"}</b>
+              <b className={receivedLabel.length > 12 ? "wide-amount" : undefined}>{receivedLabel}</b>
             </div>
             <div className="strip" role="img" aria-label={loaded
               ? "Distribuição por situação: " + Object.entries(names)

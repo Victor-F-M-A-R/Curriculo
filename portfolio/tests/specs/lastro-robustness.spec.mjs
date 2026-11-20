@@ -55,6 +55,66 @@ test("Lastro · reflow em 320 CSS pixels preserva filtros e ficha sem rolagem ho
   await page.setViewportSize({ width: 320, height: 720 });
   await page.goto(base);
   await expect(page.getByRole("button", { name: /Casa Botânica.*REP-1043/ })).toBeVisible();
+  await expect(page.locator(".row")).toHaveCount(8);
+  await page.evaluate(() => document.fonts.ready);
+  const measureAmounts = () => page.locator(".row").evaluateAll(rows => rows.map(row => {
+    const cell = row.children[1];
+    const range = document.createRange();
+    range.selectNodeContents(cell);
+    const fragments = [...range.getClientRects()];
+    const bounds = cell.getBoundingClientRect();
+    const status = row.children[2].getBoundingClientRect();
+    return {
+      reference: row.querySelector("small").textContent,
+      text: cell.textContent.replace(/\u00a0/g, " "),
+      lines: new Set(fragments.map(rect => Math.round(rect.top))).size,
+      contained: fragments.every(rect => rect.left >= bounds.left - 1 && rect.right <= bounds.right + 1
+        && rect.top >= bounds.top - 1 && rect.bottom <= bounds.bottom + 1),
+      overlapsStatus: fragments.some(rect => rect.left < status.right && rect.right > status.left
+        && rect.top < status.bottom && rect.bottom > status.top),
+    };
+  }));
+  const amounts = await measureAmounts();
+  // These seeded amounts previously wrapped the final cent digit at 320px.
+  expect(amounts.find(row => row.reference === "REP-1042").text).toBe("R$ 3.689,00");
+  expect(amounts.find(row => row.reference === "REP-1046").text).toBe("R$ 5.612,40");
+  for (const amount of amounts) {
+    expect(amount.lines, `${amount.reference}: ${amount.text} must stay on one line`).toBe(1);
+    expect(amount.contained, `${amount.reference}: amount must fit its cell`).toBe(true);
+    expect(amount.overlapsStatus, `${amount.reference}: amount must not overlap its status`).toBe(false);
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  const session = await (await page.request.get(base + "/api/session")).json();
+  // The CSV contract permits nine integer digits and two cents: test its actual upper limit.
+  expect((await page.request.post(base + "/api/book/import", {
+    headers: { ...headers, "X-Lastro-Workspace": session.workspace },
+    data: { csv: "referencia;data;recebido\nMAX-320;2026-11-20;999999999,99" },
+  })).status()).toBe(200);
+  await page.reload();
+  await expect(page.getByRole("button", { name: /MAX-320/ })).toBeVisible();
+  await page.evaluate(() => document.fonts.ready);
+  const maximum = (await measureAmounts()).find(row => row.reference === "MAX-320");
+  expect(maximum.text).toBe("R$ 999.999.999,99");
+  expect(maximum.lines).toBe(1);
+  expect(maximum.contained).toBe(true);
+  expect(maximum.overlapsStatus).toBe(false);
+  const summaryFits = await page.locator(".exposure strong, .balances b").evaluateAll(values => values.map(value => {
+    const range = document.createRange();
+    range.selectNodeContents(value);
+    const container = value.parentElement;
+    const bounds = container.getBoundingClientRect();
+    const style = getComputedStyle(container);
+    const left = bounds.left + parseFloat(style.paddingLeft);
+    const right = bounds.right - parseFloat(style.paddingRight);
+    const fragments = [...range.getClientRects()];
+    return { text: value.textContent,
+      fits: fragments.every(rect => rect.left >= left - 1 && rect.right <= right + 1),
+      lines: new Set(fragments.map(rect => Math.round(rect.top))).size };
+  }));
+  for (const value of summaryFits) {
+    expect(value.fits, `${value.text}: summary amount must not be clipped or overlap its neighbour`).toBe(true);
+    expect(value.lines, `${value.text}: summary amount must remain intact`).toBe(1);
+  }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.getByRole("button", { name: /Casa Botânica.*REP-1043/ }).click();
   await expect(page.locator("#entry-merchant")).toBeFocused();

@@ -197,6 +197,9 @@ dl {
   position: relative;
   z-index: 1;
 }
+.exposure strong.wide-amount {
+  font-size: clamp(24px, 3vw, 40px);
+}
 .exposure p {
   font-size: 13px;
   margin-top: 6px;
@@ -205,7 +208,7 @@ dl {
 .balances {
   padding: 20px clamp(18px, 3vw, 40px);
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
   align-content: center;
   gap: 8px 20px;
 }
@@ -217,6 +220,9 @@ dl {
 .balances b {
   font: 400 clamp(23px, 2.5vw, 40px)/1.1 var(--serif);
   white-space: nowrap;
+}
+.balances b.wide-amount {
+  font-size: 23px;
 }
 .strip,
 .strip-legend {
@@ -339,6 +345,7 @@ form textarea {
 .row > span:nth-child(2) {
   font-variant-numeric: tabular-nums;
   font-size: 14px;
+  white-space: nowrap;
 }
 .badge {
   font: 600 11px "DM Sans";
@@ -537,7 +544,15 @@ dialog .dark {
   }
   .row,
   .thead {
-    grid-template-columns: 1.2fr 0.9fr 0.8fr;
+    grid-template-columns: minmax(0, 1fr) max-content;
+  }
+  .row > span:first-child,
+  .thead > span:first-child {
+    grid-column: 1 / -1;
+  }
+  .row > span:last-child,
+  .thead > span:last-child {
+    justify-self: end;
   }
   .balances {
     padding: 16px;
