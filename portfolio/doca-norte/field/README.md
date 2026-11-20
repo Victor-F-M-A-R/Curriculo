@@ -1,12 +1,30 @@
 # Doca Norte · Campo
 
-O aplicativo lê a portaria, mostra as seis docas e permite registrar uma nota local por posição em Android ou iOS. O protocolo de leitura e o estado da interface têm testes independentes. A tela mostra a hora em que o aparelho recebeu a última lista confirmada. Depois de vinte segundos ela passa a indicar leitura antiga. Use o botão de atualização ou arraste a lista para consultar a portaria. Uma falha mantém as posições conhecidas e apresenta a indicação de indisponibilidade.
+O aplicativo lê a portaria, mostra as seis docas e permite registrar uma nota local por posição em Android ou iOS. A tela preserva `sampledAt`, o instante UTC em que o pátio produziu a leitura. O limite de doze segundos conta desde essa origem; receber novamente a mesma resposta não renova sua validade. Uma falha de conexão mantém as posições conhecidas com aviso. Perder autorização (401/403) remove os dados anteriores da tela.
+
+O contrato exige seis IDs distintos D1–D6, textos e estados válidos, transportadora coerente com o estado, `stale` booleano e horário ISO com fuso. Rejeita datas impossíveis, leituras antigas e relógio mais de cinco segundos no futuro. O corpo tem limite de 64 KiB, inclusive quando o tamanho declarado está ausente ou incorreto. O prazo total de oito segundos aciona o cancelamento de `AbortableRequest`, incluindo a leitura do corpo. Pausar o aplicativo cancela o pedido; uma resposta anterior não substitui a nova leitura ao voltar.
 
 1. Inicie o pátio e a portaria. Instale Flutter 3.50.0 com Dart 3.14.
 2. Nesta pasta execute `flutter pub get`, `flutter analyze` e `flutter test`.
 3. No emulador Android, execute `flutter run --dart-define=YARD_API=http://10.0.2.2:8085`. A rede sem TLS serve ao build debug. Um aparelho físico precisa de um endpoint acessível a ele. O host padrão do Compose publica em loopback.
 4. Para distribuir, configure `--dart-define=YARD_API=https://sua-portaria` e as credenciais de assinatura do projeto. Em Android, a configuração padrão de desenvolvimento usa a chave de depuração. No iOS, selecione sua equipe no Xcode e valide o acesso ao Keychain.
 
-`local_auth` solicita a biometria antes da leitura da nota. `flutter_secure_storage` guarda o conteúdo no aparelho. O app fecha uma nota visível ao ir para segundo plano. O cancelamento e a falta de biometria mantêm a nota fechada. O build web oferece a leitura da portaria. Para servir web e API em origens diferentes, use um proxy de mesma origem ou configure CORS com a origem específica.
+`NotesBoundary` separa a autorização e o armazenamento da interface. Sua implementação nativa usa `local_auth` antes de consultar `flutter_secure_storage`. O cancelamento e a falta de inscrição não leem a nota. Ir para segundo plano invalida autenticações e leituras pendentes, fecha o diálogo e não o reabre no retorno. Um diálogo ou leitura já autorizada também é encerrado ao perder atividade. Se salvar falhar, o rascunho permanece no diálogo para tentar novamente; a mensagem de sucesso aparece somente após a confirmação do armazenamento.
 
-A suíte de quatro testes cobre a leitura REST, a apresentação das docas, a recuperação de falha e o envelhecimento da última leitura no aparelho. O [workflow de verificação](../../../.github/workflows/verify.yml) também executa análise estática e compila o Flutter Web de distribuição. Reconhecimento biométrico, desempenho no telefone e assinatura de distribuição precisam de ensaio em aparelho real.
+Android exige SDK 24 ou superior, `FlutterFragmentActivity`, tema AppCompat e permissão biométrica. O backup automático está desativado. iOS já declara o uso de Face ID e inclui os entitlements de Keychain nos três perfis de build. Essas configurações seguem as instruções de [local_auth](https://pub.dev/packages/local_auth) e [flutter_secure_storage 10.3.4](https://pub.dev/packages/flutter_secure_storage/versions/10.3.4). Não constituem prova de reconhecimento biométrico nem de assinatura de distribuição.
+
+O build web oferece apenas a leitura da portaria. Para servir web e API em origens diferentes, use proxy de mesma origem ou configure CORS com a origem específica.
+
+## Testes e limites da evidência
+
+`flutter test` exercita contrato REST, limites, cancelamento, origem e expiração, recuperação, autorização perdida e respostas fora de ordem. Os testes de widgets usam **biometria e armazenamento simulados**, incluindo cancelamento, ausência de inscrição, erros e retorno do segundo plano.
+
+Em um emulador Android limpo, sem biometria cadastrada:
+
+```sh
+flutter test integration_test/native_notes_test.dart -d emulator-5554
+```
+
+O primeiro cenário chama o plugin nativo e verifica ausência de biometria sem abrir uma nota. O segundo grava e relê pelo armazenamento seguro real, mas **simula autorização biométrica** para exercitar o formulário e o retorno; usa uma chave sintética isolada e a remove ao terminar. As notificações de ciclo de vida desse teste são injetadas. Reconhecimento real, captura pelo seletor de aplicativos, transições físicas do sistema, iOS e desempenho em aparelho continuam exigindo ensaio próprio. A suíte não afirma ter testado esses comportamentos físicos.
+
+O [workflow de verificação](../../../.github/workflows/verify.yml) contém os comandos executáveis. Resultados só devem ser atribuídos à revisão que efetivamente concluiu seus jobs.

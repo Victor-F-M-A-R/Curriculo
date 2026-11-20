@@ -1,0 +1,84 @@
+name: Verificar aplicativo em Android e iOS
+on:
+  push:
+    paths: ['portfolio/doca-norte/field/**', '.github/workflows/field-native.yml']
+  pull_request:
+    paths: ['portfolio/doca-norte/field/**', '.github/workflows/field-native.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+defaults:
+  run:
+    working-directory: portfolio/doca-norte/field
+jobs:
+  android:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: subosito/flutter-action@v2
+        with: { flutter-version: '3.50.0', channel: stable, cache: true }
+      - name: Preparar emulador Android descartável
+        timeout-minutes: 12
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'system-images;android-35;google_apis;x86_64'
+          printf 'no\n' | "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n portfolio_qa -k 'system-images;android-35;google_apis;x86_64' --device pixel_6
+          sudo setfacl -m "u:$(id -un):rw" /dev/kvm
+          "$ANDROID_HOME/emulator/emulator" -avd portfolio_qa -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -cores 2 -memory 2048 > emulator.log 2>&1 &
+          for attempt in {1..120}; do
+            if [ "$(adb -s emulator-5554 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ]; then break; fi
+            sleep 3
+          done
+          test "$(adb -s emulator-5554 shell getprop sys.boot_completed | tr -d '\r')" = 1
+          adb -s emulator-5554 shell input keyevent 82
+      - name: Executar plugins reais e cenários de navegação
+        run: |
+          flutter pub get
+          flutter test integration_test/native_notes_test.dart -d emulator-5554 --reporter expanded
+          adb -s emulator-5554 exec-out screencap -p > android-final.png
+      - name: Coletar diagnóstico Android
+        if: always()
+        run: adb -s emulator-5554 logcat -d -t 1000 > android-logcat.txt || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: field-android
+          path: |
+            portfolio/doca-norte/field/pubspec.lock
+            portfolio/doca-norte/field/emulator.log
+            portfolio/doca-norte/field/android-logcat.txt
+            portfolio/doca-norte/field/android-final.png
+      - name: Encerrar emulador
+        if: always()
+        run: adb -s emulator-5554 emu kill || true
+  ios:
+    runs-on: macos-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { flutter-version: '3.50.0', channel: stable, cache: true }
+      - name: Preparar simulador iOS descartável
+        run: |
+          device=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["udid"] for k,v in d["devices"].items() if "iOS" in k for x in v if "iPhone" in x["name"] and x["isAvailable"]))')
+          echo "IOS_QA_DEVICE=$device" >> "$GITHUB_ENV"
+          xcrun simctl boot "$device"
+          xcrun simctl bootstatus "$device" -b
+      - name: Executar Keychain real e cenários de navegação
+        run: |
+          flutter pub get
+          flutter test integration_test/native_notes_test.dart -d "$IOS_QA_DEVICE" --reporter expanded
+          xcrun simctl io "$IOS_QA_DEVICE" screenshot ios-final.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: field-ios
+          path: |
+            portfolio/doca-norte/field/pubspec.lock
+            portfolio/doca-norte/field/ios/Podfile.lock
+            portfolio/doca-norte/field/ios-final.png
+      - name: Encerrar simulador
+        if: always()
+        run: xcrun simctl shutdown "$IOS_QA_DEVICE" || true
