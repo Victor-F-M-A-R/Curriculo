@@ -48,7 +48,40 @@ class OidcRolesTest {
   @MockitoBean Yard yard;
 
   private RequestPostProcessor memberOf(String group) {
-    return oidcLogin().idToken(token -> token.claim("sub", "turno-A").claim("groups", List.of(group)));
+    return oidcLogin().idToken(token -> token.claim("sub", "turno-A").claim("groups", List.of(group))
+      .issuedAt(java.time.Instant.now().minusSeconds(1)).expiresAt(java.time.Instant.now().plusSeconds(300)));
+  }
+
+  @Test
+  void expiredIdentityCannotKeepItsWritePermission() throws Exception {
+    var expired = oidcLogin().idToken(token -> token.subject("expired-operator")
+      .claim("groups", List.of("yard-operators"))
+      .issuedAt(java.time.Instant.now().minusSeconds(600)).expiresAt(java.time.Instant.now().minusSeconds(1)));
+    mvc.perform(get("/api/session").with(expired)).andExpect(status().isOk())
+      .andExpect(jsonPath("$.canWrite").value(false));
+    mvc.perform(post("/api/docks/D1/moves").with(expired).with(csrf())
+      .header("Idempotency-Key", UUID.randomUUID()).contentType("application/json")
+      .content("{\"action\":\"book\",\"carrier\":\"Denied\",\"expectedVersion\":0}"))
+      .andExpect(status().isForbidden());
+    verifyNoInteractions(yard);
+  }
+
+  @Test
+  void oldRolesRequireReauthenticationEvenWithLongLivedToken() throws Exception {
+    var old = oidcLogin().idToken(token -> token.subject("operator")
+      .claim("groups", List.of("yard-operators"))
+      .issuedAt(java.time.Instant.now().minusSeconds(601)).expiresAt(java.time.Instant.now().plusSeconds(3600)));
+    mvc.perform(get("/api/session").with(old)).andExpect(status().isOk())
+      .andExpect(jsonPath("$.canWrite").value(false));
+    verifyNoInteractions(yard);
+  }
+
+  @Test
+  void operationalDataRequiresIdentityInFederatedMode() throws Exception {
+    mvc.perform(get("/api/yard")).andExpect(status().isUnauthorized());
+    verifyNoInteractions(yard);
+    mvc.perform(get("/api/yard").with(memberOf("yard-readers"))).andExpect(status().isOk());
+    verify(yard).snapshot();
   }
 
   @Test
