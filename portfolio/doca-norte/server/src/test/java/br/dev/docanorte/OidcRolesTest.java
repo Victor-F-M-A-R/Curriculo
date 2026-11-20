@@ -23,7 +23,8 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 @WebMvcTest(value = YardController.class, properties = {
   "OIDC_CLIENT_ID=yard-test", "OIDC_CLIENT_SECRET=local-fixture",
-  "OIDC_ISSUER=https://identity.example.test", "yard.operator-group=yard-operators"
+  "OIDC_ISSUER=https://identity.example.test", "yard.operator-group=yard-operators",
+  "yard.reader-token=reader-fixture-for-internal-qa-only"
 })
 @ActiveProfiles("oidc")
 @Import({Access.class, OidcRolesTest.TestClient.class})
@@ -82,6 +83,20 @@ class OidcRolesTest {
     verifyNoInteractions(yard);
     mvc.perform(get("/api/yard").with(memberOf("yard-readers"))).andExpect(status().isOk());
     verify(yard).snapshot();
+  }
+
+  @Test
+  void portariaTokenReadsButCannotGrantWritePrivileges() throws Exception {
+    mvc.perform(get("/api/yard").header("X-Yard-Reader", "invalid")).andExpect(status().isUnauthorized());
+    mvc.perform(get("/api/yard").header("X-Yard-Reader", "reader-fixture-for-internal-qa-only"))
+      .andExpect(status().isOk());
+    mvc.perform(post("/api/docks/D1/moves").with(csrf())
+      .header("X-Yard-Reader", "reader-fixture-for-internal-qa-only")
+      .header("Idempotency-Key", UUID.randomUUID()).contentType("application/json")
+      .content("{\"action\":\"book\",\"carrier\":\"Denied\",\"expectedVersion\":0}"))
+      .andExpect(status().isForbidden());
+    verify(yard).snapshot();
+    verifyNoMoreInteractions(yard);
   }
 
   @Test

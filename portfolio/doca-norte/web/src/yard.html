@@ -27,6 +27,10 @@
       </div>
     </div>
   </section>
+  @if(session()?.federated && !session()?.authenticated){
+  <p class="read-warning" role="status">Entre novamente para consultar o pátio e renovar suas permissões.
+    <a href="/oauth2/authorization/yard">Entrar</a></p>
+  }
   @if(freshness()==='stale' || freshness()==='unavailable'){
   <p class="read-warning">@if(lastRead()){Exibindo a última leitura confirmada. As operações voltam após a atualização.}
   @else {A conexão com o pátio falhou. Use “Atualizar leitura” para tentar novamente.}</p>

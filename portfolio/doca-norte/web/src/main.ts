@@ -7,7 +7,7 @@ import { bootstrapApplication } from "@angular/platform-browser";
 import { HttpClient, provideHttpClient, HttpErrorResponse } from "@angular/common/http";
 import { firstValueFrom, timer } from "rxjs";
 import { mountYard } from "./yard.js";
-import { Action, Dock, Snapshot, Session, statusNames, actionNames } from "./model";
+import { Action, Dock, Snapshot, Session, statusNames, actionNames, validSnapshot, validSession } from "./model";
 
 const pollInterval = 10_000;
 const readLifetime = 20_000;
@@ -65,7 +65,7 @@ class YardPage implements AfterViewInit, OnDestroy {
 
   refresh() {
     if (this.busy() || this.reading()) return;
-    if (!this.session()) void this.loadSession();
+    void this.loadSession();
     void this.readBoard();
   }
 
@@ -75,6 +75,8 @@ class YardPage implements AfterViewInit, OnDestroy {
     try {
       const value = await firstValueFrom(this.api.get<Session>("/api/session", { timeout: 8000 })
         .pipe(takeUntilDestroyed(this.destroyRef)));
+      if (!validSession(value)) throw new Error("Sessão inválida");
+      if (this.destroyRef.destroyed) return;
       this.session.set(value);
       this.sessionProblem.set(false);
     } catch {
@@ -103,14 +105,24 @@ class YardPage implements AfterViewInit, OnDestroy {
       const value = await firstValueFrom(this.api.get<Snapshot>("/api/yard", { timeout: 8000 })
         .pipe(takeUntilDestroyed(this.destroyRef)));
       if (request !== this.readNumber || this.destroyRef.destroyed) return;
+      if (!validSnapshot(value)) throw new Error("Leitura inválida ou antiga");
       this.data.set(value);
       this.model?.update(value.docks, this.selected());
       const received = new Date();
-      this.lastRead.set(received);
+      this.lastRead.set(new Date(value.sampledAt!));
       this.now.set(received.getTime());
       this.readFailed.set(false);
-    } catch {
-      if (request === this.readNumber && !this.destroyRef.destroyed) this.readFailed.set(true);
+    } catch (reason) {
+      if (request === this.readNumber && !this.destroyRef.destroyed) {
+        this.readFailed.set(true);
+        if (reason instanceof HttpErrorResponse && [401, 403].includes(reason.status)) {
+          this.data.set({ docks: [], moves: [] });
+          this.model?.update([], this.selected());
+          this.lastRead.set(null);
+          this.session.set(null);
+          void this.loadSession();
+        }
+      }
     } finally {
       if (request === this.readNumber && !this.destroyRef.destroyed) this.reading.set(false);
     }
@@ -149,7 +161,7 @@ class YardPage implements AfterViewInit, OnDestroy {
       if (this.destroyRef.destroyed) return;
       const failure = reason as HttpErrorResponse;
       this.error.set(failure.error?.detail || "Não foi possível confirmar o movimento. Confira a última leitura antes de tentar novamente.");
-      if (failure.status === 403) {
+      if ([401, 403].includes(failure.status)) {
         this.session.set(null);
         await this.loadSession();
       }

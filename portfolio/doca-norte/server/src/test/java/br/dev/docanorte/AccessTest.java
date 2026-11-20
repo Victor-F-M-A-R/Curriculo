@@ -19,6 +19,10 @@ class AccessTest {
     var auth = mock(Authentication.class);
     var principal = mock(OidcUser.class);
     when(auth.getPrincipal()).thenReturn(principal);
+    when(auth.isAuthenticated()).thenReturn(true);
+    when(principal.getSubject()).thenReturn("operator");
+    when(principal.getIdToken()).thenReturn(new org.springframework.security.oauth2.core.oidc.OidcIdToken(
+      "fixture", java.time.Instant.now().minusSeconds(1), java.time.Instant.now().plusSeconds(300), java.util.Map.of("sub", "operator")));
     assertThat(policy.mayWrite(null)).isFalse();
     when(principal.getClaimAsStringList("groups")).thenReturn(
       List.of("reader")

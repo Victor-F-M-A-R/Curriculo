@@ -45,7 +45,7 @@ public class Yard {
     Instant at
   ) {}
 
-  public record Snapshot(List<Dock> docks, List<Move> moves) {}
+  public record Snapshot(List<Dock> docks, List<Move> moves, Instant sampledAt) {}
 
   private record Recorded(
     String action,
@@ -76,6 +76,7 @@ public class Yard {
 
   @Transactional(
     readOnly = true,
+    timeout = 5,
     isolation = org.springframework.transaction.annotation.Isolation.REPEATABLE_READ
   )
   public Snapshot snapshot() {
@@ -92,10 +93,10 @@ public class Yard {
           r.getObject("occurred_at", OffsetDateTime.class).toInstant()
         )
     );
-    return new Snapshot(docks, moves);
+    return new Snapshot(docks, moves, Instant.now());
   }
 
-  @Transactional
+  @Transactional(timeout = 5)
   public Dock apply(String id, UUID key, Command cmd, String actor) {
     var docks = db.query(
       "select * from dock where id=? for update",
@@ -113,6 +114,7 @@ public class Yard {
       action == null ||
       !List.of("book", "start", "release", "cancel").contains(action) ||
       carrier.length() > 50 ||
+      carrier.codePoints().anyMatch(Character::isISOControl) ||
       ("book".equals(action) && carrier.isBlank()) ||
       (!"book".equals(action) && !carrier.isBlank()) ||
       cmd.expectedVersion() < 0

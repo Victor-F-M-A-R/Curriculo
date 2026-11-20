@@ -2,13 +2,14 @@ import { test, expect } from "@playwright/test";
 
 const doca = process.env.DOCA_URL ?? "http://127.0.0.1:8081";
 const free = {
-  docks: [{ id: "D1", name: "Doca 01", cargo: "Seca", status: "free", carrier: "", version: 0 }],
+  docks: Array.from({ length: 6 }, (_, i) => ({ id: `D${i + 1}`, name: `Doca 0${i + 1}`, cargo: "Seca", status: "free", carrier: "", version: 0 })),
   moves: [],
 };
 const booked = {
-  docks: [{ ...free.docks[0], status: "booked", carrier: "Transportes Aurora", version: 1 }],
+  docks: [{ ...free.docks[0], status: "booked", carrier: "Transportes Aurora", version: 1 }, ...free.docks.slice(1)],
   moves: [],
 };
+const fresh = board => ({ ...board, sampledAt: new Date().toISOString() });
 
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/session", route => route.fulfill({ json: {
@@ -24,7 +25,7 @@ test("Doca · conflito e falha preservam a hora confirmada e bloqueiam movimento
   let commands = 0;
   await page.route("**/api/yard", route => unavailable
     ? route.fulfill({ status: 503, json: { detail: "Leitura indisponível" } })
-    : route.fulfill({ json: board }));
+    : route.fulfill({ json: fresh(board) }));
   await page.route("**/api/docks/D1/moves", route => {
     commands++;
     unavailable = true;
@@ -66,10 +67,10 @@ test("Doca · um poll iniciado antes da reserva não desfaz a nova leitura confi
       held = false;
       sawRead();
       await holdRead;
-      await route.fulfill({ json: free, headers: { "x-doca-fixture": "previous-read" } });
+      await route.fulfill({ json: fresh(free), headers: { "x-doca-fixture": "previous-read" } });
       return;
     }
-    await route.fulfill({ json: board });
+    await route.fulfill({ json: fresh(board) });
   });
   await page.route("**/api/docks/D1/moves", route => {
     board = booked;

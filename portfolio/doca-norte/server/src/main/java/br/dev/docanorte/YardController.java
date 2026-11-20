@@ -6,6 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.dao.DataAccessException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.transaction.TransactionException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -22,7 +25,8 @@ class YardController {
   }
 
   @GetMapping("/yard")
-  Yard.Snapshot snapshot() {
+  Yard.Snapshot snapshot(Authentication auth, @RequestHeader(value = "X-Yard-Reader", required = false) String reader) {
+    if (!access.mayRead(auth, reader)) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Entre novamente para consultar o pátio.");
     return yard.snapshot();
   }
 
@@ -35,6 +39,8 @@ class YardController {
       access.mayWrite(auth),
       "federated",
       access.federated(),
+      "authenticated",
+      access.currentIdentity(auth),
       "csrfHeader",
       csrf.getHeaderName(),
       "csrf",
@@ -61,5 +67,21 @@ class YardController {
     return ResponseEntity.status(error.getStatusCode()).body(
       Map.of("detail", error.getReason())
     );
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  ResponseEntity<?> invalidJson(HttpMessageNotReadableException error) {
+    for (Throwable cause = error; cause != null; cause = cause.getCause()) {
+      if (cause instanceof RequestPolicy.PayloadTooLarge)
+        return ResponseEntity.status(413).body(Map.of("detail", "O comando excede o limite de 16 KiB."));
+    }
+    return ResponseEntity.badRequest().body(Map.of("detail", "Comando JSON inválido. Confira os campos e seus tipos."));
+  }
+
+  @ExceptionHandler({DataAccessException.class, TransactionException.class})
+  ResponseEntity<?> storageUnavailable(RuntimeException error) {
+    org.slf4j.LoggerFactory.getLogger(YardController.class).warn("Persistência temporariamente indisponível: {}", error.getClass().getSimpleName());
+    return ResponseEntity.status(503).header("Retry-After", "2")
+      .body(Map.of("detail", "Não foi possível confirmar a operação. Atualize o pátio e repita com a mesma identificação se necessário."));
   }
 }
