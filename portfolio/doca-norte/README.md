@@ -40,7 +40,7 @@ A requisição deve informar a versão vista pelo operador, inclusive quando ela
 
 O painel consulta o pátio a cada dez segundos. Uma falha de leitura, ou mais de vinte segundos sem confirmação, marca o quadro como desatualizado. As últimas posições continuam visíveis para referência. Uma leitura iniciada antes de um comando não substitui a resposta que confirma a decisão. Em um conflito, o navegador apresenta o motivo e aguarda dados confirmados antes de liberar outra alteração.
 
-A portaria consulta a API central e conserva a última leitura em memória. Após 12 segundos sinaliza defasagem. Após 120 segundos retorna 503. O cliente Flutter marca falha de atualização e permite tentar novamente. O modelo no navegador usa projeção axonométrica de geometria 3D desenhada em Canvas 2D, seleção por teclado e giro de câmera.
+A portaria consulta a API central e conserva a última leitura em memória durante falhas temporárias. Acima de 12 segundos sinaliza defasagem; acima de 120 segundos retorna 503, sem arredondar frações de segundo. Uma resposta 401/403 da origem apaga o cache e é propagada até chegar uma nova leitura válida. O cliente Flutter distingue perda de autorização de falha de atualização e permite tentar novamente. O modelo no navegador usa projeção axonométrica de geometria 3D desenhada em Canvas 2D, seleção por teclado e giro de câmera.
 
 ## Executar com SDKs
 

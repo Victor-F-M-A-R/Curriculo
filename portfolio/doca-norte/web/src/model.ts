@@ -9,7 +9,7 @@ export interface Dock {
   version: number;
 }
 export interface Movement {
-  dockVersion?: number;
+  dockVersion: number;
   dockId: string;
   action: Action;
   carrier: string;
@@ -63,12 +63,10 @@ export function validSnapshot(value: unknown): value is Snapshot {
   const versions = new Set<string>();
   return board.moves.every(move => {
     if (!move || typeof move.dockId !== "string" || !/^D[1-6]$/.test(move.dockId)
-      || (move.dockVersion !== undefined && (!Number.isSafeInteger(move.dockVersion) || move.dockVersion < 1))) return false;
-    if (move.dockVersion !== undefined) {
-      const key = move.dockId + "/" + move.dockVersion;
-      if (versions.has(key)) return false;
-      versions.add(key);
-    }
+      || !Number.isSafeInteger(move.dockVersion) || move.dockVersion < 1) return false;
+    const key = move.dockId + "/" + move.dockVersion;
+    if (versions.has(key)) return false;
+    versions.add(key);
     return ["book", "start", "release", "cancel"].includes(move.action)
       && typeof move.carrier === "string" && move.carrier.length <= 50
       && typeof move.actor === "string" && move.actor.length <= 255

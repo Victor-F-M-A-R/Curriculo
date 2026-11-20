@@ -118,7 +118,7 @@
       <h2>Livro de movimentos</h2>
       <span>{{data().moves.length}} RECENTES</span>
     </div>
-    @for(m of data().moves;track m.dockId + '/' + (m.dockVersion ?? m.at + m.action)){
+    @for(m of data().moves;track m.dockId + '/' + m.dockVersion){
     <div class="entry">
       <time [attr.datetime]="m.at">{{m.at.slice(11,19) + ' UTC'}}</time><b>{{m.dockId}}</b><span>{{actions[m.action]}}</span
       ><span>{{m.carrier}}</span>

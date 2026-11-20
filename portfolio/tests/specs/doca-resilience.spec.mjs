@@ -18,8 +18,10 @@ test("Doca · contrato inválido e data antiga não substituem a última leitura
   for (const invalid of [{ docks: [], moves: [] }, { ...board(), sampledAt: new Date(Date.now() - 120000).toISOString() },
     { ...board(), sampledAt: new Date(Date.now() + 60000).toISOString() },
     { ...board(), sampledAt: new Date().toString() },
-    { ...board(), moves: [{ dockId: "D1", action: "book", carrier: "Teste", actor: "operador", at: 2030 }] },
-    { ...board(), moves: [{ dockId: "D1", action: "book", carrier: "Teste", actor: "operador", at: "2026-02-30T12:00:00Z" }] }]) {
+    { ...board(), moves: [{ dockId: "D1", dockVersion: 1, action: "book", carrier: "Teste", actor: "operador", at: 2030 }] },
+    { ...board(), moves: [{ dockId: "D1", dockVersion: 1, action: "book", carrier: "Teste", actor: "operador", at: "2026-02-30T12:00:00Z" }] },
+    { ...board(), moves: [{ dockId: "D1", action: "book", carrier: "Teste", actor: "operador", at: new Date().toISOString() }] },
+    { ...board(), moves: Array.from({ length: 2 }, () => ({ dockId: "D1", dockVersion: 1, action: "book", carrier: "Teste", actor: "operador", at: new Date().toISOString() })) }]) {
     payload = invalid;
     await page.getByRole("button", { name: "Atualizar leitura" }).click();
     await expect(quality).toHaveText("Desatualizada");
