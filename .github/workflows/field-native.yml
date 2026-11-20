@@ -1,9 +1,9 @@
 name: Verificar aplicativo em Android e iOS
 on:
   push:
-    paths: ['portfolio/doca-norte/field/**', '.github/workflows/field-native.yml']
+    paths: ['portfolio/doca-norte/field/**', '.github/workflows/field-native.yml', '.github/patches/flutter/**']
   pull_request:
-    paths: ['portfolio/doca-norte/field/**', '.github/workflows/field-native.yml']
+    paths: ['portfolio/doca-norte/field/**', '.github/workflows/field-native.yml', '.github/patches/flutter/**']
   workflow_dispatch:
 permissions:
   contents: read
@@ -69,7 +69,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
-        with: { flutter-version: '3.50.0', channel: stable, cache: true }
+        with: { flutter-version: '3.50.0', channel: stable, cache: false }
+      - name: Aplicar correção upstream do leitor de logs iOS
+        timeout-minutes: 5
+        run: |
+          set -euo pipefail
+          sdk_root=$(cd "${FLUTTER_ROOT:?Flutter SDK ausente}" && pwd -P)
+          tool_cache_root=$(cd "${RUNNER_TOOL_CACHE:?Tool cache ausente}" && pwd -P)
+          case "$sdk_root" in
+            "$tool_cache_root"/*) ;;
+            *) echo 'SDK fora do diretório descartável esperado'; exit 1 ;;
+          esac
+          patch_file="$GITHUB_WORKSPACE/.github/patches/flutter/ios-log-ready-c3ed85e.patch"
+          source_file="$sdk_root/packages/flutter_tools/lib/src/ios/simulators.dart"
+          printf '%s  %s\n' 'd63955f376ee528b06293f29e6b9a5fcc5b4c0c96b141bf93cf408dc2ccfb67b' "$patch_file" | shasum -a 256 -c -
+          printf '%s  %s\n' '8fd87b3480cd84dbed924eb1e067b04466e53282cea5959dc7e17895ab3a4a55' "$source_file" | shasum -a 256 -c -
+          git -C "$sdk_root" apply --check "$patch_file"
+          git -C "$sdk_root" apply "$patch_file"
+          git -C "$sdk_root" diff --stat -- packages/flutter_tools/lib/src/ios/simulators.dart
+          # Flutter's launcher caches the CLI by revision, not by Dart source mtime.
+          rm -f -- "$sdk_root/bin/cache/flutter_tools.stamp"
+          "$sdk_root/bin/flutter" --version
       - name: Preparar simulador iOS descartável
         timeout-minutes: 5
         run: |

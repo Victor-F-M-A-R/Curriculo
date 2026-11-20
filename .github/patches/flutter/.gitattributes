@@ -1,0 +1,4 @@
+# Unified diff context prefixes are part of the checksum-verified patch.
+*.patch text eol=lf -whitespace
+LICENSE text eol=lf
+README.md text eol=lf
