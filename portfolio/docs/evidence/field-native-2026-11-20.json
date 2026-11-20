@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-20",
+  "scope": "Doca Norte Campo: Flutter checks and native integration with synthetic notes",
+  "code_commit": "df01e9e069cf562cd44b2eb3e775e687673c9a18",
+  "flutter_version": "3.50.0",
+  "execution": "GitHub Actions; no physical devices",
+  "native": {
+    "run_id": 44683163868,
+    "conclusion": "success",
+    "platforms": [
+      {
+        "platform": "Android emulator",
+        "job_id": 136111124553,
+        "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44683163868/job/136111124553",
+        "conclusion": "success",
+        "passed": 2,
+        "failed": 0,
+        "artifact_id": 14605289022
+      },
+      {
+        "platform": "iOS simulator",
+        "job_id": 136111124218,
+        "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44683163868/job/136111124218",
+        "conclusion": "success",
+        "passed": 2,
+        "failed": 0,
+        "artifact_id": 14605642040
+      }
+    ],
+    "test_modes": {
+      "unenrolled_biometrics": "Real local_auth plugin reports no enrollment; note dialog stays closed",
+      "note_persistence": "Real flutter_secure_storage writes and reads; biometric authorization is simulated",
+      "lifecycle": "Injected Flutter lifecycle notifications; note closes and does not reopen automatically",
+      "navigation": "Real dialog Close button exercised",
+      "data": "Unique synthetic storage key removed in test cleanup"
+    }
+  },
+  "flutter_checks": {
+    "run_id": 44683163828,
+    "job_id": 136111220288,
+    "url": "https://github.com/Victor-F-M-A-R/Curriculo/actions/runs/44683163828/job/136111220288",
+    "conclusion": "success",
+    "analyze": { "conclusion": "success", "issues": 0 },
+    "tests": { "passed": 26, "failed": 0, "api": 14, "widgets": 12, "real_http_subset": 4 },
+    "web_build": "success",
+    "test_modes": {
+      "widgets": "Biometric authorization and note storage are simulated",
+      "http_loopback": "Real HttpServer and http.Client sockets: slow body timeout, explicit cancellation, oversized chunked JSON, closed server",
+      "other_api_tests": "Injected HTTP clients for contract, parsing, time and error cases"
+    }
+  },
+  "dependency_lock": {
+    "file": "portfolio/doca-norte/field/pubspec.lock",
+    "android_artifact_matches_repository": true,
+    "ios_artifact_matches_repository": true,
+    "normalization": "CRLF to LF only",
+    "sha256_normalized_lf": "150993434b0e6e0214c484f643c26f5969b57bf6654f8e66c164fbacfc63ab51"
+  },
+  "not_proven": [
+    "Real fingerprint or Face ID recognition",
+    "Physical operating-system background/foreground transitions",
+    "Privacy in operating-system app-switcher snapshots",
+    "Performance on physical devices",
+    "Distribution signing or app-store readiness"
+  ]
+}

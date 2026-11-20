@@ -1,0 +1,185 @@
+{
+  "suite": "content",
+  "model": null,
+  "cases": 12,
+  "answerable": 8,
+  "unanswerable": 4,
+  "correct_cited_answers": 8,
+  "complete_grounded_answers": 8,
+  "correct_abstentions": 4,
+  "passed": 12,
+  "rows": [
+    {
+      "id": "C01",
+      "query": "Depois que o link principal responde de novo, quem autoriza a volta e por quanto tempo ele precisa ficar estável?",
+      "expected": [
+        "RB-01#s2"
+      ],
+      "selected": "RB-01#s2",
+      "state": "answered",
+      "mode": "extrativo",
+      "source_correct": true,
+      "literal": true,
+      "missing_facts": [],
+      "answer": "Depois que a WAN Ipê volta a responder, mantenha o tráfego na Cedro por dez minutos consecutivos de estabilidade. Se houver nova falha, reinicie essa contagem. Ao fim do período, o plantonista autoriza o retorno à Ipê e anota o horário no chamado.",
+      "pass": true
+    },
+    {
+      "id": "C02",
+      "query": "O balcão precisa de que documento do professor para emprestar um Chromebook e por quanto tempo vale a retirada?",
+      "expected": [
+        "RB-04#s1"
+      ],
+      "selected": "RB-04#s1",
+      "state": "answered",
+      "mode": "extrativo",
+      "source_correct": true,
+      "literal": true,
+      "missing_facts": [],
+      "answer": "Para retirar um Chromebook, o docente apresenta o crachá no balcão de equipamentos. O atendente registra o patrimônio, a turma e o horário previsto de devolução. Cada empréstimo vale por um turno. A renovação depende de disponibilidade e deve ser pedida antes do fim do turno.",
+      "pass": true
+    },
+    {
+      "id": "C03",
+      "query": "Ao pedir a cópia de um arquivo apagado, que duas informações o dono da pasta entrega ao suporte?",
+      "expected": [
+        "RB-07#s1"
+      ],
+      "selected": "RB-07#s1",
+      "state": "answered",
+      "mode": "extrativo",
+      "source_correct": true,
+      "literal": true,
+      "missing_facts": [],
+      "answer": "Para recuperar um arquivo apagado da pasta compartilhada, o dono da pasta informa o caminho e a última data em que o arquivo estava correto. Há uma cópia por noite, conservada por 14 dias corridos. O suporte confirma a autorização do dono antes de recuperar o material.",
+      "pass": true
+    },
+    {
+      "id": "C04",
+      "query": "Se a projeção sem fio da sala sumir, em qual rede confiro o receptor e qual cabo mantém a aula?",
+      "expected": [
+        "RB-03#s2"
+      ],
+      "selected": "RB-03#s2",
+      "state": "answered",
+      "mode": "extrativo",
+      "source_correct": true,
+      "literal": true,
+      "missing_facts": [],
+      "answer": "Para projetar sem fio, o professor e o receptor da sala precisam estar na rede Campus-Docente. Confira na tela inicial do receptor o nome no formato SALA- seguido do número da sala. Se a tela continuar ausente na lista de transmissão, use o cabo HDMI da mesa para a aula e informe o nome do receptor ao suporte audiovisual.",
+      "pass": true
+    },
+    {
+      "id": "C05",
+      "query": "Para fechar um incidente, quem confirma o serviço e qual horário fica no registro?",
+      "expected": [
+        "RB-08#s2"
+      ],
+      "selected": "RB-08#s2",
+      "state": "answered",
+      "mode": "extrativo",
+      "source_correct": true,
+      "literal": true,
+      "missing_facts": [],
+      "answer": "Para encerrar um incidente, obtenha a confirmação de quem utiliza o serviço e registre o horário de normalização. Resuma a causa conhecida, a ação realizada e uma pendência que precise de acompanhamento. Quando a causa permanece em investigação, vincule essa investigação ao chamado antes do fechamento.",
+      "pass": true
+    },
+    {
+      "id": "C06",
+      "query": "Na passagem de plantão, o que o próximo turno precisa saber sobre o impacto e o acompanhamento?",
+      "expected": [
+        "RB-08#s1"
+      ],
+      "selected": "RB-08#s1",
+      "state": "answered",
+      "mode": "extrativo",
+      "source_correct": true,
+      "literal": true,
+      "missing_facts": [],
+      "answer": "Na troca de plantão, cada incidente aberto precisa de quatro informações no quadro de passagem: número do chamado, impacto atual, próxima ação e horário da próxima atualização. Quem assume o turno confirma o recebimento no quadro. A responsabilidade muda no momento desse aceite.",
+      "pass": true
+    },
+    {
+      "id": "C07",
+      "query": "O que faço com o cartucho usado da impressora após a troca e qual identificação anoto?",
+      "expected": [
+        "RB-02#s2"
+      ],
+      "selected": "RB-02#s2",
+      "state": "answered",
+      "mode": "extrativo",
+      "source_correct": true,
+      "literal": true,
+      "missing_facts": [],
+      "answer": "Quando o painel indicar toner em 15% ou menos, abra uma solicitação de suprimento ao almoxarifado. Informe o patrimônio da impressora, o modelo do cartucho e o percentual exibido. Após a troca, registre o lote novo e encaminhe o cartucho usado ao ponto de coleta da secretaria.",
+      "pass": true
+    },
+    {
+      "id": "C08",
+      "query": "No retorno de um Chromebook avariado, onde ele fica e que parte pode ser fotografada?",
+      "expected": [
+        "RB-04#s2"
+      ],
+      "selected": "RB-04#s2",
+      "state": "answered",
+      "mode": "extrativo",
+      "source_correct": true,
+      "literal": true,
+      "missing_facts": [],
+      "answer": "Na devolução de um Chromebook com avaria, marque o ativo como “em inspeção” e retire-o da prateleira de empréstimos. Anote o patrimônio e o defeito observado. Fotografe somente a parte danificada, com a tela apagada. O balcão pode liberar outra unidade após registrar a devolução da primeira.",
+      "pass": true
+    },
+    {
+      "id": "C09",
+      "query": "Qual é a mensalidade para usar a rede Campus-Docente?",
+      "expected": [],
+      "selected": null,
+      "state": "abstained",
+      "mode": "extrativo",
+      "source_correct": false,
+      "literal": false,
+      "missing_facts": [],
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "pass": true
+    },
+    {
+      "id": "C10",
+      "query": "Quanto custa cada cartucho da impressora da secretaria?",
+      "expected": [],
+      "selected": null,
+      "state": "abstained",
+      "mode": "extrativo",
+      "source_correct": false,
+      "literal": false,
+      "missing_facts": [],
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "pass": true
+    },
+    {
+      "id": "C11",
+      "query": "Qual é o nome do fornecedor do Chromebook da escola?",
+      "expected": [],
+      "selected": null,
+      "state": "abstained",
+      "mode": "extrativo",
+      "source_correct": false,
+      "literal": false,
+      "missing_facts": [],
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "pass": true
+    },
+    {
+      "id": "C12",
+      "query": "Onde consigo o cardápio das refeições da cantina?",
+      "expected": [],
+      "selected": null,
+      "state": "abstained",
+      "mode": "extrativo",
+      "source_correct": false,
+      "literal": false,
+      "missing_facts": [],
+      "answer": "Os manuais disponíveis não sustentam uma resposta para esta pergunta.",
+      "pass": true
+    }
+  ]
+}

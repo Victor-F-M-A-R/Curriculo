@@ -38,8 +38,10 @@ class Reader {
 
   record Board(List<Dock> docks, Instant sampledAt, boolean stale) {}
 
+  private record ReadState(Board board, int deniedStatus) {}
+
   private final RestClient client;
-  private volatile Board last;
+  private volatile ReadState state = new ReadState(null, 0);
 
   Reader(@Value("${yard.origin}") String origin, @Value("${yard.reader-token:}") String token) {
     var factory = new SimpleClientHttpRequestFactory();
@@ -61,8 +63,13 @@ class Reader {
         .retrieve()
         .body(Snapshot.class);
       var checked = validate(Instant.now(), sample);
-      if (last == null || !checked.sampledAt().isBefore(last.sampledAt())) last = checked;
+      var previous = state.board();
+      if (previous == null || !checked.sampledAt().isBefore(previous.sampledAt()))
+        state = new ReadState(checked, 0);
     } catch (RestClientException | IllegalArgumentException e) {
+      if (e instanceof HttpClientErrorException denied
+          && (denied.getStatusCode().value() == 401 || denied.getStatusCode().value() == 403))
+        state = new ReadState(null, denied.getStatusCode().value());
       LoggerFactory.getLogger(Reader.class).warn(
         "Pátio indisponível · {}",
         e.getClass().getSimpleName()
@@ -73,7 +80,10 @@ class Reader {
   @GetMapping("/api/field")
   Board board(jakarta.servlet.http.HttpServletResponse response) {
     response.setHeader("Cache-Control", "no-store");
-    return at(Instant.now(), last);
+    var current = state;
+    if (current.deniedStatus() != 0) throw new ResponseStatusException(
+      HttpStatus.valueOf(current.deniedStatus()), "A leitura do pátio não está autorizada.");
+    return at(Instant.now(), current.board());
   }
 
   static Board validate(Instant now, Snapshot sample) {
@@ -96,7 +106,7 @@ class Reader {
   static Board at(Instant now, Board previous) {
     if (
       previous == null || previous.sampledAt() == null || previous.sampledAt().isAfter(now.plusSeconds(5)) ||
-      Duration.between(previous.sampledAt(), now).getSeconds() > 120
+      Duration.between(previous.sampledAt(), now).compareTo(Duration.ofSeconds(120)) > 0
     ) throw new ResponseStatusException(
       HttpStatus.SERVICE_UNAVAILABLE,
       "Sem leitura recente."
@@ -104,7 +114,7 @@ class Reader {
     return new Board(
       previous.docks(),
       previous.sampledAt(),
-      Duration.between(previous.sampledAt(), now).getSeconds() > 12
+      Duration.between(previous.sampledAt(), now).compareTo(Duration.ofSeconds(12)) > 0
     );
   }
 }

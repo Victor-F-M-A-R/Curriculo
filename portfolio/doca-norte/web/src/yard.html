@@ -23,7 +23,7 @@
         <span class="quality" [attr.data-state]="freshness()" role="status" aria-label="Qualidade da leitura">
           {{qualityLabels[freshness()]}}
         </span>
-        <button type="button" class="refresh" (click)="refresh()" [disabled]="reading() || busy()">Atualizar leitura</button>
+        <button type="button" class="refresh" (click)="refresh()" [disabled]="reading() || loadingSession() || busy()">Atualizar leitura</button>
       </div>
     </div>
   </section>

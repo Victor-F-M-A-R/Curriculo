@@ -1,0 +1,11 @@
+{
+  "suite": "service-unit-tests",
+  "tests": 44,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 12.268,
+  "sources_sha256": {
+    "coverage.py": "b6f0ea9072db7df26ca15c0acf96a677e2ce5ff471a6f2332249fadd0956115b",
+    "search.py": "fc06e0d6f8e518bdcfdcbc4ecf089a79fc7045078fa5bad63856d3ce387a2095"
+  }
+}

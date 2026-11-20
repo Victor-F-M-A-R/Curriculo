@@ -14,6 +14,7 @@ const fresh = board => ({ ...board, sampledAt: new Date().toISOString() });
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/session", route => route.fulfill({ json: {
     actor: "Operador de teste", canWrite: true, federated: false,
+    authenticated: false,
     csrfHeader: "X-Test-Token", csrf: "fixture",
   } }));
 });

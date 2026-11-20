@@ -26,6 +26,7 @@ class YardPage implements AfterViewInit, OnDestroy {
   readonly error = signal("");
   readonly busy = signal(false);
   readonly reading = signal(false);
+  readonly loadingSession = signal(false);
   readonly labels = statusNames;
   readonly actions = actionNames;
   readonly lastRead = signal<Date | null>(null);
@@ -47,7 +48,9 @@ class YardPage implements AfterViewInit, OnDestroy {
   private model?: ReturnType<typeof mountYard>;
   private retry?: { signature: string; key: string };
   private readNumber = 0;
-  private loadingSession = false;
+  private sessionNumber = 0;
+  private authorizationEpoch = 0;
+  private authorizationDenied = false;
 
   count(status: string) {
     return this.data().docks.filter((d) => d.status === status).length;
@@ -63,29 +66,56 @@ class YardPage implements AfterViewInit, OnDestroy {
     timer(0, pollInterval).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.refresh());
   }
 
-  refresh() {
-    if (this.busy() || this.reading()) return;
-    void this.loadSession();
-    void this.readBoard();
+  async refresh() {
+    if (this.busy() || this.reading() || this.loadingSession()) return;
+    await this.loadSession();
+    if (!this.destroyRef.destroyed && !this.busy() && !this.authorizationDenied) await this.readBoard();
+  }
+
+  private clearAuthorization() {
+    // Invalidate both kinds of request: an earlier successful response must not
+    // restore data or permissions after a later denial has been observed.
+    this.authorizationEpoch++;
+    this.sessionNumber++;
+    this.readNumber++;
+    this.loadingSession.set(false);
+    this.reading.set(false);
+    this.authorizationDenied = true;
+    this.data.set({ docks: [], moves: [] });
+    this.model?.update([], this.selected());
+    this.lastRead.set(null);
+    this.readFailed.set(true);
+    this.carrier = "";
+    this.notice.set("");
   }
 
   private async loadSession() {
-    if (this.loadingSession) return;
-    this.loadingSession = true;
+    if (this.loadingSession()) return;
+    const request = ++this.sessionNumber;
+    const epoch = this.authorizationEpoch;
+    this.loadingSession.set(true);
     try {
       const value = await firstValueFrom(this.api.get<Session>("/api/session", { timeout: 8000 })
         .pipe(takeUntilDestroyed(this.destroyRef)));
       if (!validSession(value)) throw new Error("Sessão inválida");
-      if (this.destroyRef.destroyed) return;
+      if (this.destroyRef.destroyed || request !== this.sessionNumber || epoch !== this.authorizationEpoch) return;
+      const previous = this.session();
+      if (value.federated && !value.authenticated) {
+        this.clearAuthorization();
+      } else {
+        if (previous?.federated && previous.actor !== value.actor) this.clearAuthorization();
+        this.authorizationDenied = false;
+      }
       this.session.set(value);
       this.sessionProblem.set(false);
-    } catch {
-      if (!this.destroyRef.destroyed) {
+    } catch (reason) {
+      if (!this.destroyRef.destroyed && request === this.sessionNumber && epoch === this.authorizationEpoch) {
+        if (reason instanceof HttpErrorResponse && [401, 403].includes(reason.status)) this.clearAuthorization();
         this.session.set(null);
         this.sessionProblem.set(true);
       }
     } finally {
-      this.loadingSession = false;
+      if (request === this.sessionNumber) this.loadingSession.set(false);
     }
   }
 
@@ -99,12 +129,14 @@ class YardPage implements AfterViewInit, OnDestroy {
   }
 
   private async readBoard() {
+    if (this.authorizationDenied) return;
     const request = ++this.readNumber;
+    const epoch = this.authorizationEpoch;
     this.reading.set(true);
     try {
       const value = await firstValueFrom(this.api.get<Snapshot>("/api/yard", { timeout: 8000 })
         .pipe(takeUntilDestroyed(this.destroyRef)));
-      if (request !== this.readNumber || this.destroyRef.destroyed) return;
+      if (request !== this.readNumber || epoch !== this.authorizationEpoch || this.authorizationDenied || this.destroyRef.destroyed) return;
       if (!validSnapshot(value)) throw new Error("Leitura inválida ou antiga");
       this.data.set(value);
       this.model?.update(value.docks, this.selected());
@@ -116,9 +148,7 @@ class YardPage implements AfterViewInit, OnDestroy {
       if (request === this.readNumber && !this.destroyRef.destroyed) {
         this.readFailed.set(true);
         if (reason instanceof HttpErrorResponse && [401, 403].includes(reason.status)) {
-          this.data.set({ docks: [], moves: [] });
-          this.model?.update([], this.selected());
-          this.lastRead.set(null);
+          this.clearAuthorization();
           this.session.set(null);
           void this.loadSession();
         }
@@ -162,6 +192,7 @@ class YardPage implements AfterViewInit, OnDestroy {
       const failure = reason as HttpErrorResponse;
       this.error.set(failure.error?.detail || "Não foi possível confirmar o movimento. Confira a última leitura antes de tentar novamente.");
       if ([401, 403].includes(failure.status)) {
+        this.clearAuthorization();
         this.session.set(null);
         await this.loadSession();
       }
