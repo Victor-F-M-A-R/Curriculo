@@ -17,6 +17,8 @@ Na recepção de uma escola, investiguei travamentos testando atualizações, re
 
 ## Portfólio
 
+**Em destaque · [Farol + WebMCP](portfolio/farol/docs/webmcp.md):** como oferecer funções de uma aplicação existente a agentes de IA sem perder a sessão do usuário, a origem das respostas e a aprovação para gravar. Protótipo React/TypeScript + FastAPI com polyfill oficial, testes de integração e demonstração sem chave de modelo ou GPU.
+
 Os projetos usam **dados fictícios** e têm implementação assistida por IA. Cada caso apresenta o problema, as decisões de engenharia, o código, a demonstração e os limites da validação.
 
 Revisão de 20/11/2026: cenários de falha, recuperação e limites documentados nas [evidências de execução](portfolio/docs/verificacao.md).

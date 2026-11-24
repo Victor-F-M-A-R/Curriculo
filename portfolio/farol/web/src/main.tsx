@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { EvidenceResult, HighlightedPassage, type Run } from "./EvidenceResult";
 import "./style.css";
+import { WebMCPPanel } from './WebMCPPanel';
 
 type Section = { id: string; heading: string; text: string };
 type Manual = {
@@ -196,6 +197,10 @@ function App() {
         </div>
       </header>
       <main id="content" aria-busy={busy}>
+        {ready && <WebMCPPanel acquire={start} release={finish} onRun={async next => {
+          setRun(next); setQuestion(next.question); setScope(false); setTab('Consulta');
+          await api<Visit[]>('runs').then(setHistory).catch(() => setError('Resposta salva. Use Atualizar histórico.'));
+        }} />}
         {error && (
           <div className="error" role="alert">
             {error} {!ready && <button disabled={busy} onClick={initialize}>Reconectar</button>}

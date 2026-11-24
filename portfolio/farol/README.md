@@ -1,5 +1,9 @@
 # Farol
 
+**Novo protótipo: [Farol + WebMCP — ferramentas para agentes, com fontes e aprovação humana](docs/webmcp.md).** Agentes passam a consultar os mesmos manuais da interface por contratos explícitos, sem depender de seletores da tela. A integração reutiliza a API e o isolamento de sessões; a demonstração roda sem chave de modelo ou GPU.
+
+[Executar a demonstração WebMCP](docs/webmcp.md#executar-em-cerca-de-cinco-minutos) · [Arquitetura e decisões](docs/webmcp.md#arquitetura) · [Testes e evidências](docs/webmcp-validation.md) · [Segurança e limites](docs/webmcp-security.md)
+
 [Ver demonstração](../docs/demonstracoes.md#farol) · [Todos os projetos](../../README.md)
 
 ![Assistente de operações do campus](../docs/media/farol.webp)

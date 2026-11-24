@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-24",
+  "environment": "Windows; Node 24.17.0; Python 3.12.13; Chromium; polyfill 0.2.0",
+  "base_commit": "c3cb7b52f4d2659d3b39b99e17d4b84d3949b4eb",
+  "service_tests_passed": 44,
+  "browser_tests": [
+    {
+      "name": "farol · missing attribute refuses while directory paraphrase preserves both facts",
+      "passed": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "name": "farol · interrupted request unlocks form and preserves a usable session",
+      "passed": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "name": "farol · deadline releases form without silently retrying a mutation",
+      "passed": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "name": "farol · pending question blocks reset and repeated shortcut; history reload works",
+      "passed": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "name": "farol · failed history refresh does not report a saved answer as lost",
+      "passed": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "name": "farol · another browser cannot read or review a private run",
+      "passed": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "name": "real polyfill exposes Tool getters and executes original handles",
+      "passed": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "name": "human rejection sends no write and cannot be bypassed with an approval argument",
+      "passed": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "name": "approved query reuses real API, renders evidence and retrieves exact source",
+      "passed": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "name": "separate browser sessions cannot read or review each other’s run",
+      "passed": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "name": "out-of-scope query abstains; only operator control creates review",
+      "passed": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "name": "invalid arguments, path injection and unknown citations fail closed",
+      "passed": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "name": "same name re-registration cannot revive a stale Tool handle",
+      "passed": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "name": "network failure does not retry a write and leaves session usable",
+      "passed": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "name": "caller cancellation prevents execution and shared lock rejects overlapping requests",
+      "passed": true,
+      "results": [
+        "passed"
+      ]
+    },
+    {
+      "name": "desktop and mobile demo remain readable and keyboard accessible",
+      "passed": true,
+      "results": [
+        "passed"
+      ]
+    }
+  ],
+  "stats": {
+    "startTime": "2026-11-24T16:55:52.418Z",
+    "duration": 15691.29,
+    "expected": 16,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

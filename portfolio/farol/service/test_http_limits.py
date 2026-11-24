@@ -4,6 +4,7 @@ import sqlite3
 import tempfile
 import time
 import unittest
+from contextlib import closing
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
@@ -16,7 +17,9 @@ class HttpLimitsTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, {
             'FAROL_DB': directory + '/locked.db', 'REVIEW_WEBHOOK_URL': '', 'LLM_MODEL': '',
         }), TestClient(app, headers={'X-Farol-Client':'desk'}) as client:
-            with sqlite3.connect(directory + '/locked.db') as blocker:
+            # sqlite3's transaction context does not close its file handle.
+            # Explicit closure also lets Windows remove the temporary database.
+            with closing(sqlite3.connect(directory + '/locked.db')) as blocker:
                 blocker.execute('begin immediate')
                 start = time.monotonic()
                 response = client.post('/api/ask', json={'query':'Onde fica o cabo HDMI de reserva?'})
